@@ -1,0 +1,10 @@
+{
+    "name": "wordplus/video-support-example",
+    "description": "An example of the calls of the WordPlus realtime SDK: customers video-call the shop support agent, and the staff have a room of their own, on the drop-in call screen of the SDK.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4",
+        "wordplus/realtime": "^1.0"
+    }
+}

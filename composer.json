@@ -1,0 +1,32 @@
+{
+    "name": "wordplus/realtime",
+    "description": "The realtime SDK for any WordPress plugin, theme or custom code on WordPlus Cloud: channels, presence and events, calls between two people that ring in the browser, group calls, and a drop-in call screen, on the connection a page shares with WordPlus's own plugins.",
+    "keywords": [ "wordpress", "realtime", "websocket", "channels", "presence", "webrtc", "video calls", "group calls" ],
+    "type": "library",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://docs.wordplus.cloud/wordpress/getting-started/",
+    "authors": [
+        { "name": "WordPlus", "homepage": "https://www.wordplus.cloud" }
+    ],
+    "support": {
+        "docs": "https://docs.wordplus.cloud/wordpress/",
+        "source": "https://github.com/wordplus-cloud/realtime-wordpress"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "files": [ "realtime.php" ]
+    },
+    "scripts": {
+        "test": "phpunit",
+        "connector": "node scripts/connector.mjs",
+        "skill": "node scripts/skill.mjs"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

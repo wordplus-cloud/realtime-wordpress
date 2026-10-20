@@ -1,0 +1,72 @@
+{
+  "name": "@wordplus/realtime-client",
+  "version": "1.0.16",
+  "description": "How every WordPlus product's browser code connects to the realtime server: one connection per browser shared by every product (its connector and SharedWorker), direct connections to its nodes, moves when a node drains, and the node cache they share; channels() for any plugin's channels, presence and events on it, sealed end to end; the call engine every product runs (./calls); and Easy Stream's live stream engine (./streams)",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./calls": {
+      "types": "./dist/calls/index.d.ts",
+      "import": "./dist/calls/index.js"
+    },
+    "./keys": {
+      "types": "./dist/keys.d.ts",
+      "import": "./dist/keys.js"
+    },
+    "./streams": {
+      "types": "./dist/streams/index.d.ts",
+      "import": "./dist/streams/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/calls",
+    "src/streams",
+    "php",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "peerDependencies": {
+    "@wordplus/rtc-client": "^1.0.1",
+    "socket.io-client": "^4.7.0"
+  },
+  "peerDependenciesMeta": {
+    "@wordplus/rtc-client": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json && node build-worker.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run --silent build && vitest run",
+    "pack": "npm run build && npm pack",
+    "hooks": "git config core.hooksPath .githooks"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "21.1.0",
+    "@rollup/plugin-node-resolve": "13.3.0",
+    "@wordplus/rtc-client": "file:vendor/wordplus-rtc-client-1.0.13.tgz",
+    "rollup": "2.74.1",
+    "socket.io-client": "4.8.4",
+    "terser": "5.44.0",
+    "typescript": "5.9.2",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  },
+  "overrides": {
+    "socket.io-parser": "4.2.4"
+  },
+  "dependencies": {
+    "@noble/ciphers": "2.4.0"
+  },
+  "bundleDependencies": [
+    "@noble/ciphers"
+  ]
+}

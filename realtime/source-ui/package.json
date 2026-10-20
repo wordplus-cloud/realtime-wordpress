@@ -1,0 +1,126 @@
+{
+  "name": "@wordplus/realtime-ui",
+  "version": "1.0.1",
+  "description": "Better Messages' screens for apps on WordPlus Cloud's realtime SDK (@wordplus/realtime): the call screen with its ring, group video and audio grids and call dock, who is online, typing, and the chat. React components in your app's own tree, or custom elements for any page. Optional: an app uses them or draws its own.",
+  "license": "MIT",
+  "homepage": "https://docs.wordplus.cloud/apps/react/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wordplus-cloud/realtime-ui.git"
+  },
+  "bugs": {
+    "url": "https://www.wordplus.cloud/contact"
+  },
+  "keywords": [
+    "realtime",
+    "react",
+    "call screen",
+    "video calls",
+    "group calls",
+    "presence",
+    "chat",
+    "ui components",
+    "wordplus"
+  ],
+  "author": "WordPlus",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./calls": {
+      "types": "./dist/types/calls.d.ts",
+      "import": "./dist/calls.js"
+    },
+    "./react": {
+      "types": "./dist/types/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./elements": {
+      "types": "./dist/types/elements.d.ts",
+      "import": "./dist/elements.js"
+    },
+    "./testing": {
+      "types": "./dist/types/testing.d.ts",
+      "import": "./dist/testing.js"
+    },
+    "./streams": {
+      "types": "./dist/types/streams.d.ts",
+      "import": "./dist/streams.js"
+    },
+    "./streams/source": "./src/streams.ts",
+    "./calls.css": "./dist/calls.css",
+    "./presence.css": "./dist/presence.css",
+    "./chat.css": "./dist/chat.css",
+    "./streams.css": "./dist/streams.css",
+    "./styles/*": "./styles/*",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "realtime-ui": "./bin/realtime-ui.mjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "preview",
+    "src",
+    "styles",
+    "README.md"
+  ],
+  "sideEffects": [
+    "*.css",
+    "./dist/elements.js"
+  ],
+  "peerDependencies": {
+    "@wordplus/realtime-client": "^1.0.0",
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@wordplus/realtime-client": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "compare-versions": "^6.1.1",
+    "filesize": "^10.0.12",
+    "html-entities": "^2.4.0",
+    "html-react-parser": "^5.1.12",
+    "react-merge-refs": "^2.0.1",
+    "rxjs": "^7.8.1",
+    "string-strip-html": "^10.0.0",
+    "ua-parser-js": "^1.0.38"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run --silent build && vitest run && node scripts/languages.mjs --check",
+    "pack": "npm run build && npm pack",
+    "prepublishOnly": "node scripts/public-types.mjs",
+    "gallery": "npm run --silent build && node gallery/build.mjs && playwright test -c gallery/playwright.config.ts",
+    "gallery:update": "npm run --silent build && node gallery/build.mjs && playwright test -c gallery/playwright.config.ts --update-snapshots",
+    "client": "node scripts/client.mjs",
+    "propagate": "node scripts/propagate.mjs",
+    "hooks": "git config core.hooksPath .githooks"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/react": "16.3.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@types/ua-parser-js": "0.7.39",
+    "@wordplus/realtime-client": "file:vendor/realtime-client",
+    "esbuild": "0.28.2",
+    "happy-dom": "20.0.10",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sass": "1.93.2",
+    "typescript": "5.9.2",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  }
+}

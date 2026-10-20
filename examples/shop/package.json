@@ -1,0 +1,11 @@
+{
+  "name": "wordplus-realtime-wordpress-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild shop/shop.js --bundle --format=esm --target=es2022 --alias:@wordplus/realtime=./wordpress.js --outfile=assets/shop.js && cp shop/shop.css assets/shop.css && cp -R shop/avatars shop/products assets/"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

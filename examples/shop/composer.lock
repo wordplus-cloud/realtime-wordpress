@@ -1,0 +1,84 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "4b8f6c9c4cffdbfc1a97e0eada129bf2",
+    "packages": [
+        {
+            "name": "wordplus/realtime",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../..",
+                "reference": "4249e5c42122ebf60a077e8c9cc9f21eeed59747"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "realtime.php"
+                ]
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "connector": [
+                    "node scripts/connector.mjs"
+                ],
+                "skill": [
+                    "node scripts/skill.mjs"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "WordPlus",
+                    "homepage": "https://www.wordplus.cloud"
+                }
+            ],
+            "description": "The realtime SDK for any WordPress plugin, theme or custom code on WordPlus Cloud: channels, presence and events, calls between two people that ring in the browser, group calls, and a drop-in call screen, on the connection a page shares with WordPlus's own plugins.",
+            "homepage": "https://docs.wordplus.cloud/wordpress/getting-started/",
+            "keywords": [
+                "channels",
+                "group calls",
+                "presence",
+                "realtime",
+                "video calls",
+                "webrtc",
+                "websocket",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://docs.wordplus.cloud/wordpress/",
+                "source": "https://github.com/wordplus-cloud/realtime-wordpress"
+            },
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "wordplus/realtime": 20
+    },
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=7.4"
+    },
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}

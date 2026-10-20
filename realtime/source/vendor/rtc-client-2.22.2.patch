@@ -1,0 +1,4292 @@
+diff --git a/NOTICE b/NOTICE
+index 31a7991..2d110a2 100644
+--- a/NOTICE
++++ b/NOTICE
+@@ -11,3 +11,12 @@ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
++
++---
++
++WordPlus RTC client (@wordplus/rtc-client) is a modified version of the work
++above (client-sdk-js 2.22.2), changed by WordPlus in 2026 under the same
++License. The changes: the package's name and files, its log and error names
++and messages, failover between the servers of a mesh, joins that wait for a
++free place, and a leave that says whether the client will join again. The
++files it changed are listed in the patch it is built with.
+diff --git a/package.json b/package.json
+index b9c8f3a..c068f27 100644
+--- a/package.json
++++ b/package.json
+@@ -1,35 +1,37 @@
+ {
+-  "name": "livekit-client",
++  "name": "@wordplus/rtc-client",
+   "version": "2.22.2",
+-  "description": "JavaScript/TypeScript client SDK for LiveKit",
+-  "main": "./dist/livekit-client.umd.js",
+-  "unpkg": "./dist/livekit-client.umd.js",
+-  "module": "./dist/livekit-client.esm.mjs",
++  "description": "WordPlus RTC client: the browser client of WordPlus Mesh, a modified version of an Apache-2.0 client SDK (NOTICE)",
++  "main": "./dist/rtc-client.umd.js",
++  "unpkg": "./dist/rtc-client.umd.js",
++  "module": "./dist/rtc-client.esm.mjs",
+   "exports": {
+     ".": {
+       "types": "./dist/src/index.d.ts",
+-      "import": "./dist/livekit-client.esm.mjs",
+-      "require": "./dist/livekit-client.umd.js"
++      "import": "./dist/rtc-client.esm.mjs",
++      "require": "./dist/rtc-client.umd.js"
+     },
+     "./e2ee-worker": {
+       "types": "./dist/src/e2ee/worker/e2ee.worker.d.ts",
+-      "import": "./dist/livekit-client.e2ee.worker.mjs",
+-      "require": "./dist/livekit-client.e2ee.worker.js"
++      "import": "./dist/rtc-client.e2ee.worker.mjs",
++      "require": "./dist/rtc-client.e2ee.worker.js"
+     },
+     "./packet-trailer-worker": {
+       "types": "./dist/src/frameMetadata/worker/frameMetadata.worker.d.ts",
+-      "import": "./dist/livekit-client.fm.worker.mjs",
+-      "require": "./dist/livekit-client.fm.worker.js"
++      "import": "./dist/rtc-client.fm.worker.mjs",
++      "require": "./dist/rtc-client.fm.worker.js"
+     },
+     "./frame-metadata-worker": {
+       "types": "./dist/src/frameMetadata/worker/frameMetadata.worker.d.ts",
+-      "import": "./dist/livekit-client.fm.worker.mjs",
+-      "require": "./dist/livekit-client.fm.worker.js"
++      "import": "./dist/rtc-client.fm.worker.mjs",
++      "require": "./dist/rtc-client.fm.worker.js"
+     }
+   },
+   "files": [
+     "dist",
+-    "src"
++    "src",
++    "NOTICE",
++    "THIRD-PARTY-NOTICES.txt"
+   ],
+   "types": "dist/src/index.d.ts",
+   "typesVersions": {
+@@ -45,8 +47,7 @@
+       ]
+     }
+   },
+-  "repository": "git@github.com:livekit/client-sdk-js.git",
+-  "author": "LiveKit <hello@livekit.io>",
++  "author": "WordPlus",
+   "license": "Apache-2.0",
+   "scripts": {
+     "build": "rollup --config --bundleConfigAsCjs && rollup --config rollup.config.worker.js --bundleConfigAsCjs && rollup --config rollup.config.fm-worker.js --bundleConfigAsCjs && pnpm downlevel-dts",
+@@ -68,7 +69,7 @@
+     "type:check": "tsc --noEmit",
+     "ci:publish": "pnpm type:check && pnpm build && pnpm compat && changeset publish",
+     "downlevel-dts": "downlevel-dts ./dist/src ./dist/ts4.2 --to=4.2",
+-    "compat": "eslint --config ./eslint.config.dist.mjs --no-inline-config  ./dist/livekit-client.esm.mjs",
++    "compat": "eslint --config ./eslint.config.dist.mjs --no-inline-config  ./dist/rtc-client.esm.mjs",
+     "size-limit": "size-limit"
+   },
+   "dependencies": {
+diff --git a/rollup.config.fm-worker.js b/rollup.config.fm-worker.js
+index 37e2c75..2e3d86d 100644
+--- a/rollup.config.fm-worker.js
++++ b/rollup.config.fm-worker.js
+@@ -1,25 +1,24 @@
+ import terser from '@rollup/plugin-terser';
+ import typescript from 'rollup-plugin-typescript2';
+-import packageJson from './package.json';
+-import { commonPlugins, kebabCaseToPascalCase } from './rollup.config';
++import { bundleName, commonPlugins, globalName, listModules } from './rollup.config';
+ 
+ export default {
+   input: 'src/frameMetadata/worker/frameMetadata.worker.ts',
+   output: [
+     {
+-      file: `dist/${packageJson.name}.fm.worker.mjs`,
++      file: `dist/${bundleName}.fm.worker.mjs`,
+       format: 'es',
+       strict: true,
+       sourcemap: true,
+     },
+     {
+-      file: `dist/${packageJson.name}.fm.worker.js`,
++      file: `dist/${bundleName}.fm.worker.js`,
+       format: 'umd',
+       strict: true,
+       sourcemap: true,
+-      name: kebabCaseToPascalCase(packageJson.name) + '.fm.worker',
++      name: globalName + '.fm.worker',
+       plugins: [terser()],
+     },
+   ],
+-  plugins: [typescript({ tsconfig: './src/frameMetadata/worker/tsconfig.json' }), ...commonPlugins],
++  plugins: [typescript({ tsconfig: './src/frameMetadata/worker/tsconfig.json' }), ...commonPlugins, listModules(bundleName + '.fm.worker')],
+ };
+diff --git a/rollup.config.js b/rollup.config.js
+index e7c9e6a..660e071 100644
+--- a/rollup.config.js
++++ b/rollup.config.js
+@@ -1,11 +1,41 @@
+ // @ts-check
++import fs from 'fs';
+ import { babel } from '@rollup/plugin-babel';
+ import commonjs from '@rollup/plugin-commonjs';
+ import json from '@rollup/plugin-json';
+ import { nodeResolve } from '@rollup/plugin-node-resolve';
+ import terser from '@rollup/plugin-terser';
+ import typescript from 'rollup-plugin-typescript2';
+-import packageJson from './package.json';
++// The files' base and the UMD global, WordPlus RTC client's own: the package's scoped name would put a folder in the path.
++export const bundleName = 'rtc-client';
++export const globalName = 'WordPlusRTC';
++
++/**
++ * WordPlus RTC client: the packages a bundle is made of, as their paths under node_modules, into
++ * .bundle-modules/<name>.json (not in the package). The build turns them into THIRD-PARTY-NOTICES.txt,
++ * so every bundled package's licence goes with what ships it.
++ * @param {string} name
++ * @returns {import('rollup').Plugin}
++ */
++export function listModules(name) {
++  return {
++    name: 'list-modules',
++    generateBundle(_, bundle) {
++      // the modules whose code the output carries: a module tree-shaking emptied has nothing of its package in it
++      const ids = Object.values(bundle)
++        .flatMap((c) => (c.type === 'chunk' ? Object.entries(c.modules) : []))
++        .filter(([, m]) => m.renderedLength > 0)
++        .map(([id]) => id.replace(/\0/g, '').split('?')[0]);
++      const mods = ids
++        .filter((id) => id.includes('/node_modules/'))
++        .map((id) => id.slice(id.indexOf('/node_modules/') + '/node_modules/'.length));
++      // Babel's helpers, inlined from a module of its own with no path (babelHelpers: 'bundled'), are @babel/helpers' code
++      if (ids.some((id) => id.includes('BabelHelpers'))) mods.push('@babel/helpers/');
++      fs.mkdirSync('.bundle-modules', { recursive: true });
++      fs.writeFileSync(`.bundle-modules/${name}.json`, JSON.stringify([...new Set(mods)].sort(), null, 1));
++    },
++  };
++}
+ 
+ export function kebabCaseToPascalCase(string = '') {
+   return string.replace(/(^\w|-\w)/g, (replaceString) =>
+@@ -36,22 +66,22 @@ export default {
+   input: 'src/index.ts',
+   output: [
+     {
+-      file: `dist/${packageJson.name}.esm.mjs`,
++      file: `dist/${bundleName}.esm.mjs`,
+       format: 'es',
+       strict: true,
+       sourcemap: true,
+       compact: true,
+     },
+     {
+-      file: `dist/${packageJson.name}.umd.js`,
++      file: `dist/${bundleName}.umd.js`,
+       format: 'umd',
+       strict: true,
+       sourcemap: true,
+-      name: kebabCaseToPascalCase(packageJson.name),
++      name: globalName,
+       // mangle.safari10: avoid catch/finally identifier reuse that React Native 
+       // Hermes mis-resolves after catch return (client-sdk-js#1952).
+       plugins: [terser({ mangle: { safari10: true } })],
+     },
+   ],
+-  plugins: [typescript({ tsconfig: './tsconfig.json' }), ...commonPlugins],
++  plugins: [typescript({ tsconfig: './tsconfig.json' }), ...commonPlugins, listModules(bundleName)],
+ };
+diff --git a/rollup.config.worker.js b/rollup.config.worker.js
+index 14115d7..1e29886 100644
+--- a/rollup.config.worker.js
++++ b/rollup.config.worker.js
+@@ -1,25 +1,24 @@
+ import terser from '@rollup/plugin-terser';
+ import typescript from 'rollup-plugin-typescript2';
+-import packageJson from './package.json';
+-import { commonPlugins, kebabCaseToPascalCase } from './rollup.config';
++import { bundleName, commonPlugins, globalName, listModules } from './rollup.config';
+ 
+ export default {
+   input: 'src/e2ee/worker/e2ee.worker.ts',
+   output: [
+     {
+-      file: `dist/${packageJson.name}.e2ee.worker.mjs`,
++      file: `dist/${bundleName}.e2ee.worker.mjs`,
+       format: 'es',
+       strict: true,
+       sourcemap: true,
+     },
+     {
+-      file: `dist/${packageJson.name}.e2ee.worker.js`,
++      file: `dist/${bundleName}.e2ee.worker.js`,
+       format: 'umd',
+       strict: true,
+       sourcemap: true,
+-      name: kebabCaseToPascalCase(packageJson.name) + '.e2ee.worker',
++      name: globalName + '.e2ee.worker',
+       plugins: [terser()],
+     },
+   ],
+-  plugins: [typescript({ tsconfig: './src/e2ee/worker/tsconfig.json' }), ...commonPlugins],
++  plugins: [typescript({ tsconfig: './src/e2ee/worker/tsconfig.json' }), ...commonPlugins, listModules(bundleName + '.e2ee.worker')],
+ };
+diff --git a/src/api/SignalClient.test.ts b/src/api/SignalClient.test.ts
+index 8a4c71e..79730df 100644
+--- a/src/api/SignalClient.test.ts
++++ b/src/api/SignalClient.test.ts
+@@ -4,15 +4,19 @@ import {
+   JoinRequest,
+   JoinResponse,
+   LeaveRequest,
++  LeaveRequest_Action,
+   ReconnectResponse,
+   SignalRequest,
+   SignalResponse,
++  SubscribedAudioCodec,
++  SubscribedAudioCodecUpdate,
+   WrappedJoinRequest,
+   WrappedJoinRequest_Compression,
+ } from '@livekit/protocol';
+-import { beforeEach, describe, expect, it, vi } from 'vitest';
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+ import { ConnectionError, ConnectionErrorReason } from '../room/errors';
+ import CriticalTimers from '../room/timers';
++import { forgetHardwareDecoders } from '../utils/hardwareDecoders';
+ import { SignalClient, SignalConnectionState } from './SignalClient';
+ import type { WebSocketCloseInfo, WebSocketConnection } from './WebSocketStream';
+ import { WebSocketStream } from './WebSocketStream';
+@@ -162,6 +166,109 @@ describe('SignalClient.connect', () => {
+       expect(signalClient.currentState).toBe(SignalConnectionState.CONNECTED);
+     });
+ 
++    it('WordPlus Mesh: says on every join that it walks and waits (mesh_client)', async () => {
++      for (const useV0Path of [false, true]) {
++        const joinResponse = createJoinResponse();
++        const mockConnection = createMockConnection(
++          createMockReadableStream([createSignalResponse('join', joinResponse)]),
++        );
++        let capturedUrl = '';
++        mockWebSocketStream({
++          connection: mockConnection,
++          onUrl: (url) => {
++            capturedUrl = url;
++          },
++        });
++        await new SignalClient(false).join(
++          'wss://n-de.rtc.wordplus.cloud/?mesh_wait=1',
++          'test-token',
++          defaultOptions,
++          undefined,
++          useV0Path,
++        );
++        const params = new URL(capturedUrl).searchParams;
++        expect(params.get('mesh_client')).toBe('1');
++        expect(params.get('mesh_wait')).toBe('1');
++      }
++    });
++
++    it('WordPlus Mesh: names on a join the codecs it decodes in hardware (mesh_hwdec), none when it cannot tell', async () => {
++      const join = async (useV0Path: boolean, server = 'wss://n-de.rtc.wordplus.cloud') => {
++        const mockConnection = createMockConnection(
++          createMockReadableStream([createSignalResponse('join', createJoinResponse())]),
++        );
++        let capturedUrl = '';
++        mockWebSocketStream({
++          connection: mockConnection,
++          onUrl: (url) => {
++            capturedUrl = url;
++          },
++        });
++        await new SignalClient(false).join(
++          server,
++          'test-token',
++          defaultOptions,
++          undefined,
++          useV0Path,
++        );
++        return new URL(capturedUrl).searchParams;
++      };
++      const decodingInfo = vi.fn(async (config: { video: { contentType: string } }) => ({
++        supported: true,
++        powerEfficient: /H26[45]|VP9/.test(config.video.contentType),
++      }));
++      vi.stubGlobal(
++        'navigator',
++        Object.assign(Object.create(navigator), { mediaCapabilities: { decodingInfo } }),
++      );
++      forgetHardwareDecoders();
++      try {
++        for (const useV0Path of [false, true]) {
++          expect((await join(useV0Path)).get('mesh_hwdec')).toBe('h264,h265,vp9');
++        }
++        // asked once a page
++        expect(decodingInfo).toHaveBeenCalledTimes(5);
++        // a server that isn't the mesh's is told nothing
++        expect((await join(false, 'wss://livekit.example.com')).has('mesh_hwdec')).toBe(false);
++
++        vi.stubGlobal(
++          'navigator',
++          Object.assign(Object.create(navigator), { mediaCapabilities: undefined }),
++        );
++        forgetHardwareDecoders();
++        expect((await join(false)).has('mesh_hwdec')).toBe(false);
++      } finally {
++        vi.unstubAllGlobals();
++        forgetHardwareDecoders();
++      }
++    });
++
++    it("WordPlus Mesh: names on a join, either path, the client's own version and the room's product", async () => {
++      const { rtcClientVersion } = await import('../version');
++      for (const useV0Path of [false, true]) {
++        const mockConnection = createMockConnection(
++          createMockReadableStream([createSignalResponse('join', createJoinResponse())]),
++        );
++        let capturedUrl = '';
++        mockWebSocketStream({
++          connection: mockConnection,
++          onUrl: (url) => {
++            capturedUrl = url;
++          },
++        });
++        await new SignalClient(false).join(
++          'wss://n-de.rtc.wordplus.cloud',
++          'test-token',
++          { ...defaultOptions, meshApp: 'better-messages/3.1.3' },
++          undefined,
++          useV0Path,
++        );
++        const params = new URL(capturedUrl).searchParams;
++        expect(params.get('rtc_client')).toBe(rtcClientVersion);
++        expect(params.get('rtc_app')).toBe('better-messages/3.1.3');
++      }
++    });
++
+     it('does not advertise packet trailer capability by default', async () => {
+       const joinResponse = createJoinResponse();
+       const signalResponse = createSignalResponse('join', joinResponse);
+@@ -862,6 +969,70 @@ describe('SignalClient utility functions', () => {
+       expect(protoDesc.sdp).toBe('v=0\r\n');
+     });
+   });
++
++  describe('WordPlus Mesh: setMeshParams', () => {
++    it("tells a node the client's own version, its product, the device and the network's quality", async () => {
++      const { setMeshParams } = await import('./SignalClient');
++      const { rtcClientVersion } = await import('../version');
++      vi.stubGlobal('navigator', {
++        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) Mobile/15E148',
++        maxTouchPoints: 5,
++        connection: { effectiveType: '4g', downlink: 10, rtt: 50, type: 'cellular' },
++      });
++      const params = new URLSearchParams();
++      setMeshParams(params, ['h264'], 'better-messages/3.1.3', ['h265']);
++      expect(Object.fromEntries(params)).toEqual({
++        mesh_client: '1',
++        mesh_hwdec: 'h264',
++        rtc_client: rtcClientVersion,
++        mesh_caps: 'audio-pause,codec-policy',
++        mesh_hwenc: 'h265',
++        rtc_app: 'better-messages/3.1.3',
++        device_type: 'phone',
++        net_quality: '4g,10,50',
++        network: 'cellular',
++      });
++      vi.unstubAllGlobals();
++    });
++
++    it('names no product for a room that gives none, and says nothing the browser cannot tell', async () => {
++      const { setMeshParams } = await import('./SignalClient');
++      vi.stubGlobal('navigator', { userAgent: '' });
++      const params = new URLSearchParams();
++      setMeshParams(params);
++      expect([...params.keys()]).toEqual(['mesh_client', 'rtc_client', 'mesh_caps']);
++      vi.unstubAllGlobals();
++    });
++
++    it('hands on whether anyone hears a local audio track (1.0.7)', () => {
++      const client = new SignalClient(false);
++      const updates: SubscribedAudioCodecUpdate[] = [];
++      client.onSubscribedAudioCodecUpdate = (u) => updates.push(u);
++      const update = new SubscribedAudioCodecUpdate({
++        trackSid: 'TR_mic',
++        subscribedAudioCodecs: [new SubscribedAudioCodec({ codec: 'opus', enabled: false })],
++      });
++      // @ts-ignore private
++      client.handleSignalResponse(
++        new SignalResponse({ message: { case: 'subscribedAudioCodecUpdate', value: update } }),
++      );
++      expect(updates).toEqual([update]);
++    });
++  });
++
++  describe('WordPlus Mesh: resumeWaitMs', () => {
++    it('waits four round trips, 5 s at least and the connect timeout at most', async () => {
++      const { resumeWaitMs } = await import('./SignalClient');
++
++      expect(resumeWaitMs(0, 15_000)).toBe(5_000);
++      expect(resumeWaitMs(300, 15_000)).toBe(5_000);
++      // a phone whose round trip had grown to 2 s behind a full queue
++      expect(resumeWaitMs(2_000, 15_000)).toBe(8_000);
++      expect(resumeWaitMs(10_000, 15_000)).toBe(15_000);
++      expect(resumeWaitMs(-1, 15_000)).toBe(5_000);
++      expect(resumeWaitMs(300, 3_000)).toBe(3_000);
++    });
++  });
+ });
+ 
+ describe('SignalClient.handleSignalConnected', () => {
+@@ -1106,6 +1277,59 @@ describe('SignalClient.handleConnectionError', () => {
+     }
+   });
+ 
++  it('WordPlus Mesh: a 429 is a full cluster, with its Retry-After', async () => {
++    (global.fetch as any).mockResolvedValueOnce({
++      status: 429,
++      statusText: 'Too Many Requests',
++      headers: new Headers({ 'Retry-After': '5' }),
++      text: async () => 'mesh: every node is full, retry shortly',
++    });
++
++    const handleMethod = (signalClient as any).handleConnectionError;
++    const result = await handleMethod.call(
++      signalClient,
++      new Error('Connection failed'),
++      'wss://rtc.wordplus.cloud/rtc/validate',
++    );
++
++    expect(result).toBeInstanceOf(ConnectionError);
++    expect(result.reason).toBe(ConnectionErrorReason.InternalError);
++    expect(result.context).toEqual({
++      status: 429,
++      statusText: 'Too Many Requests',
++      retryAfter: 5_000,
++      refused: undefined,
++      node: undefined,
++    });
++  });
++
++  it('WordPlus Mesh: a 429 names its kind and the node that gave it', async () => {
++    (global.fetch as any).mockResolvedValueOnce({
++      status: 429,
++      statusText: 'Too Many Requests',
++      headers: new Headers({
++        'Retry-After': '1',
++        'X-Mesh-Refused': 'busy',
++        'X-Mesh-Node': 'ND_de1',
++      }),
++      text: async () => 'mesh: every node is full, retry shortly',
++    });
++
++    const handleMethod = (signalClient as any).handleConnectionError;
++    const result = await handleMethod.call(
++      signalClient,
++      new Error('Connection failed'),
++      'wss://rtc.wordplus.cloud/rtc/validate',
++    );
++
++    expect(result.context).toMatchObject({
++      status: 429,
++      retryAfter: 1_000,
++      refused: 'busy',
++      node: 'ND_de1',
++    });
++  });
++
+   it('should return ConnectionError as-is if it is already a ConnectionError', async () => {
+     const connectionError = ConnectionError.internal('Custom error');
+ 
+@@ -1169,3 +1393,84 @@ describe('SignalClient.handleConnectionError', () => {
+     }
+   });
+ });
++
++// WordPlus Mesh: the leave says whether the client goes or joins again at once.
++describe('SignalClient.sendLeave', () => {
++  it('says DISCONNECT for a hang-up and RECONNECT when asked', async () => {
++    const client = new SignalClient(false);
++    const sent = vi.spyOn(client as any, 'sendRequest').mockResolvedValue(undefined);
++
++    await client.sendLeave();
++    await client.sendLeave(LeaveRequest_Action.RECONNECT);
++
++    const leaves = sent.mock.calls.map(([req]) => (req as { value: LeaveRequest }).value);
++    expect(leaves.map((l) => l.action)).toEqual([
++      LeaveRequest_Action.DISCONNECT,
++      LeaveRequest_Action.RECONNECT,
++    ]);
++    expect(leaves.every((l) => l.reason === DisconnectReason.CLIENT_INITIATED)).toBe(true);
++  });
++});
++
++// WordPlus Mesh (rtc-client 1.0.2): a browser holds a background tab's timers and its message handling back (Safari
++// above all), and on the page's return a due ping timeout may run before the messages that came meanwhile are read.
++describe('SignalClient ping timeout after the page was hidden', () => {
++  let client: any;
++  const setHidden = (hidden: boolean) => {
++    Object.defineProperty(document, 'hidden', { configurable: true, get: () => hidden });
++    document.dispatchEvent(new Event('visibilitychange'));
++  };
++
++  beforeEach(() => {
++    vi.useFakeTimers();
++    setHidden(false);
++    client = new SignalClient(false) as any;
++    client.pingTimeoutDuration = 15;
++    client.handleOnClose = vi.fn();
++    client.sendPing = vi.fn(() => Promise.resolve([]));
++  });
++
++  afterEach(() => {
++    vi.useRealTimers();
++    setHidden(false);
++  });
++
++  it('closes when the page stayed visible', () => {
++    client.resetPingTimeout();
++    vi.advanceTimersByTime(15_000);
++    expect(client.handleOnClose).toHaveBeenCalledWith('ping timeout');
++    expect(client.sendPing).not.toHaveBeenCalled();
++  });
++
++  it('pings once more, and a message read meanwhile keeps the connection', () => {
++    client.resetPingTimeout();
++    setHidden(true);
++    setHidden(false);
++    vi.advanceTimersByTime(15_000);
++    expect(client.sendPing).toHaveBeenCalledTimes(1);
++    expect(client.handleOnClose).not.toHaveBeenCalled();
++    client.resetPingTimeout(); // the answer read
++    vi.advanceTimersByTime(3_000);
++    expect(client.handleOnClose).not.toHaveBeenCalled();
++  });
++
++  it('closes after the grace when nothing answers, once', () => {
++    client.resetPingTimeout();
++    setHidden(true);
++    setHidden(false);
++    vi.advanceTimersByTime(15_000);
++    vi.advanceTimersByTime(2_999);
++    expect(client.handleOnClose).not.toHaveBeenCalled();
++    vi.advanceTimersByTime(1);
++    expect(client.handleOnClose).toHaveBeenCalledWith('ping timeout');
++    expect(client.sendPing).toHaveBeenCalledTimes(1);
++  });
++
++  it('a page still hidden when the timeout comes gets the grace too', () => {
++    setHidden(true);
++    client.resetPingTimeout();
++    vi.advanceTimersByTime(15_000);
++    expect(client.sendPing).toHaveBeenCalledTimes(1);
++    expect(client.handleOnClose).not.toHaveBeenCalled();
++  });
++});
+diff --git a/src/api/SignalClient.ts b/src/api/SignalClient.ts
+index 72f58d6..f1ce53b 100644
+--- a/src/api/SignalClient.ts
++++ b/src/api/SignalClient.ts
+@@ -21,6 +21,7 @@ import {
+   PublishDataTrackResponse,
+   ReconnectReason,
+   ReconnectResponse,
++  type RegionSettings,
+   RequestResponse,
+   Room,
+   RoomMovedResponse,
+@@ -31,6 +32,7 @@ import {
+   SimulateScenario,
+   SpeakerInfo,
+   StreamStateUpdate,
++  SubscribedAudioCodecUpdate,
+   SubscribedQualityUpdate,
+   SubscriptionPermission,
+   SubscriptionPermissionUpdate,
+@@ -60,10 +62,23 @@ import { type DataTrackSid } from '../room/data-track/types';
+ import { ConnectionError, ConnectionErrorReason } from '../room/errors';
+ import CriticalTimers from '../room/timers';
+ import type { LoggerOptions } from '../room/types';
+-import { getClientInfo, isCompressionStreamSupported, isReactNative, sleep } from '../room/utils';
++import {
++  deviceType,
++  getClientInfo,
++  isCloud,
++  isCompressionStreamSupported,
++  isMeshServer,
++  isReactNative,
++  networkQuality,
++  networkType,
++  retryAfterMs,
++  sleep,
++} from '../room/utils';
+ import type { NonSharedUint8Array } from '../type-polyfills/non-shared-typed-arrays';
+ import { AsyncQueue } from '../utils/AsyncQueue';
++import { hardwareDecoders, hardwareEncoders } from '../utils/hardwareDecoders';
+ import { announceMachine } from '../utils/machineInspector';
++import { rtcClientVersion } from '../version';
+ import {
+   type SignalLifecycleState,
+   type SignalMachine,
+@@ -72,9 +87,13 @@ import {
+ } from './SignalClientStateMachine';
+ import { type WebSocketConnection, WebSocketStream } from './WebSocketStream';
+ import {
++  MESH_ENCODERS_FIELD,
++  type MeshEncoderTrack,
+   createRtcUrl,
+   createValidateUrl,
+   getAbortReasonAsString,
++  lengthDelimited,
++  meshRegions,
+   parseSignalResponse,
+ } from './utils';
+ 
+@@ -86,6 +105,8 @@ interface ConnectOpts extends SignalOptions {
+   reconnectReason?: number;
+   /** internal */
+   sid?: string;
++  /** internal, WordPlus Mesh (1.0.8): the codecs this browser encodes in hardware (mesh_hwenc) */
++  meshHwEncoders?: string[];
+ }
+ 
+ // public options
+@@ -96,6 +117,8 @@ export interface SignalOptions {
+   maxRetries: number;
+   e2eeEnabled: boolean;
+   websocketTimeout: number;
++  /** WordPlus Mesh (1.0.6): the room's product as a join names it (meshAppParam) */
++  meshApp?: string;
+ }
+ 
+ type SignalMessage = SignalRequest['message'];
+@@ -166,6 +189,37 @@ const MAX_WS_CLOSE_TIME = 250;
+  */
+ const JOIN_RESPONSE_TIMEOUT = 5_000;
+ 
++/** WordPlus Mesh: how long (in ms) a resume waits for its server before moving on (reconnect), at least. */
++const resumeTimeoutMs = 5_000;
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.5): how long (in ms) a resume waits for its server: four of the round trips the
++ * connection last measured, at least resumeTimeoutMs and at most the connect's own timeout. A connection whose round
++ * trip had grown to seconds, a phone behind a full queue, took 5 s for a server that is gone and moved on from one
++ * that was up (a large audio chat, 2026-10-17: 2 to 28 s).
++ */
++export function resumeWaitMs(rttMs: number, capMs: number): number {
++  return Math.min(capMs, Math.max(resumeTimeoutMs, 4 * (rttMs > 0 ? rttMs : 0)));
++}
++
++/** WordPlus Mesh: how long (in ms) the validate request after a failed connect may take. */
++const validateTimeoutMs = 3_000;
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.2): how long (in ms) a ping timeout due on a page that was hidden waits for any message
++ * after one more ping before it closes the connection: a round trip across continents and the page's backlog.
++ */
++const pingGraceMs = 3_000;
++
++/** WordPlus Mesh: a server with others to fail over to (isCloud), from a ws or http URL. */
++function isCloudUrl(url: string): boolean {
++  try {
++    return isCloud(new URL(url));
++  } catch {
++    return false;
++  }
++}
++
+ /** @internal */
+ export class SignalClient {
+   requestQueue: AsyncQueue;
+@@ -215,6 +269,9 @@ export class SignalClient {
+ 
+   onSubscribedQualityUpdate?: (update: SubscribedQualityUpdate) => void;
+ 
++  /** WordPlus Mesh (rtc-client 1.0.7): whether anyone hears a local audio track (mesh_caps audio-pause) */
++  onSubscribedAudioCodecUpdate?: (update: SubscribedAudioCodecUpdate) => void;
++
+   onSubscriptionPermissionUpdate?: (update: SubscriptionPermissionUpdate) => void;
+ 
+   onSubscriptionError?: (update: SubscriptionResponse) => void;
+@@ -225,6 +282,9 @@ export class SignalClient {
+ 
+   onLeave?: (leave: LeaveRequest) => void;
+ 
++  /** WordPlus Mesh: the region list the node sent over this connection (meshRegions). */
++  onMeshRegions?: (regions: RegionSettings) => void;
++
+   onRequestResponse?: (response: RequestResponse) => void;
+ 
+   onLocalTrackSubscribed?: (trackSid: string) => void;
+@@ -304,6 +364,14 @@ export class SignalClient {
+ 
+   private pingInterval: ReturnType<typeof setInterval> | undefined;
+ 
++  // rtc-client 1.0.2: the page was hidden since the last message read. A browser holds a background tab's timers and
++  // its message handling back (Safari above all), and on its return a due ping timeout may run before the messages
++  // that came meanwhile are read: it closed a connection that was alive, and the call showed "reconnecting". Such a
++  // timeout pings once more and gives any message pingGraceMs first (pingGrace: it did).
++  private hiddenSinceMessage = false;
++
++  private pingGrace = false;
++
+   private closingLock: Mutex;
+ 
+   private machine: SignalMachine;
+@@ -337,6 +405,13 @@ export class SignalClient {
+         `ignoring signal lifecycle input ${inputName} in state ${this.lifecycleState}`,
+       );
+     });
++    if (typeof document !== 'undefined') {
++      document.addEventListener('visibilitychange', () => {
++        if (document.hidden) {
++          this.hiddenSinceMessage = true;
++        }
++      });
++    }
+     // no-op unless a development tool asked for it; see utils/machineInspector
+     announceMachine('signal', this.machine);
+   }
+@@ -403,6 +478,14 @@ export class SignalClient {
+         token,
+         {
+           ...this.options,
++          // WordPlus Mesh: a server that is up answers a resume in a few round trips, a second at
++          // most across continents. One that is gone holds the attempt for the whole timeout, while
++          // the mesh holds the session elsewhere for only so long: move on to the next server sooner,
++          // after the few round trips this connection takes (resumeWaitMs).
++          // Only where there is a next server to move to (isCloud): elsewhere as upstream.
++          websocketTimeout: isCloudUrl(url)
++            ? resumeWaitMs(this.rtt, this.options.websocketTimeout)
++            : this.options.websocketTimeout,
+           reconnect: true,
+           sid,
+           reconnectReason: reason,
+@@ -436,9 +519,21 @@ export class SignalClient {
+     this.useV0SignalPath = useV0Path;
+ 
+     const clientInfo = getClientInfo(opts.clientInfoCapabilities);
++    // WordPlus Mesh: the codecs this browser decodes in hardware, which a mesh node gives it first, and
++    // (1.0.8) those it encodes in hardware, for its live view; nothing asked or said to any other server
++    const [decoders, encoders] = isMeshServer(url)
++      ? await Promise.all([hardwareDecoders(), hardwareEncoders()])
++      : [undefined, undefined];
++    const meshOpts: ConnectOpts = encoders ? { ...opts, meshHwEncoders: encoders } : opts;
+     const params = useV0Path
+-      ? createConnectionParams(token, clientInfo, opts)
+-      : await createJoinRequestConnectionParams(token, clientInfo, opts, publisherOffer);
++      ? createConnectionParams(token, clientInfo, meshOpts, decoders)
++      : await createJoinRequestConnectionParams(
++          token,
++          clientInfo,
++          meshOpts,
++          publisherOffer,
++          decoders,
++        );
+     const rtcUrl = createRtcUrl(url, params, useV0Path).toString();
+     const validateUrl = createValidateUrl(rtcUrl).toString();
+ 
+@@ -697,6 +792,7 @@ export class SignalClient {
+     this.onOffer = undefined;
+     this.onRemoteMuteChanged = undefined;
+     this.onSubscribedQualityUpdate = undefined;
++    this.onSubscribedAudioCodecUpdate = undefined;
+     this.onTokenRefresh = undefined;
+     this.onTrickle = undefined;
+     this.onClose = undefined;
+@@ -876,13 +972,45 @@ export class SignalClient {
+     });
+   }
+ 
+-  sendLeave() {
++  /**
++   * WordPlus Mesh (1.0.10): the published videos' encoders (room/meshEncoders.ts), in a request with no message of
++   * LiveKit's and the JSON in MESH_ENCODERS_FIELD. Answers whether it went: never over JSON, which has no place for
++   * it, nor while reconnecting (the room tells again once connected).
++   */
++  async sendMeshEncoders(tracks: MeshEncoderTrack[]): Promise<boolean> {
++    if (
++      this.useJSON ||
++      this.isDisconnected ||
++      !this.streamWriter ||
++      this.lifecycleState === 'reconnecting'
++    ) {
++      return false;
++    }
++    const req = new SignalRequest({});
++    const data = lengthDelimited(new TextEncoder().encode(JSON.stringify({ tracks })));
++    // wire type 2, length-delimited
++    req.getType().runtime.bin.onUnknownField(req, MESH_ENCODERS_FIELD, 2, data);
++    try {
++      await this.streamWriter.write((req.toBinary() as NonSharedUint8Array).buffer);
++      return true;
++    } catch (e) {
++      this.log.debug('could not send the encoders', { error: e });
++      return false;
++    }
++  }
++
++  /**
++   * WordPlus Mesh: `action` says whether this client goes (DISCONNECT, a hang-up) or leaves only to
++   * join again at once (RECONNECT: a full reconnect, a join tried again). WordPlus Mesh reads it and
++   * tells the others which it was, so a call screen drops a hung-up participant at once and keeps the
++   * place of one coming back. A stock server ignores the field.
++   */
++  sendLeave(action: LeaveRequest_Action = LeaveRequest_Action.DISCONNECT) {
+     return this.sendRequest({
+       case: 'leave',
+       value: new LeaveRequest({
+         reason: DisconnectReason.CLIENT_INITIATED,
+-        // server doesn't process this field, keeping it here to indicate the intent of a full disconnect
+-        action: LeaveRequest_Action.DISCONNECT,
++        action,
+       }),
+     });
+   }
+@@ -969,6 +1097,13 @@ export class SignalClient {
+   private handleSignalResponse(res: SignalResponse) {
+     const msg = res.message;
+     if (msg == undefined) {
++      // WordPlus Mesh: the node's region list, which LiveKit's protocol has no message for
++      const regions = meshRegions(res);
++      if (regions) {
++        this.log.debug('region list from the server', { regions: regions.regions.length });
++        this.onMeshRegions?.(regions);
++        return;
++      }
+       this.log.debug('received unsupported message');
+       return;
+     }
+@@ -1025,6 +1160,10 @@ export class SignalClient {
+       if (this.onSubscribedQualityUpdate) {
+         this.onSubscribedQualityUpdate(msg.value);
+       }
++    } else if (msg.case === 'subscribedAudioCodecUpdate') {
++      if (this.onSubscribedAudioCodecUpdate) {
++        this.onSubscribedAudioCodecUpdate(msg.value);
++      }
+     } else if (msg.case === 'subscriptionPermissionUpdate') {
+       if (this.onSubscriptionPermissionUpdate) {
+         this.onSubscriptionPermissionUpdate(msg.value);
+@@ -1129,17 +1268,33 @@ export class SignalClient {
+    */
+   private resetPingTimeout() {
+     this.clearPingTimeout();
++    // a message was read (or the interval starts): the page's absence counts from here
++    this.hiddenSinceMessage = typeof document !== 'undefined' && document.hidden;
++    this.pingGrace = false;
+     if (!this.pingTimeoutDuration) {
+       this.log.warn('ping timeout duration not set');
+       return;
+     }
+-    this.pingTimeout = CriticalTimers.setTimeout(() => {
++    const timedOut = () => {
+       this.log.warn(
+         `ping timeout triggered. last pong received at: ${new Date(
+           Date.now() - this.pingTimeoutDuration! * 1000,
+         ).toUTCString()}`,
+       );
+       this.handleOnClose('ping timeout');
++    };
++    this.pingTimeout = CriticalTimers.setTimeout(() => {
++      if (this.hiddenSinceMessage && !this.pingGrace) {
++        this.pingGrace = true;
++        this.log.info(
++          'ping timeout after the page was hidden: pinging once more before closing',
++          this.logContext,
++        );
++        this.sendPing().catch(() => {});
++        this.pingTimeout = CriticalTimers.setTimeout(timedOut, pingGraceMs);
++        return;
++      }
++      timedOut();
+     }, this.pingTimeoutDuration * 1000);
+   }
+ 
+@@ -1282,8 +1437,15 @@ export class SignalClient {
+     reason: unknown,
+     validateUrl: string,
+   ): Promise<ConnectionError> {
++    // WordPlus Mesh: this asks the server that just failed. One that is gone never answers, and the
++    // fetch held the connect's lock meanwhile, so the next attempt, to another server, never started.
++    // Only where there is another server to try (isCloud): elsewhere as upstream.
++    const timeout = new AbortController();
++    const timer = isCloudUrl(validateUrl)
++      ? setTimeout(() => timeout.abort(), validateTimeoutMs)
++      : undefined;
+     try {
+-      const resp = await fetch(validateUrl);
++      const resp = await fetch(validateUrl, { signal: timeout.signal });
+ 
+       switch (resp.status) {
+         case 404:
+@@ -1292,13 +1454,24 @@ export class SignalClient {
+             return ConnectionError.notAllowed(errorMsg, resp.status);
+           }
+           return ConnectionError.serviceNotFound(
+-            'v1 RTC path not found. Consider upgrading your LiveKit server version',
++            'v1 RTC path not found. Consider upgrading the server',
+             'v0-rtc',
+           );
+         case 401:
+         case 403:
+           const msg = await resp.text();
+           return ConnectionError.notAllowed(msg, resp.status);
++        case 429:
++          // WordPlus Mesh: the mesh refused the join. X-Mesh-Refused says whether this node only is
++          // busy (the client tries its list's next server) or a slot is kept for it here (it waits
++          // Retry-After and comes back), X-Mesh-Node which node said so (Room.connect, meshRefusal)
++          return ConnectionError.internal(`server full: ${await resp.text()}`, {
++            status: resp.status,
++            statusText: resp.statusText,
++            retryAfter: retryAfterMs(resp.headers.get('Retry-After')),
++            refused: resp.headers.get('X-Mesh-Refused') ?? undefined,
++            node: resp.headers.get('X-Mesh-Node') ?? undefined,
++          });
+         default:
+           break;
+       }
+@@ -1317,6 +1490,8 @@ export class SignalClient {
+         : ConnectionError.serverUnreachable(
+             e instanceof Error ? e.message : 'server was not reachable',
+           );
++    } finally {
++      clearTimeout(timer);
+     }
+   }
+ }
+@@ -1351,13 +1526,61 @@ export function toProtoSessionDescription(
+   return sd;
+ }
+ 
++/**
++ * WordPlus Mesh: what a mesh node is told of this client on a join, beside upstream's client info:
++ *   - mesh_client: it walks its list when a node is busy and comes back on a slot (Room.connect), so a busy mesh node
++ *     may refuse it; it places any client that doesn't say so;
++ *   - mesh_hwdec: the video codecs it decodes in hardware (hardwareDecoders), none said when it can't tell;
++ *   - rtc_client, rtc_app, device_type, net_quality (1.0.6): its own version, the room's product (meshApp), the
++ *     device kind and the network's quality, for the node's live view;
++ *   - network (1.0.6): the network's type where the browser tells it, which upstream names only on a join without a
++ *     join request (createConnectionParams).
++ *   - mesh_hwenc (1.0.8): the video codecs it encodes in hardware (hardwareEncoders), none said when it can't tell.
++ * All of it goes to any server, as mesh_client always has: a server that isn't the mesh reads none of it.
++ */
++export function setMeshParams(
++  params: URLSearchParams,
++  decoders?: string[],
++  app?: string,
++  encoders?: string[],
++) {
++  params.set('mesh_client', '1');
++  if (decoders) {
++    params.set('mesh_hwdec', decoders.join(','));
++  }
++  if (encoders) {
++    params.set('mesh_hwenc', encoders.join(','));
++  }
++  params.set('rtc_client', rtcClientVersion);
++  // 1.0.7: it stops sending an audio track nobody hears when its node says so (LocalAudioTrack.setMeshHeard);
++  // 1.0.8: its room hands the node's codec policy to the product (Room.meshCodecPolicy)
++  params.set('mesh_caps', 'audio-pause,codec-policy');
++  if (app) {
++    params.set('rtc_app', app);
++  }
++  const device = deviceType();
++  if (device) {
++    params.set('device_type', device);
++  }
++  const quality = networkQuality();
++  if (quality) {
++    params.set('net_quality', quality);
++  }
++  const type = networkType();
++  if (type) {
++    params.set('network', type);
++  }
++}
++
+ function createConnectionParams(
+   token: string,
+   info: ClientInfo,
+   opts: ConnectOpts,
++  decoders?: string[],
+ ): URLSearchParams {
+   const params = new URLSearchParams();
+   params.set('access_token', token);
++  setMeshParams(params, decoders, opts.meshApp, opts.meshHwEncoders);
+ 
+   // opts
+   if (opts.reconnect) {
+@@ -1412,9 +1635,12 @@ async function createJoinRequestConnectionParams(
+   info: ClientInfo,
+   opts: ConnectOpts,
+   publisherOffer?: SessionDescription,
++  decoders?: string[],
+ ): Promise<URLSearchParams> {
+   const params = new URLSearchParams();
+   params.set('access_token', token);
++  // WordPlus Mesh: as createConnectionParams
++  setMeshParams(params, decoders, opts.meshApp, opts.meshHwEncoders);
+ 
+   const joinRequest = new JoinRequest({
+     clientInfo: info,
+diff --git a/src/api/utils.test.ts b/src/api/utils.test.ts
+index eba88b3..64e5e1b 100644
+--- a/src/api/utils.test.ts
++++ b/src/api/utils.test.ts
+@@ -1,5 +1,67 @@
++import { JoinResponse, LeaveRequest, SignalResponse } from '@livekit/protocol';
+ import { describe, expect, it } from 'vitest';
+-import { createRtcUrl, createValidateUrl, getAbortReasonAsString } from './utils';
++import {
++  MESH_CODEC_POLICY_FIELD,
++  MESH_REGIONS_FIELD,
++  createRtcUrl,
++  createValidateUrl,
++  getAbortReasonAsString,
++  meshCodecPolicy,
++  meshRegions,
++  parseSignalResponse,
++} from './utils';
++
++// WordPlus Mesh: a signal response as a mesh node writes one with its region list (Go's protowire:
++// the field's tag, the JSON's length, the JSON), and nothing else
++function meshRegionsBytes(json: string, rest = new Uint8Array()): ArrayBuffer {
++  const body = new TextEncoder().encode(json);
++  const varint = (n: number) => {
++    const out: number[] = [];
++    while (n >= 0x80) {
++      out.push((n & 0x7f) | 0x80);
++      n = Math.floor(n / 128);
++    }
++    out.push(n);
++    return out;
++  };
++  const bytes = new Uint8Array([
++    ...rest,
++    ...varint((MESH_REGIONS_FIELD << 3) | 2),
++    ...varint(body.length),
++    ...body,
++  ]);
++  return bytes.buffer;
++}
++
++describe('meshRegions', () => {
++  const list = {
++    regions: [
++      { region: 'DE1', url: 'wss://n-5c03a.de.rtc.wordplus.cloud', distance: '0', node: 'ND_a' },
++      // over 127 bytes in all, so the length takes two bytes of its varint
++      {
++        region: 'BHS5',
++        url: 'wss://n-txvx7.bhs.rtc.wordplus.cloud',
++        distance: '6000000',
++        node: 'ND_b',
++      },
++    ],
++  };
++
++  it('reads the region list a mesh node sends, from a response no other client knows', () => {
++    const res = parseSignalResponse(meshRegionsBytes(JSON.stringify(list)));
++    expect(res.message.case).toBeUndefined();
++    expect(meshRegions(res)).toEqual(list);
++  });
++
++  it('is nothing for any other response, or a field it can not read', () => {
++    const leave = new SignalResponse({
++      message: { case: 'leave', value: new LeaveRequest({ canReconnect: true }) },
++    });
++    expect(meshRegions(leave)).toBeUndefined();
++    expect(meshRegions(parseSignalResponse(meshRegionsBytes('not json')))).toBeUndefined();
++    expect(meshRegions(parseSignalResponse(meshRegionsBytes('{"other":1}')))).toBeUndefined();
++  });
++});
+ 
+ describe('createRtcUrl', () => {
+   it('should create a basic RTC URL', () => {
+@@ -144,3 +206,52 @@ describe('getAbortReasonAsString', () => {
+     expect(getAbortReasonAsString(undefined, 'fallback')).toBe('fallback');
+   });
+ });
++
++describe('meshCodecPolicy', () => {
++  // a join response as a mesh node writes one: its own fields, then the policy in MESH_CODEC_POLICY_FIELD
++  const joinWith = (json: string) => {
++    const body = new TextEncoder().encode(json);
++    const varint = (n: number) => {
++      const out: number[] = [];
++      while (n >= 0x80) {
++        out.push((n & 0x7f) | 0x80);
++        n = Math.floor(n / 128);
++      }
++      out.push(n);
++      return out;
++    };
++    const own = new JoinResponse({ serverVersion: '1.0.33' }).toBinary();
++    return JoinResponse.fromBinary(
++      new Uint8Array([
++        ...own,
++        ...varint((MESH_CODEC_POLICY_FIELD << 3) | 2),
++        ...varint(body.length),
++        ...body,
++      ]),
++    );
++  };
++
++  it('reads the policy a mesh node sends with its join response', () => {
++    const policy = { camera: ['h265:hw', 'vp9', 'vp8'], screen: ['vp8'], backup: 'vp8' };
++    const join = joinWith(JSON.stringify(policy));
++    expect(join.serverVersion).toBe('1.0.33');
++    expect(meshCodecPolicy(join)).toEqual(policy);
++  });
++
++  it('keeps only lists of short names and a name, and is nothing without a policy', () => {
++    expect(
++      meshCodecPolicy(
++        joinWith(
++          JSON.stringify({
++            camera: ['vp9', 7, 'x'.repeat(40)],
++            screen: 'vp9',
++            backup: { a: 1 },
++            other: 1,
++          }),
++        ),
++      ),
++    ).toEqual({ camera: ['vp9'] });
++    expect(meshCodecPolicy(new JoinResponse({ serverVersion: '1.0.32' }))).toBeUndefined();
++    expect(meshCodecPolicy(joinWith('not json'))).toBeUndefined();
++  });
++});
+diff --git a/src/api/utils.ts b/src/api/utils.ts
+index 94d6662..7d9b047 100644
+--- a/src/api/utils.ts
++++ b/src/api/utils.ts
+@@ -1,4 +1,4 @@
+-import { SignalResponse } from '@livekit/protocol';
++import { JoinResponse, type RegionSettings, SignalResponse } from '@livekit/protocol';
+ import { toHttpUrl, toWebsocketUrl } from '../room/utils';
+ 
+ export function createRtcUrl(url: string, searchParams: URLSearchParams, useV0Path = false) {
+@@ -32,6 +32,142 @@ function appendUrlPath(urlObj: URL, path: string) {
+   return urlObj;
+ }
+ 
++/**
++ * WordPlus Mesh: the signal response field a mesh node sends its region list in, the JSON its
++ * `GET /settings/regions` answers. LiveKit's protocol has no such field, so the response has no
++ * message a client knows, and any other client skips it.
++ */
++export const MESH_REGIONS_FIELD = 100;
++
++/**
++ * WordPlus Mesh (1.0.8): the join response field a mesh node sends its codec policy in (WordPlus Mesh 1.0.33's
++ * mesh.codec_policy), as JSON. LiveKit's JoinResponse has no such field; any other client skips it.
++ */
++export const MESH_CODEC_POLICY_FIELD = 1001;
++
++/**
++ * WordPlus Mesh: a media server's codec policy (Room.meshCodecPolicy): each list the codecs it would have a camera or a
++ * screen go out in, first choice first ("h265:hw" only from hardware), and what goes behind a camera. A preference:
++ * the product takes the first its browser sends (the realtime client's calls/room-publish.ts).
++ */
++export interface MeshCodecPolicy {
++  camera?: string[];
++  screen?: string[];
++  backup?: string;
++}
++
++/**
++ * WordPlus Mesh (1.0.10): the signal request field a client tells a mesh node its published videos' encoders in, as
++ * JSON, in a request with no message of LiveKit's (room/meshEncoders.ts). A node before 1.0.35 handles it as nothing.
++ */
++export const MESH_ENCODERS_FIELD = 1001;
++
++/** One layer of a published video: its rid, the encoder the browser names for it, and whether that is hardware. */
++export interface MeshEncoderLayer {
++  rid: string;
++  encoder?: string;
++  hw?: boolean;
++  /** while it encodes: its frames a second, its height, and what holds it back ("cpu", "bandwidth", "other") */
++  fps?: number;
++  height?: number;
++  limit?: string;
++  /** since the last reading (1.0.11): ms of encoding a frame, key frames made, key frames asked for (PLI, FIR) */
++  encodeMs?: number;
++  keyFrames?: number;
++  plis?: number;
++}
++
++/** One published video's encoders: a codec each sender runs (its own and a sending backup's), layer by layer. */
++export interface MeshEncoderTrack {
++  sid: string;
++  /** captured: the frames a second its source gives the encoder (media-source stats); encoder "" when not named */
++  codecs: { codec: string; encoder: string; layers: MeshEncoderLayer[]; captured?: number }[];
++  /** the mode its capture was opened at (1.0.11): its size and the frames a second asked of the device */
++  mode?: { width: number; height: number; fps?: number };
++}
++
++/** A length-delimited field's data as protobuf-es keeps an unknown field's: its length, a varint, then the bytes. */
++export function lengthDelimited(bytes: Uint8Array): Uint8Array {
++  const head: number[] = [];
++  let n = bytes.length;
++  while (n >= 0x80) {
++    head.push((n & 0x7f) | 0x80);
++    n = Math.floor(n / 128);
++  }
++  head.push(n);
++  const out = new Uint8Array(head.length + bytes.length);
++  out.set(head, 0);
++  out.set(bytes, head.length);
++  return out;
++}
++
++/** The JSON objects a message carries in its unknown length-delimited field no. */
++function unknownJson(message: SignalResponse | JoinResponse, no: number): unknown[] {
++  const found: unknown[] = [];
++  for (const field of message.getType().runtime.bin.listUnknownFields(message)) {
++    if (field.no !== no || field.wireType !== 2) {
++      continue;
++    }
++    // a length-delimited field's data: its length, a varint, then the bytes
++    let length = 0;
++    let at = 0;
++    for (let shift = 0; at < field.data.length && shift < 35; shift += 7) {
++      const b = field.data[at++];
++      length += (b & 0x7f) * 2 ** shift;
++      if (b < 0x80) {
++        break;
++      }
++    }
++    try {
++      found.push(JSON.parse(new TextDecoder().decode(field.data.subarray(at, at + length))));
++    } catch {
++      // not JSON this client reads
++    }
++  }
++  return found;
++}
++
++/** WordPlus Mesh: the region list a signal response carries in MESH_REGIONS_FIELD, if any. */
++export function meshRegions(res: SignalResponse): RegionSettings | undefined {
++  for (const settings of unknownJson(res, MESH_REGIONS_FIELD)) {
++    if (Array.isArray((settings as RegionSettings | null)?.regions)) {
++      return settings as RegionSettings;
++    }
++  }
++  return undefined;
++}
++
++/**
++ * WordPlus Mesh (1.0.8): the codec policy a join response carries in MESH_CODEC_POLICY_FIELD, if any: only lists of
++ * names and a name are kept, so whatever else a server sends can't reach a product's codec choice.
++ */
++export function meshCodecPolicy(join: JoinResponse): MeshCodecPolicy | undefined {
++  for (const raw of unknownJson(join, MESH_CODEC_POLICY_FIELD)) {
++    if (!raw || typeof raw !== 'object') {
++      continue;
++    }
++    const names = (v: unknown) =>
++      Array.isArray(v)
++        ? v.filter((x): x is string => typeof x === 'string' && x.length <= 16).slice(0, 8)
++        : undefined;
++    const r = raw as Record<string, unknown>;
++    const policy: MeshCodecPolicy = {};
++    const camera = names(r.camera);
++    const screen = names(r.screen);
++    if (camera) {
++      policy.camera = camera;
++    }
++    if (screen) {
++      policy.screen = screen;
++    }
++    if (typeof r.backup === 'string' && r.backup.length <= 16) {
++      policy.backup = r.backup;
++    }
++    return policy;
++  }
++  return undefined;
++}
++
+ export function parseSignalResponse(value: ArrayBuffer | string) {
+   if (typeof value === 'string') {
+     return SignalResponse.fromJson(JSON.parse(value), { ignoreUnknownFields: true });
+diff --git a/src/connectionHelper/checks/websocket.ts b/src/connectionHelper/checks/websocket.ts
+index 773fce1..5a7c3e6 100644
+--- a/src/connectionHelper/checks/websocket.ts
++++ b/src/connectionHelper/checks/websocket.ts
+@@ -58,7 +58,7 @@ export class WebSocketCheck extends Checker {
+     if (joinRes) {
+       this.appendMessage(`Connected to server, version ${joinRes.serverVersion}.`);
+       if (joinRes.serverInfo?.edition === ServerInfo_Edition.Cloud && joinRes.serverInfo?.region) {
+-        this.appendMessage(`LiveKit Cloud: ${joinRes.serverInfo?.region}`);
++        this.appendMessage(`Region: ${joinRes.serverInfo?.region}`);
+       }
+     } else {
+       this.appendError(`Websocket connection could not be established`);
+diff --git a/src/index.ts b/src/index.ts
+index 4fa1329..33150ac 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -42,6 +42,7 @@ import { type PublicationEventCallbacks, TrackPublication } from './room/track/T
+ import type { LiveKitReactNativeInfo, TextStreamInfo } from './room/types';
+ import type { AudioAnalyserOptions } from './room/utils';
+ import {
++  addRegionDomains,
+   compareVersions,
+   createAudioAnalyser,
+   getEmptyAudioStreamTrack,
+@@ -51,6 +52,7 @@ import {
+   isBrowserSupported,
+   isLocalParticipant,
+   isLocalTrack,
++  isMeshServer,
+   isRemoteParticipant,
+   isRemoteTrack,
+   isSVCCodec,
+@@ -87,6 +89,8 @@ export * from './connectionHelper/ConnectionCheck';
+ export * from './connectionHelper/checks/Checker';
+ export * from './e2ee';
+ export type { BaseE2EEManager } from './e2ee/E2eeManager';
++// WordPlus Mesh (1.0.8): a node's codec policy, as Room.meshCodecPolicy holds it
++export type { MeshCodecPolicy } from './api/utils';
+ export * from './options';
+ export * from './room/errors';
+ export * from './room/events';
+@@ -153,6 +157,8 @@ export {
+   supportsDynacast,
+   supportsH265,
+   supportsVP9,
++  addRegionDomains,
++  isMeshServer,
+   Mutex,
+   isAudioCodec,
+   isAudioTrack,
+diff --git a/src/logger.ts b/src/logger.ts
+index 5a3de61..f5dd32c 100644
+--- a/src/logger.ts
++++ b/src/logger.ts
+@@ -10,21 +10,21 @@ export enum LogLevel {
+ }
+ 
+ export enum LoggerNames {
+-  Default = 'livekit',
+-  Room = 'livekit-room',
+-  TokenSource = 'livekit-token-source',
+-  Participant = 'livekit-participant',
+-  Track = 'livekit-track',
+-  Publication = 'livekit-track-publication',
+-  Engine = 'livekit-engine',
+-  Signal = 'livekit-signal',
+-  PCManager = 'livekit-pc-manager',
+-  PCTransport = 'livekit-pc-transport',
+-  E2EE = 'lk-e2ee',
+-  DataTracks = 'livekit-data-tracks',
+-  Region = 'livekit-region',
+-  ICE = 'livekit-ice',
+-  Stats = 'livekit-stats',
++  Default = 'rtc',
++  Room = 'rtc-room',
++  TokenSource = 'rtc-token-source',
++  Participant = 'rtc-participant',
++  Track = 'rtc-track',
++  Publication = 'rtc-track-publication',
++  Engine = 'rtc-engine',
++  Signal = 'rtc-signal',
++  PCManager = 'rtc-pc-manager',
++  PCTransport = 'rtc-pc-transport',
++  E2EE = 'rtc-e2ee',
++  DataTracks = 'rtc-data-tracks',
++  Region = 'rtc-region',
++  ICE = 'rtc-ice',
++  Stats = 'rtc-stats',
+ }
+ 
+ type LogLevelString = keyof typeof LogLevel;
+diff --git a/src/options.ts b/src/options.ts
+index 582a224..8228ca1 100644
+--- a/src/options.ts
++++ b/src/options.ts
+@@ -171,6 +171,28 @@ export interface InternalRoomConnectOptions {
+ 
+   /** amount of time for Websocket connection to be established, defaults to 15s */
+   websocketTimeout: number;
++
++  /**
++   * WordPlus Mesh: how long a join keeps trying while the mesh's servers are busy or full, or
++   * unreachable, in ms (meshJoinBudgetMs, 30 s, when not set). A product with a waiting screen
++   * passes minutes: a full cluster adds a server in a few.
++   */
++  meshJoinBudgetMs?: number;
++
++  /**
++   * WordPlus Mesh: called each time a join starts to wait for a place: every server it tried busy
++   * and a slot kept for it, or the cluster full, or no server answering. until is when it tries
++   * again (ms since the epoch), reason the mesh's refusal (busy, slot, full) or unreachable. A
++   * product shows "waiting for a free place" until the join resolves or rejects.
++   */
++  onMeshWait?: (wait: { until: number; reason: 'busy' | 'slot' | 'full' | 'unreachable' }) => void;
++
++  /**
++   * WordPlus Mesh (rtc-client 1.0.6): the product placing the call, which a mesh node is told on each join of this
++   * room (rtc_app) for its live view: { name: 'better-messages', version: '3.1.3' }. A room's, not the page's: the
++   * products on a page share one client.
++   */
++  meshApp?: { name: string; version?: string };
+ }
+ 
+ /**
+diff --git a/src/room/RTCEngine.test.ts b/src/room/RTCEngine.test.ts
+index 1dc28a2..15c88fa 100644
+--- a/src/room/RTCEngine.test.ts
++++ b/src/room/RTCEngine.test.ts
+@@ -1,6 +1,7 @@
+ import {
+   DataPacket,
+   DataPacket_Kind,
++  LeaveRequest_Action,
+   ConnectionQuality as ProtoConnectionQuality,
+   UserPacket,
+ } from '@livekit/protocol';
+@@ -920,3 +921,22 @@ describe('RTCEngine', () => {
+     });
+   });
+ });
++
++// WordPlus Mesh: a full reconnect's leave says the client joins again, so the others keep its place.
++describe('RTCEngine.restartConnection', () => {
++  it('leaves with RECONNECT', async () => {
++    const engine = new RTCEngine(roomOptionDefaults);
++    const e = engine as any;
++    e.url = 'wss://rtc.example.test';
++    e.token = 'token';
++    Object.defineProperty(engine.client, 'isDisconnected', { get: () => false });
++    const sendLeave = vi.spyOn(engine.client, 'sendLeave').mockResolvedValue(undefined);
++    vi.spyOn(e, 'cleanupPeerConnections').mockResolvedValue(undefined);
++    vi.spyOn(e, 'cleanupClient').mockResolvedValue(undefined);
++
++    // no signal options: the attempt stops right after its leave
++    await e.restartConnection().catch(() => {});
++
++    expect(sendLeave).toHaveBeenCalledWith(LeaveRequest_Action.RECONNECT);
++  });
++});
+diff --git a/src/room/RTCEngine.ts b/src/room/RTCEngine.ts
+index e8bd78f..3b0ed6c 100644
+--- a/src/room/RTCEngine.ts
++++ b/src/room/RTCEngine.ts
+@@ -32,6 +32,7 @@ import {
+   SignalTarget,
+   SpeakerInfo,
+   type StreamStateUpdate,
++  type SubscribedAudioCodecUpdate,
+   SubscribedQualityUpdate,
+   type SubscriptionPermissionUpdate,
+   type SubscriptionResponse,
+@@ -102,6 +103,9 @@ import {
+   isVideoTrack,
+   isWeb,
+   negotiateDependencyDescriptor,
++  resumeMoveTries,
++  resumeMoves,
++  serverAnswers,
+   sleep,
+   supportsAddTrack,
+   supportsTransceiver,
+@@ -404,7 +408,7 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+         serverInfo = { version: joinResponse.serverVersion, region: joinResponse.serverRegion };
+       }
+       this.log.info(
+-        `connected to Livekit Server ${Object.entries(serverInfo)
++        `connected to the server ${Object.entries(serverInfo)
+           .map(([key, value]) => `${key}: ${value}`)
+           .join(', ')}`,
+       );
+@@ -716,6 +720,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+       this.emit(EngineEvent.SubscribedQualityUpdate, update);
+     };
+ 
++    // WordPlus Mesh (rtc-client 1.0.7): whether anyone hears a local audio track
++    this.client.onSubscribedAudioCodecUpdate = (update: SubscribedAudioCodecUpdate) => {
++      this.emit(EngineEvent.SubscribedAudioCodecUpdate, update);
++    };
++
+     this.client.onRoomMoved = (res: RoomMovedResponse) => {
+       this.participantSid = res.participant?.sid;
+       if (this.latestJoinResponse) {
+@@ -745,6 +754,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+       this.handleDisconnect('signal', ReconnectReason.RR_SIGNAL_DISCONNECTED);
+     };
+ 
++    // WordPlus Mesh: the node's region list, sent over the signal connection in place of the refetches
++    this.client.onMeshRegions = (regions) => {
++      this.emit(EngineEvent.MeshRegionsReported, regions);
++    };
++
+     this.client.onLeave = (leave: LeaveRequest) => {
+       this.log.info(`client leave request received (action=${leave?.action})`, {
+         reason: leave?.reason,
+@@ -1368,8 +1382,9 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+       this.log.info(`reconnecting, attempt: ${this.reconnectAttempts}`);
+       this.emit(EngineEvent.Restarting);
+ 
++      // WordPlus Mesh: a full reconnect leaves only to join again (SignalClient.sendLeave)
+       if (!this.client.isDisconnected) {
+-        await this.client.sendLeave();
++        await this.client.sendLeave(LeaveRequest_Action.RECONNECT);
+       }
+       await this.cleanupPeerConnections();
+       await this.cleanupClient();
+@@ -1456,6 +1471,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+       if (error instanceof ConnectionError && error.reason === ConnectionErrorReason.LeaveRequest) {
+         throw error;
+       }
++      // WordPlus Mesh: the server didn't take the resume and may be gone. A failed resume is only
++      // ever tried again against the same address, so a dead server left the client stranded. The
++      // next attempt goes to the next server of the region list instead: another node of the mesh,
++      // which takes the session over from the client's sync state as a draining node's peers do.
++      await this.moveResumeToNextServer();
+       throw new SignalReconnectError(message);
+     }
+     this.emit(EngineEvent.SignalResumed);
+@@ -1503,9 +1523,63 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+     }
+ 
+     // resume success
++    this.regionStrategy?.resetAttempts();
+     this.emit(EngineEvent.Resumed);
+   }
+ 
++  /**
++   * WordPlus Mesh: points the next resume at another server of the region list, only when its own server has stopped
++   * answering while that one answers (rtc-client 1.0.5, resumeMoves): a client whose own network is down stays where it
++   * is. Either way it says so at warn level, which a product's call trace keeps.
++   *
++   * Since 1.0.12 the candidates are tried in turn, at most resumeMoveTries, the node the session is on first and never
++   * the address that just failed. A drain moves a session by a resume that reaches the new node through the draining
++   * one, and the new node's answer names it as the client's node: 1.0.11 left exactly that node out ("the node this
++   * client was on") and took the dead node's own entry for the next server, so a client whose address was a node
++   * removed after its drain probed only the dead node and never moved, its media flowing on the new node all along
++   * (a burst node's removal, 2026-10-20).
++   */
++  private async moveResumeToNextServer() {
++    if (!this.regionStrategy) {
++      return;
++    }
++    try {
++      const failed = this.url ?? '';
++      const session = this.latestJoinResponse?.serverInfo?.nodeId;
++      const ownProbe = serverAnswers(failed);
++      let own: boolean | undefined;
++      for (let tries = 0; tries < resumeMoveTries; tries++) {
++        const next = await this.regionStrategy.getNextUrl(undefined, undefined, failed, session);
++        if (!next) {
++          break;
++        }
++        const [ownNow, other] = await Promise.all([ownProbe, serverAnswers(next)]);
++        own = ownNow;
++        if (own) {
++          break;
++        }
++        if (resumeMoves(own, other)) {
++          this.log.warn(
++            `resuming on another server next: ${next}, its own no longer answers`,
++            this.logContext,
++          );
++          this.url = next;
++          return;
++        }
++      }
++      // the list's servers stay untried: the next failed resume asks again
++      this.regionStrategy.resetAttempts();
++      this.log.warn(
++        (own ?? (await ownProbe))
++          ? 'resuming on the same server: it still answers'
++          : 'resuming on the same server: no server answers, this connection is down',
++        this.logContext,
++      );
++    } catch (e) {
++      this.log.warn('could not pick another server to resume on', { ...this.logContext, error: e });
++    }
++  }
++
+   async waitForPCInitialConnection(timeout?: number, abortController?: AbortController) {
+     if (!this.pcManager) {
+       throw new UnexpectedConnectionState('PC manager is closed');
+@@ -2061,6 +2135,7 @@ export type EngineEventCallbacks = {
+   subscriptionError: (resp: SubscriptionResponse) => void;
+   subscriptionPermissionUpdate: (update: SubscriptionPermissionUpdate) => void;
+   subscribedQualityUpdate: (update: SubscribedQualityUpdate) => void;
++  subscribedAudioCodecUpdate: (update: SubscribedAudioCodecUpdate) => void;
+   localTrackUnpublished: (unpublishedResponse: TrackUnpublishedResponse) => void;
+   localTrackSubscribed: (trackSid: string) => void;
+   remoteMute: (trackSid: string, muted: boolean) => void;
+@@ -2074,10 +2149,20 @@ export type EngineEventCallbacks = {
+   joined: (joinResponse: JoinResponse) => void;
+   tokenRefreshed: (token: string) => void;
+   serverRegionsReported: (regions: RegionSettings) => void;
++  meshRegionsReported: (regions: RegionSettings) => void;
+ };
+ 
+ export interface RegionStrategy {
+-  getNextUrl(abortSignal?: AbortSignal): Promise<string | null>;
++  /**
++   * WordPlus Mesh: skipNode, a node id, leaves out that node's own entry; skipUrl (1.0.12) leaves out the entry at that
++   * server's address; preferNode (1.0.12) puts that node's entry first while it is left
++   */
++  getNextUrl(
++    abortSignal?: AbortSignal,
++    skipNode?: string,
++    skipUrl?: string,
++    preferNode?: string,
++  ): Promise<string | null>;
+   resetAttempts(): void;
+ }
+ 
+diff --git a/src/room/RegionUrlProvider.test.ts b/src/room/RegionUrlProvider.test.ts
+index ae5cc0a..a287dd2 100644
+--- a/src/room/RegionUrlProvider.test.ts
++++ b/src/room/RegionUrlProvider.test.ts
+@@ -1,6 +1,6 @@
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+ import type { RegionInfo, RegionSettings } from '@livekit/protocol';
+-import { RegionUrlProvider } from './RegionUrlProvider';
++import { RegionUrlProvider, sameServer } from './RegionUrlProvider';
+ import { ConnectionError, ConnectionErrorReason } from './errors';
+ 
+ // Use fake timers for testing auto-refetch
+@@ -38,6 +38,10 @@ describe('RegionUrlProvider', () => {
+     // Reset the static cache before each test
+     // @ts-ignore - accessing private static field for testing
+     RegionUrlProvider.cache = new Map();
++    // @ts-ignore - WordPlus Mesh: the hosts a node sends the list for
++    RegionUrlProvider.signalHosts = new Set();
++    // @ts-ignore - and the connections each host has
++    RegionUrlProvider.connectionTrackers = new Map();
+     // @ts-ignore - accessing private static field for testing
+     if (RegionUrlProvider.settingsTimeout) {
+       // @ts-ignore
+@@ -133,7 +137,7 @@ describe('RegionUrlProvider', () => {
+ 
+       expect(fetchMock).toHaveBeenCalledWith('https://test.livekit.cloud/settings/regions', {
+         headers: { authorization: 'Bearer token' },
+-        signal: undefined,
++        signal: expect.any(AbortSignal), // WordPlus Mesh: wrapped with a timeout
+       });
+       expect(result.regionSettings).toEqual(mockSettings);
+       expect(result.maxAgeInMs).toBe(3600000);
+@@ -168,12 +172,22 @@ describe('RegionUrlProvider', () => {
+       const abortController = new AbortController();
+       fetchMock.mockResolvedValue(createMockResponse(200, createMockRegionSettings([])));
+ 
+-      await provider.fetchRegionSettings(abortController.signal);
+-
+-      expect(fetchMock).toHaveBeenCalledWith(expect.anything(), {
+-        headers: { authorization: 'Bearer token' },
+-        signal: abortController.signal,
+-      });
++      // WordPlus Mesh: the fetch gets a signal of its own (with a timeout) that the caller's aborts
++      fetchMock.mockImplementation(
++        (_url: string, init: RequestInit) =>
++          new Promise((_resolve, reject) => {
++            // as fetch does: an aborted signal rejects at once, a later abort when it comes
++            if (init.signal!.aborted) {
++              reject(new DOMException('Aborted', 'AbortError'));
++            }
++            init.signal!.addEventListener('abort', () =>
++              reject(new DOMException('Aborted', 'AbortError')),
++            );
++          }),
++      );
++      const pending = provider.fetchRegionSettings(abortController.signal);
++      abortController.abort();
++      await expect(pending).rejects.toMatchObject({ reason: ConnectionErrorReason.Cancelled });
+     });
+ 
+     it('throws ConnectionError with NotAllowed for 401 response', async () => {
+@@ -246,7 +260,7 @@ describe('RegionUrlProvider', () => {
+       const provider = new RegionUrlProvider('wss://self-hosted.example.com', 'token');
+ 
+       await expect(provider.getNextBestRegionUrl()).rejects.toThrow(
+-        'region availability is only supported for LiveKit Cloud domains',
++        'region availability is only supported for mesh domains',
+       );
+     });
+ 
+@@ -414,12 +428,22 @@ describe('RegionUrlProvider', () => {
+ 
+       fetchMock.mockResolvedValue(createMockResponse(200, mockSettings));
+ 
+-      await provider.getNextBestRegionUrl(abortController.signal);
+-
+-      expect(fetchMock).toHaveBeenCalledWith(expect.anything(), {
+-        headers: expect.anything(),
+-        signal: abortController.signal,
+-      });
++      // WordPlus Mesh: the fetch gets a signal of its own (with a timeout) that the caller's aborts
++      fetchMock.mockImplementation(
++        (_url: string, init: RequestInit) =>
++          new Promise((_resolve, reject) => {
++            // as fetch does: an aborted signal rejects at once, a later abort when it comes
++            if (init.signal!.aborted) {
++              reject(new DOMException('Aborted', 'AbortError'));
++            }
++            init.signal!.addEventListener('abort', () =>
++              reject(new DOMException('Aborted', 'AbortError')),
++            );
++          }),
++      );
++      const pending = provider.getNextBestRegionUrl(abortController.signal);
++      abortController.abort();
++      await expect(pending).rejects.toMatchObject({ reason: ConnectionErrorReason.Cancelled });
+     });
+   });
+ 
+@@ -768,9 +792,10 @@ describe('RegionUrlProvider', () => {
+       // Advance time to expire cache
+       vi.setSystemTime(Date.now() + 4000000);
+ 
+-      // Second provider tries to fetch but fails
++      // Second provider tries to fetch but fails: WordPlus Mesh keeps using the list it has, the
++      // refresh having gone to a server that may be the one gone
+       const provider2 = new RegionUrlProvider('wss://test.livekit.cloud', 'token2');
+-      await expect(provider2.getNextBestRegionUrl()).rejects.toThrow();
++      await expect(provider2.getNextBestRegionUrl()).resolves.toBe('wss://us-west.livekit.cloud');
+ 
+       // Cache should still be accessible by a third instance if still valid
+       expect(fetchMock).toHaveBeenCalledTimes(2);
+@@ -790,7 +815,7 @@ describe('RegionUrlProvider', () => {
+       await provider.getNextBestRegionUrl();
+       expect(fetchMock).toHaveBeenCalledWith(expect.anything(), {
+         headers: { authorization: 'Bearer initial-token' },
+-        signal: undefined,
++        signal: expect.any(AbortSignal), // WordPlus Mesh: wrapped with a timeout
+       });
+ 
+       // Update token
+@@ -804,7 +829,7 @@ describe('RegionUrlProvider', () => {
+       // Should use new token
+       expect(fetchMock).toHaveBeenLastCalledWith(expect.anything(), {
+         headers: { authorization: 'Bearer new-token' },
+-        signal: undefined,
++        signal: expect.any(AbortSignal), // WordPlus Mesh: wrapped with a timeout
+       });
+     });
+ 
+@@ -1002,4 +1027,157 @@ describe('RegionUrlProvider', () => {
+       expect(secondCleanupTimeout).not.toBe(firstCleanupTimeout);
+     });
+   });
++
++  describe('WordPlus Mesh', () => {
++    it('serves regions for the mesh domain and names under it', () => {
++      expect(new RegionUrlProvider('wss://rtc.wordplus.cloud', 't').isCloud()).toBe(true);
++      expect(new RegionUrlProvider('wss://n-abc123.rtc.wordplus.cloud', 't').isCloud()).toBe(true);
++      expect(new RegionUrlProvider('wss://video-cloud.better-messages.com', 't').isCloud()).toBe(
++        false,
++      );
++      expect(new RegionUrlProvider('wss://notrtc.wordplus.cloud', 't').isCloud()).toBe(false);
++    });
++
++    it('gives up on a list fetch that never answers', async () => {
++      const provider = new RegionUrlProvider('wss://rtc.wordplus.cloud', 't');
++      fetchMock.mockImplementation(
++        (_url: string, init: RequestInit) =>
++          new Promise((_resolve, reject) => {
++            // as fetch does: an aborted signal rejects at once, a later abort when it comes
++            if (init.signal!.aborted) {
++              reject(new DOMException('Aborted', 'AbortError'));
++            }
++            init.signal!.addEventListener('abort', () =>
++              reject(new DOMException('Aborted', 'AbortError')),
++            );
++          }),
++      );
++      const pending = provider.fetchRegionSettings();
++      const settled = expect(pending).rejects.toMatchObject({
++        reason: ConnectionErrorReason.ServerUnreachable,
++      });
++      await vi.advanceTimersByTimeAsync(3_000);
++      await settled;
++    });
++
++    it('leaves out the nodes that said they are busy, and knows each by its id', async () => {
++      const provider = new RegionUrlProvider('wss://rtc.wordplus.cloud', 't');
++      const settings = {
++        regions: [
++          { region: 'de1', url: 'wss://n-de1.rtc.wordplus.cloud', node: 'ND_de1' },
++          { region: 'de1', url: 'wss://n-de2.rtc.wordplus.cloud', node: 'ND_de2' },
++          { region: 'de1', url: 'wss://n-de3.rtc.wordplus.cloud', node: 'ND_de3' },
++          { region: 'sgp1', url: 'wss://n-sg.rtc.wordplus.cloud', node: 'ND_sg' },
++        ],
++      } as unknown as RegionSettings;
++      fetchMock.mockResolvedValue(createMockResponse(200, settings));
++      // the shared name reached de1's first node, which was busy
++      provider.skipNode('ND_de1');
++      await expect(provider.getNextBestRegionUrl()).resolves.toBe('wss://n-de2.rtc.wordplus.cloud');
++      provider.skipNode('ND_de2');
++      provider.skipNode('ND_de3');
++      await expect(provider.getNextBestRegionUrl()).resolves.toBe('wss://n-sg.rtc.wordplus.cloud');
++      await expect(provider.getNextBestRegionUrl()).resolves.toBeNull();
++      expect(provider.homeRegion()).toBe('de1');
++      expect(provider.nodeEntry('ND_de3')?.url).toBe('wss://n-de3.rtc.wordplus.cloud');
++      expect(provider.nodeEntry('ND_gone')).toBeUndefined();
++      // starting over, every node is a candidate again
++      provider.resetAttempts();
++      await expect(provider.getNextBestRegionUrl()).resolves.toBe('wss://n-de1.rtc.wordplus.cloud');
++    });
++
++    it('leaves out the node the client was on', async () => {
++      const provider = new RegionUrlProvider('wss://rtc.wordplus.cloud', 't');
++      const settings = {
++        regions: [
++          { region: 'sgp1', url: 'wss://n-sg.rtc.wordplus.cloud', node: 'ND_sg' },
++          { region: 'de1', url: 'wss://n-de.rtc.wordplus.cloud', node: 'ND_de' },
++        ],
++      } as unknown as RegionSettings;
++      fetchMock.mockResolvedValue(createMockResponse(200, settings));
++      await expect(provider.getNextBestRegionUrl(undefined, 'ND_sg')).resolves.toBe(
++        'wss://n-de.rtc.wordplus.cloud',
++      );
++    });
++
++    it('leaves out the address that failed, and gives the node a session is on first (1.0.12)', async () => {
++      // a burst node's removal (2026-10-20): the client joined through the burst node's own name, a drain moved its
++      // session to Limburg, and the burst node went; the list the burst node sent still starts with itself
++      const provider = new RegionUrlProvider('wss://n-burst.de.rtc.wordplus.cloud', 't');
++      provider.notifyConnected();
++      provider.setSignalRegions({
++        regions: [
++          { region: 'de1', url: 'wss://n-burst.de.rtc.wordplus.cloud', node: 'ND_burst' },
++          { region: 'gra11', url: 'wss://n-fr.gra.rtc.wordplus.cloud', node: 'ND_fr' },
++          { region: 'de1', url: 'wss://n-lim.de.rtc.wordplus.cloud', node: 'ND_lim' },
++        ],
++      } as unknown as RegionSettings);
++      // 1.0.11 skipped the session's node and so gave the dead burst node's own entry
++      await expect(provider.getNextBestRegionUrl(undefined, 'ND_lim')).resolves.toBe(
++        'wss://n-burst.de.rtc.wordplus.cloud',
++      );
++      provider.resetAttempts();
++      // the failed address left out, the session's node first though it comes last in the list
++      await expect(
++        provider.getNextBestRegionUrl(undefined, undefined, 'wss://n-burst.de.rtc.wordplus.cloud', 'ND_lim'),
++      ).resolves.toBe('wss://n-lim.de.rtc.wordplus.cloud');
++      // tried once: the next call goes on down the list, still without the failed address
++      await expect(
++        provider.getNextBestRegionUrl(undefined, undefined, 'wss://n-burst.de.rtc.wordplus.cloud', 'ND_lim'),
++      ).resolves.toBe('wss://n-fr.gra.rtc.wordplus.cloud');
++      await expect(
++        provider.getNextBestRegionUrl(undefined, undefined, 'wss://n-burst.de.rtc.wordplus.cloud', 'ND_lim'),
++      ).resolves.toBeNull();
++      // the address matched by its server alone, whatever path the signal URL carries
++      expect(sameServer('wss://n-burst.de.rtc.wordplus.cloud/rtc?x=1', 'wss://n-burst.de.rtc.wordplus.cloud')).toBe(
++        true,
++      );
++      expect(sameServer('wss://n-lim.de.rtc.wordplus.cloud', 'wss://n-burst.de.rtc.wordplus.cloud')).toBe(false);
++    });
++
++    it('takes the list a node sends over the signal connection, and fetches nothing while it does', async () => {
++      const provider = new RegionUrlProvider('wss://rtc.wordplus.cloud', 't');
++      provider.notifyConnected();
++      provider.setSignalRegions({
++        regions: [
++          { region: 'de1', url: 'wss://n-de1.rtc.wordplus.cloud', node: 'ND_de1' },
++          { region: 'de1', url: 'wss://n-de2.rtc.wordplus.cloud', node: 'ND_de2' },
++        ],
++      } as unknown as RegionSettings);
++      expect(provider.hasSignalRegions()).toBe(true);
++      // a refreshed token or the leave's list schedules no refetch
++      provider.updateToken('t2');
++      provider.setServerReportedRegions({
++        regionSettings: { regions: [] } as unknown as RegionSettings,
++        updatedAtInMs: Date.now(),
++        maxAgeInMs: 5_000,
++      });
++      provider.setSignalRegions({
++        regions: [{ region: 'de1', url: 'wss://n-de2.rtc.wordplus.cloud', node: 'ND_de2' }],
++      } as unknown as RegionSettings);
++      await vi.advanceTimersByTimeAsync(10 * 60_000);
++      expect(fetchMock).not.toHaveBeenCalled();
++      // a failover takes the list the node sent last, however old
++      await expect(provider.getNextBestRegionUrl()).resolves.toBe('wss://n-de2.rtc.wordplus.cloud');
++      expect(fetchMock).not.toHaveBeenCalled();
++    });
++
++    it('asks again over HTTP once no node has sent the list since its last connection closed', async () => {
++      const provider = new RegionUrlProvider('wss://rtc.wordplus.cloud', 't');
++      provider.notifyConnected();
++      provider.setSignalRegions({
++        regions: [{ region: 'de1', url: 'wss://n-de1.rtc.wordplus.cloud', node: 'ND_de1' }],
++      } as unknown as RegionSettings);
++      provider.notifyDisconnected();
++      await vi.advanceTimersByTimeAsync(30_000);
++      expect(provider.hasSignalRegions()).toBe(false);
++      fetchMock.mockResolvedValue(
++        createMockResponse(200, {
++          regions: [{ region: 'sgp1', url: 'wss://n-sg.rtc.wordplus.cloud', node: 'ND_sg' }],
++        }),
++      );
++      await expect(provider.getNextBestRegionUrl()).resolves.toBe('wss://n-sg.rtc.wordplus.cloud');
++      expect(fetchMock).toHaveBeenCalledTimes(1);
++    });
++  });
+ });
+diff --git a/src/room/RegionUrlProvider.ts b/src/room/RegionUrlProvider.ts
+index fc63ee9..14fff56 100644
+--- a/src/room/RegionUrlProvider.ts
++++ b/src/room/RegionUrlProvider.ts
+@@ -9,6 +9,9 @@ const log = getLogger(LoggerNames.Region);
+ export const DEFAULT_MAX_AGE_MS = 5_000;
+ export const STOP_REFETCH_DELAY_MS = 30_000;
+ 
++/** WordPlus Mesh: how long a fetch of the region list may take before it counts as unreachable. */
++const REGION_FETCH_TIMEOUT_MS = 3_000;
++
+ type CachedRegionSettings = {
+   regionSettings: RegionSettings;
+   updatedAtInMs: number;
+@@ -29,16 +32,32 @@ export class RegionUrlProvider {
+ 
+   private static fetchLock = new Mutex();
+ 
++  /**
++   * WordPlus Mesh: hosts whose list a node sends over the signal connection (setSignalRegions), which
++   * needs no refetch: the node sends it again when its nodes change.
++   */
++  private static signalHosts = new Set<string>();
++
+   private static async fetchRegionSettings(
+     serverUrl: URL,
+     token: string,
+     signal?: AbortSignal,
+   ): Promise<CachedRegionSettings> {
+     const unlock = await RegionUrlProvider.fetchLock.lock();
++    // WordPlus Mesh: a server that is gone may never answer, and a fetch has no timeout of its own:
++    // one hanging under the lock held every later fetch, the failover's among them
++    const timeout = new AbortController();
++    const timer = setTimeout(() => timeout.abort(), REGION_FETCH_TIMEOUT_MS);
++    const onAbort = () => timeout.abort();
++    signal?.addEventListener('abort', onAbort);
+     try {
++      // aborted while this waited for the lock: its abort event is gone
++      if (signal?.aborted) {
++        throw ConnectionError.cancelled(`Region fetching was aborted`);
++      }
+       const regionSettingsResponse = await fetch(`${getCloudConfigUrl(serverUrl)}/regions`, {
+         headers: { authorization: `Bearer ${token}` },
+-        signal,
++        signal: timeout.signal,
+       });
+       if (regionSettingsResponse.ok) {
+         const maxAge = extractMaxAgeFromRequestHeaders(regionSettingsResponse.headers);
+@@ -71,6 +90,8 @@ export class RegionUrlProvider {
+         );
+       }
+     } finally {
++      clearTimeout(timer);
++      signal?.removeEventListener('abort', onAbort);
+       unlock();
+     }
+   }
+@@ -78,6 +99,10 @@ export class RegionUrlProvider {
+   private static async scheduleRefetch(url: URL, token: string, maxAgeInMs: number) {
+     const timeout = RegionUrlProvider.settingsTimeouts.get(url.hostname);
+     clearTimeout(timeout);
++    if (RegionUrlProvider.signalHosts.has(url.hostname)) {
++      RegionUrlProvider.settingsTimeouts.delete(url.hostname);
++      return;
++    }
+     RegionUrlProvider.settingsTimeouts.set(
+       url.hostname,
+       setTimeout(async () => {
+@@ -134,6 +159,13 @@ export class RegionUrlProvider {
+       if (currentTracker && currentTracker.connectionCount === 0) {
+         log.debug('stopping region refetch after disconnect delay', { hostname });
+         RegionUrlProvider.stopRefetch(hostname);
++        // WordPlus Mesh: no node sends this host's list now; the list kept is asked again when needed
++        if (RegionUrlProvider.signalHosts.delete(hostname)) {
++          const cached = RegionUrlProvider.cache.get(hostname);
++          if (cached) {
++            RegionUrlProvider.cache.set(hostname, { ...cached, maxAgeInMs: 0 });
++          }
++        }
+       }
+       if (currentTracker) {
+         currentTracker.cleanupTimeout = undefined;
+@@ -184,6 +216,9 @@ export class RegionUrlProvider {
+ 
+   private attemptedRegions: RegionInfo[] = [];
+ 
++  /** WordPlus Mesh: nodes that said they are busy, left out of the servers tried next (skipNode) */
++  private skippedNodes = new Set<string>();
++
+   constructor(url: string, token: string) {
+     this.serverUrl = new URL(url);
+     this.token = token;
+@@ -213,23 +248,94 @@ export class RegionUrlProvider {
+     return RegionUrlProvider.fetchRegionSettings(this.serverUrl, this.token, abortSignal);
+   }
+ 
+-  async getNextBestRegionUrl(abortSignal?: AbortSignal) {
++  /**
++   * WordPlus Mesh: the list a node sent over the signal connection (SignalClient's onMeshRegions). It
++   * holds until the node sends another, so nothing refetches it over HTTP while it does: until the
++   * host's last connection has been closed for STOP_REFETCH_DELAY_MS (scheduleCleanup).
++   */
++  setSignalRegions(regionSettings: RegionSettings) {
++    const hostname = this.serverUrl.hostname;
++    RegionUrlProvider.signalHosts.add(hostname);
++    RegionUrlProvider.stopRefetch(hostname);
++    RegionUrlProvider.cache.set(hostname, {
++      regionSettings,
++      updatedAtInMs: Date.now(),
++      maxAgeInMs: Number.POSITIVE_INFINITY,
++    });
++  }
++
++  /** WordPlus Mesh: whether a node sends this host's list over the signal connection. */
++  hasSignalRegions() {
++    return RegionUrlProvider.signalHosts.has(this.serverUrl.hostname);
++  }
++
++  /**
++   * WordPlus Mesh: the list fetched over HTTP when none is kept, as for a join a node refused before
++   * any signal connection could bring it (nodeEntry reads it then). A failed fetch leaves it as it is.
++   */
++  async loadRegions(abortSignal?: AbortSignal) {
++    if (RegionUrlProvider.cache.has(this.serverUrl.hostname)) {
++      return;
++    }
++    try {
++      const settings = await this.fetchRegionSettings(abortSignal);
++      RegionUrlProvider.updateCachedRegionSettings(this.serverUrl, this.token, settings);
++    } catch (e) {
++      log.debug('could not fetch region settings', { error: e });
++    }
++  }
++
++  /**
++   * WordPlus Mesh: skipNode leaves out the entry of that node (a mesh's entries carry `node`, its id,
++   * which stock clients ignore): the node a client reached through a shared name, now gone, is in
++   * the list under its own name, and trying it again only loses time. skipUrl (1.0.12) leaves out the
++   * entry at that server's address, the one that just failed; preferNode (1.0.12) gives that node's
++   * entry first while it is left, the node a session is on.
++   */
++  async getNextBestRegionUrl(
++    abortSignal?: AbortSignal,
++    skipNode?: string,
++    skipUrl?: string,
++    preferNode?: string,
++  ) {
+     if (!this.isCloud()) {
+-      throw Error('region availability is only supported for LiveKit Cloud domains');
++      throw Error('region availability is only supported for mesh domains');
+     }
+ 
+     let cachedSettings = RegionUrlProvider.cache.get(this.serverUrl.hostname);
+ 
+     if (!cachedSettings || Date.now() - cachedSettings.updatedAtInMs > cachedSettings.maxAgeInMs) {
+-      cachedSettings = await this.fetchRegionSettings(abortSignal);
+-      RegionUrlProvider.updateCachedRegionSettings(this.serverUrl, this.token, cachedSettings);
++      try {
++        cachedSettings = await this.fetchRegionSettings(abortSignal);
++        RegionUrlProvider.updateCachedRegionSettings(this.serverUrl, this.token, cachedSettings);
++      } catch (e) {
++        // WordPlus Mesh: the list is asked for at the address that just failed, which with a mesh is
++        // often the one gone. A list kept from before names other servers: use it rather than
++        // give up on every one of them.
++        if (
++          !cachedSettings ||
++          (e instanceof ConnectionError &&
++            e.reason !== ConnectionErrorReason.ServerUnreachable &&
++            e.reason !== ConnectionErrorReason.InternalError)
++        ) {
++          throw e;
++        }
++        log.info('region settings unreachable, using the last list', { error: e });
++      }
+     }
+ 
+     const regionsLeft = cachedSettings.regionSettings.regions.filter(
+-      (region) => !this.attemptedRegions.find((attempted) => attempted.url === region.url),
++      (region) =>
++        !this.attemptedRegions.find((attempted) => attempted.url === region.url) &&
++        !(skipNode && (region as RegionInfo & { node?: string }).node === skipNode) &&
++        !(skipUrl && sameServer(region.url, skipUrl)) &&
++        !this.skippedNodes.has((region as RegionInfo & { node?: string }).node ?? ''),
+     );
+     if (regionsLeft.length > 0) {
+-      const nextRegion = regionsLeft[0];
++      const preferred = preferNode
++        ? regionsLeft.find((r) => (r as RegionInfo & { node?: string }).node === preferNode)
++        : undefined;
++      const nextRegion = preferred ?? regionsLeft[0];
+       this.attemptedRegions.push(nextRegion);
+       log.info(`switching to region: ${nextRegion.region}`, { region: nextRegion.region });
+       return nextRegion.url;
+@@ -240,6 +346,33 @@ export class RegionUrlProvider {
+ 
+   resetAttempts() {
+     this.attemptedRegions = [];
++    this.skippedNodes.clear();
++  }
++
++  /**
++   * WordPlus Mesh: a mesh node that said it is busy (its 429's X-Mesh-Refused: busy) is left out of
++   * the servers getNextBestRegionUrl gives next, until resetAttempts: it may be in the list under its
++   * own name, having been reached through a shared one.
++   */
++  skipNode(node: string) {
++    this.skippedNodes.add(node);
++  }
++
++  /**
++   * WordPlus Mesh: the region the list was made for. Its first entry is the node that answered, the
++   * one the shared name reached, which is the client's nearest.
++   */
++  homeRegion(): string | undefined {
++    return this.cachedRegions()[0]?.region;
++  }
++
++  /** WordPlus Mesh: a node's own entry in the list, by its id (a mesh's entries carry `node`). */
++  nodeEntry(node: string): RegionInfo | undefined {
++    return this.cachedRegions().find((r) => (r as RegionInfo & { node?: string }).node === node);
++  }
++
++  private cachedRegions(): RegionInfo[] {
++    return RegionUrlProvider.cache.get(this.serverUrl.hostname)?.regionSettings.regions ?? [];
+   }
+ 
+   setServerReportedRegions(settings: CachedRegionSettings) {
+@@ -250,3 +383,12 @@ export class RegionUrlProvider {
+ function getCloudConfigUrl(serverUrl: URL) {
+   return `${serverUrl.protocol.replace('ws', 'http')}//${serverUrl.host}/settings`;
+ }
++
++/** WordPlus Mesh (1.0.12): whether two signal URLs name the same server, by host and port. */
++export function sameServer(a: string, b: string): boolean {
++  try {
++    return new URL(a).host === new URL(b).host;
++  } catch {
++    return a === b;
++  }
++}
+diff --git a/src/room/Room.mesh.test.ts b/src/room/Room.mesh.test.ts
+new file mode 100644
+index 0000000..c7644aa
+--- /dev/null
++++ b/src/room/Room.mesh.test.ts
+@@ -0,0 +1,250 @@
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
++import Room from './Room';
++import { ConnectionError } from './errors';
++import { addRegionDomains } from './utils';
++
++// the test environment has no WebRTC; connect checks for it before anything else
++vi.mock('./utils', async (importOriginal) => ({
++  ...(await importOriginal<typeof import('./utils')>()),
++  isBrowserSupported: () => true,
++}));
++
++/**
++ * WordPlus Mesh: a join walks its list when mesh nodes say they are busy (the server's
++ * pkg/mesh/gate.go), and waits only once every server was busy, on its home region's that frees
++ * first, which keeps it a slot.
++ */
++describe('WordPlus Mesh: a join walks busy nodes', () => {
++  let n = 0;
++  let domain = '';
++  const regions = () => ({
++    regions: [
++      { region: 'de1', url: `wss://n-de1.${domain}`, node: 'ND_de1', distance: '0' },
++      { region: 'de1', url: `wss://n-de2.${domain}`, node: 'ND_de2', distance: '0' },
++      { region: 'sgp1', url: `wss://n-sg1.${domain}`, node: 'ND_sg1', distance: '10270000' },
++    ],
++  });
++  const refused = (refusedKind: string, node: string, retryAfter: number) =>
++    ConnectionError.internal('server full', {
++      status: 429,
++      retryAfter,
++      refused: refusedKind,
++      node,
++    });
++
++  beforeEach(() => {
++    vi.useFakeTimers();
++    domain = `walk${++n}.test`;
++    addRegionDomains(domain);
++    vi.stubGlobal(
++      'fetch',
++      vi.fn(async () => ({
++        ok: true,
++        status: 200,
++        json: async () => regions(),
++        headers: new Headers({ 'Cache-Control': 'max-age=30' }),
++      })),
++    );
++  });
++  afterEach(() => {
++    vi.useRealTimers();
++    vi.unstubAllGlobals();
++  });
++
++  // connect drives Room.connect with attemptConnection answering as answer says, and returns the
++  // servers it tried, in order
++  const connect = async (answer: (url: string, nth: number) => Error | undefined) => {
++    const room = new Room();
++    const tried: string[] = [];
++    const r = room as unknown as {
++      attemptConnection: (url: string) => Promise<void>;
++      recreateEngine: () => void;
++    };
++    r.attemptConnection = async (url: string) => {
++      tried.push(url);
++      const err = answer(url, tried.filter((u) => u === url).length);
++      if (err) {
++        throw err;
++      }
++    };
++    r.recreateEngine = () => {};
++    const done = room.connect(`wss://rtc.${domain}`, 'token');
++    await vi.advanceTimersByTimeAsync(30_000);
++    await done;
++    return tried;
++  };
++
++  it("tries its region's other nodes, then the nearest region's, then waits on its region's that frees first", async () => {
++    const tried = await connect((url, nth) => {
++      if (url === `wss://rtc.${domain}`) return refused('busy', 'ND_de1', 2_000);
++      if (url === `wss://n-de2.${domain}`) return refused('busy', 'ND_de2', 1_000);
++      if (url === `wss://n-sg1.${domain}`) return refused('busy', 'ND_sg1', 500);
++      if (url === `wss://n-de2.${domain}/?mesh_wait=1` && nth === 1)
++        return refused('slot', 'ND_de2', 2_000);
++      return undefined;
++    });
++    expect(tried).toEqual([
++      `wss://rtc.${domain}`, // the shared name reached de1's first node, busy
++      `wss://n-de2.${domain}`, // its region's other node, busy
++      `wss://n-sg1.${domain}`, // the nearest region's, busy: every server was
++      `wss://n-de2.${domain}/?mesh_wait=1`, // back home, on the one that frees first, waiting: a slot
++      `wss://n-de2.${domain}/?mesh_wait=1`, // on its slot
++    ]);
++  });
++
++  it('gets in on the next node at once when only its first is busy', async () => {
++    const tried = await connect((url) =>
++      url === `wss://rtc.${domain}` ? refused('busy', 'ND_de1', 1_000) : undefined,
++    );
++    expect(tried).toEqual([`wss://rtc.${domain}`, `wss://n-de2.${domain}`]);
++  });
++
++  // connectWith is connect with connect options, and how long to let the join run
++  const connectWith = async (
++    answer: (url: string, nth: number) => Error | undefined,
++    opts: Parameters<Room['connect']>[2],
++    runMs: number,
++  ) => {
++    const room = new Room();
++    const tried: string[] = [];
++    const r = room as unknown as {
++      attemptConnection: (url: string) => Promise<void>;
++      recreateEngine: () => void;
++    };
++    r.attemptConnection = async (url: string) => {
++      tried.push(url);
++      const err = answer(url, tried.filter((u) => u === url).length);
++      if (err) {
++        throw err;
++      }
++    };
++    r.recreateEngine = () => {};
++    let failed: unknown;
++    const done = room.connect(`wss://rtc.${domain}`, 'token', opts).catch((e) => {
++      failed = e;
++    });
++    await vi.advanceTimersByTimeAsync(runMs);
++    await done;
++    return { tried, failed };
++  };
++
++  it('says when it waits for a place, and why', async () => {
++    const waits: Array<{ until: number; reason: string }> = [];
++    const start = Date.now();
++    await connectWith(
++      (url, nth) => {
++        if (url === `wss://rtc.${domain}`) return refused('busy', 'ND_de1', 2_000);
++        if (url === `wss://n-de2.${domain}`) return refused('busy', 'ND_de2', 1_000);
++        if (url === `wss://n-sg1.${domain}`) return refused('busy', 'ND_sg1', 500);
++        if (url === `wss://n-de2.${domain}/?mesh_wait=1` && nth === 1)
++          return refused('slot', 'ND_de2', 2_000);
++        return undefined;
++      },
++      { onMeshWait: (w) => waits.push(w) },
++      30_000,
++    );
++    expect(waits.map((w) => w.reason)).toEqual(['busy', 'slot']);
++    expect(waits[0].until).toBeGreaterThanOrEqual(start + 1_000); // de2 frees first, 1 s on
++    expect(waits[1].until).toBeGreaterThanOrEqual(start + 2_000);
++  });
++
++  it('keeps waiting while the cluster is full as long as the product says (meshJoinBudgetMs)', async () => {
++    // full for a minute: the default 30 s gives up, two minutes get in
++    const fullFor = (until: number) => (url: string) =>
++      Date.now() < until ? refused('full', 'ND_de1', 5_000) : undefined;
++    let until = Date.now() + 60_000;
++    const short = await connectWith(fullFor(until), {}, 70_000);
++    expect(short.failed).toBeInstanceOf(ConnectionError);
++
++    until = Date.now() + 60_000;
++    const waits: string[] = [];
++    const long = await connectWith(
++      fullFor(until),
++      { meshJoinBudgetMs: 120_000, onMeshWait: (w) => waits.push(w.reason) },
++      70_000,
++    );
++    expect(long.failed).toBeUndefined();
++    expect(waits.length).toBeGreaterThan(5);
++    expect(new Set(waits)).toEqual(new Set(['full']));
++  });
++
++  it('comes back to the node that keeps it a slot when the cluster is full, by its own name', async () => {
++    const tried = await connect((url, nth) =>
++      url === `wss://rtc.${domain}` && nth === 1 ? refused('full', 'ND_de1', 3_000) : undefined,
++    );
++    expect(tried).toEqual([`wss://rtc.${domain}`, `wss://n-de1.${domain}/?mesh_wait=1`]);
++  });
++
++  // The tests above answer for attemptConnection. A real refusal comes from below it, out of the
++  // signal connection, and attemptConnection throws an error of its own in its place: the refusal
++  // has to come through that, or every refusal reads as an unreachable server.
++  it('reads a refusal that comes up through the signal connection', async () => {
++    const room = new Room();
++    const tried: string[] = [];
++    const r = room as unknown as {
++      connectSignal: (url: string) => Promise<never>;
++      recreateEngine: () => void;
++      acquireAudioContext: () => void;
++    };
++    r.connectSignal = async (url: string) => {
++      tried.push(url);
++      throw refused('full', 'ND_de1', 3_000);
++    };
++    r.recreateEngine = () => {};
++    r.acquireAudioContext = () => {};
++    const waits: string[] = [];
++    const done = room
++      .connect(`wss://rtc.${domain}`, 'token', { onMeshWait: (w) => waits.push(w.reason) })
++      .catch(() => undefined);
++    await vi.advanceTimersByTimeAsync(10_000);
++    await room.disconnect();
++    await vi.advanceTimersByTimeAsync(1_000);
++    await done;
++    expect(waits[0]).toBe('full');
++    expect(tried.slice(0, 2)).toEqual([
++      `wss://rtc.${domain}`,
++      `wss://n-de1.${domain}/?mesh_wait=1`,
++    ]);
++  });
++
++  // 1.0.4: a mesh node sends its region list over the signal connection (WordPlus Mesh 1.0.21), so a
++  // join to a mesh server fetches none, and a joined client fetches one only if its node sent none
++  describe('the region list from the node', () => {
++    const joined = async (sendsList: boolean) => {
++      const room = new Room();
++      const r = room as unknown as {
++        attemptConnection: (url: string) => Promise<void>;
++        recreateEngine: () => void;
++        fetchMeshRegionsLate: () => void;
++        regionUrlProvider: {
++          setSignalRegions: (s: unknown) => void;
++          notifyConnected: () => void;
++        };
++      };
++      r.attemptConnection = async () => {};
++      r.recreateEngine = () => {};
++      await room.connect(`wss://rtc.${domain}`, 'token');
++      const fetches = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length;
++      // as attemptConnection does once joined
++      room.state = 'connected' as typeof room.state;
++      r.regionUrlProvider.notifyConnected();
++      if (sendsList) {
++        r.regionUrlProvider.setSignalRegions(regions());
++      }
++      r.fetchMeshRegionsLate();
++      await vi.advanceTimersByTimeAsync(10_000);
++      return {
++        atJoin: fetches,
++        later: (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length - fetches,
++      };
++    };
++
++    it('fetches nothing when the node sends it', async () => {
++      expect(await joined(true)).toEqual({ atJoin: 0, later: 0 });
++    });
++
++    it('fetches it once the node has sent none for a while, as from a node before 1.0.21', async () => {
++      expect(await joined(false)).toEqual({ atJoin: 0, later: 1 });
++    });
++  });
++});
+diff --git a/src/room/Room.ts b/src/room/Room.ts
+index 75488f4..e66febe 100644
+--- a/src/room/Room.ts
++++ b/src/room/Room.ts
+@@ -34,7 +34,12 @@ import {
+ import { EventEmitter } from 'events';
+ import 'webrtc-adapter';
+ import type TypedEmitter from 'typed-emitter';
+-import { ensureTrailingSlash } from '../api/utils';
++import {
++  type MeshCodecPolicy,
++  type MeshEncoderTrack,
++  ensureTrailingSlash,
++  meshCodecPolicy,
++} from '../api/utils';
+ import { EncryptionEvent } from '../e2ee';
+ import { type BaseE2EEManager, E2EEManager } from '../e2ee/E2eeManager';
+ import { FrameMetadataManager } from '../frameMetadata/FrameMetadataManager';
+@@ -79,6 +84,7 @@ import {
+   UnsupportedServer,
+ } from './errors';
+ import { EngineEvent, ParticipantEvent, RoomEvent, TrackEvent } from './events';
++import { REPORT_EVERY_MS, readTrackEncoders } from './meshEncoders';
+ import LocalParticipant from './participant/LocalParticipant';
+ import Participant from './participant/Participant';
+ import { type ConnectionQuality, ParticipantKind } from './participant/Participant';
+@@ -123,16 +129,25 @@ import {
+   isCompressionStreamSupported,
+   isLocalAudioTrack,
+   isLocalParticipant,
++  isMeshServer,
++  isMeshWait,
+   isReactNative,
+   isRemotePub,
+   isSafariBased,
++  isServerFull,
+   isWeb,
++  meshAppParam,
++  meshJoinBudgetMs,
++  meshJoinRetry,
++  meshRefusal,
++  meshWaitOn,
+   numberToBigInt,
+   sleep,
+   supportsSetSinkId,
+   toHttpUrl,
+   unpackStreamId,
+   unwrapConstraint,
++  withMeshWait,
+ } from './utils';
+ 
+ export enum ConnectionState {
+@@ -145,6 +160,8 @@ export enum ConnectionState {
+ 
+ const CONNECTION_RECONCILE_FREQUENCY_MS = 4 * 1000;
+ const STATS_LOG_FREQUENCY_MS = 30 * 1000;
++/** WordPlus Mesh: how long after a join a mesh node has to send its region list (fetchMeshRegionsLate) */
++const MESH_REGIONS_WAIT_MS = 3 * 1000;
+ 
+ /**
+  * In LiveKit, a room is the logical grouping for a list of participants.
+@@ -174,6 +191,21 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+   /** the current participant */
+   localParticipant: LocalParticipant;
+ 
++  /**
++   * WordPlus Mesh (rtc-client 1.0.8): the codec policy the room's node sent with its join response (WordPlus Mesh
++   * 1.0.33, mesh.codec_policy): undefined from any other server, or one with none set. A preference for the product's
++   * codec choice (the realtime client's calls/room-publish.ts), which takes only what its browser sends.
++   */
++  meshCodecPolicy?: MeshCodecPolicy;
++
++  /** WordPlus Mesh (1.0.10): the room's server is the mesh's, which takes its published videos' encoders. */
++  private onMesh = false;
++
++  private meshEncodersInterval?: ReturnType<typeof setInterval>;
++
++  /** What the node was last told of the encoders, so a reading that changed nothing isn't sent. */
++  private meshEncodersSent = '';
++
+   /** options of room */
+   options: InternalRoomOptions;
+ 
+@@ -755,6 +787,9 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+           updatedAtInMs: Date.now(),
+           maxAgeInMs: DEFAULT_MAX_AGE_MS,
+         });
++      })
++      .on(EngineEvent.MeshRegionsReported, (regions) => {
++        this.regionUrlProvider?.setSignalRegions(regions);
+       });
+ 
+     if (this.localParticipant) {
+@@ -770,8 +805,15 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+ 
+   private createRegionStrategy(): RegionStrategy {
+     return {
+-      getNextUrl: async (signal?: AbortSignal) =>
+-        this.regionUrlProvider ? this.regionUrlProvider.getNextBestRegionUrl(signal) : null,
++      getNextUrl: async (
++        signal?: AbortSignal,
++        skipNode?: string,
++        skipUrl?: string,
++        preferNode?: string,
++      ) =>
++        this.regionUrlProvider
++          ? this.regionUrlProvider.getNextBestRegionUrl(signal, skipNode, skipUrl, preferNode)
++          : null,
+       resetAttempts: () => this.regionUrlProvider?.resetAttempts(),
+     };
+   }
+@@ -836,7 +878,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+         throw Error("WebRTC isn't detected, have you called registerGlobals?");
+       } else {
+         throw Error(
+-          "LiveKit doesn't seem to be supported on this browser. Try to update your browser and make sure no browser extensions are disabling webRTC.",
++          "Calls don't seem to be supported on this browser. Try to update your browser and make sure no browser extensions are disabling webRTC.",
+         );
+       }
+     }
+@@ -857,6 +899,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+     }
+ 
+     this.setAndEmitConnectionState(ConnectionState.Connecting);
++    this.onMesh = isMeshServer(url);
+     if (this.regionUrlProvider?.getServerUrl().toString() !== ensureTrailingSlash(url)) {
+       this.regionUrl = undefined;
+       this.regionUrlProvider = undefined;
+@@ -870,16 +913,18 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+       // trigger the first fetch without waiting for a response
+       // if initial connection fails, this will speed up picking regional url
+       // on subsequent runs
+-      this.regionUrlProvider
+-        .fetchRegionSettings()
+-        .then((settings) => {
+-          this.regionUrlProvider?.setServerReportedRegions(settings);
+-        })
+-        .catch((e) => {
+-          this.log.warn('could not fetch region settings', { error: e });
+-        });
++      // WordPlus Mesh: a mesh node sends its list over the signal connection once joined, so the
++      // client fetches it only if the node doesn't (fetchMeshRegionsLate), or a join fails before
++      // any connection (getNextBestRegionUrl fetches it then)
++      if (!isMeshServer(url)) {
++        this.fetchRegionsNow();
++      }
+     }
+ 
++    // WordPlus Mesh: a join keeps trying until this (meshJoinRetry), where servers serve regions
++    const joinDeadline = Date.now() + (opts?.meshJoinBudgetMs ?? meshJoinBudgetMs);
++    // WordPlus Mesh: the servers that said they were busy in this join's pass over its list
++    const meshBusy: Array<{ url: string; region?: string; freeAt: number }> = [];
+     const connectFn = async (
+       resolve: () => void,
+       reject: (reason: any) => void,
+@@ -911,12 +956,64 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+           error.reason !== ConnectionErrorReason.Cancelled &&
+           error.reason !== ConnectionErrorReason.NotAllowed
+         ) {
++          const tried = regionUrl ?? url;
++          const refusal = meshRefusal(error);
++          // WordPlus Mesh: a mesh node only busy keeps nothing for this join (the server's
++          // pkg/mesh/gate.go): try the list's next server now, the home region's others first and
++          // the nearest regions' last. Once every one was busy, go back to the home region's that
++          // frees first, saying the join will wait there, and that one keeps it a slot.
++          if (refusal?.kind === 'busy' && !isMeshWait(tried) && Date.now() < joinDeadline) {
++            const provider = this.regionUrlProvider;
++            if (refusal.node) {
++              provider.skipNode(refusal.node);
++            }
++            let nextUrl: string | null = null;
++            try {
++              nextUrl = await provider.getNextBestRegionUrl(this.abortController?.signal);
++            } catch (regionFetchError) {
++              if (
++                regionFetchError instanceof ConnectionError &&
++                (regionFetchError.status === 401 ||
++                  regionFetchError.reason === ConnectionErrorReason.Cancelled)
++              ) {
++                this.handleDisconnect(this.options.stopLocalTrackOnUnpublish);
++                reject(regionFetchError);
++                return;
++              }
++            }
++            // the busy node by its own entry, read once the list is in (the first refusal of a join
++            // may come before it): its own name to come back to, and its region
++            const entry = refusal.node ? provider.nodeEntry(refusal.node) : undefined;
++            meshBusy.push({
++              url: entry?.url ?? tried,
++              region: entry?.region ?? provider.homeRegion(),
++              freeAt: Date.now() + (refusal.retryAfter ?? 1_000),
++            });
++            if (!abortController.signal.aborted) {
++              const waitOn = nextUrl ? undefined : meshWaitOn(meshBusy, provider.homeRegion());
++              this.log.info(
++                nextUrl
++                  ? `Server busy. Trying ${nextUrl}`
++                  : `Every server busy. Waiting for a slot on ${waitOn!.url}`,
++              );
++              if (!nextUrl) {
++                opts?.onMeshWait?.({ until: waitOn!.freeAt, reason: 'busy' });
++              }
++              this.recreateEngine(true);
++              await connectFn(resolve, reject, nextUrl ?? withMeshWait(waitOn!.url));
++              return;
++            }
++          }
++          // WordPlus Mesh: a full cluster answered for all its servers, and a node keeping a slot
++          // for the join is where it comes back, so the others aren't tried now: the join waits its
++          // Retry-After below (meshJoinRetry)
++          const full = isServerFull(error);
+           let nextUrl: string | null = null;
+           try {
+             this.log.debug('Fetching next region');
+-            nextUrl = await this.regionUrlProvider.getNextBestRegionUrl(
+-              this.abortController?.signal,
+-            );
++            nextUrl = full
++              ? null
++              : await this.regionUrlProvider.getNextBestRegionUrl(this.abortController?.signal);
+           } catch (regionFetchError) {
+             if (
+               regionFetchError instanceof ConnectionError &&
+@@ -930,6 +1027,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+           }
+           if (
+             // making sure we only register failed attempts on things we actually care about
++            !full &&
+             [
+               ConnectionErrorReason.InternalError,
+               ConnectionErrorReason.ServerUnreachable,
+@@ -939,12 +1037,49 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+             this.log.debug('Adding failed connection attempt to back off');
+             BackOffStrategy.getInstance().addFailedConnectionAttempt(url);
+           }
++          // WordPlus Mesh: with no other server left to try now, the join waits and starts over
++          // from the best one, until its deadline
++          const retryIn = nextUrl ? undefined : meshJoinRetry(error, joinDeadline);
+           if (nextUrl && !this.abortController?.signal.aborted) {
+             this.log.info(
+               `Initial connection failed with ConnectionError: ${error.message}. Retrying with another region: ${nextUrl}`,
+             );
+             this.recreateEngine(true);
+             await connectFn(resolve, reject, nextUrl);
++          } else if (retryIn !== undefined && !abortController.signal.aborted) {
++            this.log.info(
++              `Initial connection failed with ConnectionError: ${error.message}. Trying again in ${retryIn} ms`,
++            );
++            opts?.onMeshWait?.({
++              until: Date.now() + retryIn,
++              reason:
++                refusal?.kind === 'slot' || refusal?.kind === 'full' || refusal?.kind === 'busy'
++                  ? refusal.kind
++                  : 'unreachable',
++            });
++            await sleep(retryIn);
++            if (abortController.signal.aborted) {
++              this.handleDisconnect(this.options.stopLocalTrackOnUnpublish);
++              reject(ConnectionError.cancelled('Connection attempt aborted'));
++              return;
++            }
++            // WordPlus Mesh: a slot is kept on the node that said so: come back to it, by its own
++            // name when the list has it, saying the join waits there. After any other refusal or
++            // failure, start over from the best server. A mesh client fetches no list as it joins
++            // (its node sends one once it's in), so the first refusal fetches it.
++            if (refusal?.kind === 'slot' || refusal?.kind === 'full') {
++              await this.regionUrlProvider?.loadRegions(abortController.signal);
++            }
++            const back =
++              refusal?.kind === 'slot' || refusal?.kind === 'full'
++                ? withMeshWait(
++                    (refusal.node && this.regionUrlProvider?.nodeEntry(refusal.node)?.url) || tried,
++                  )
++                : undefined;
++            this.regionUrlProvider?.resetAttempts();
++            meshBusy.length = 0;
++            this.recreateEngine(true);
++            await connectFn(resolve, reject, back);
+           } else {
+             this.handleDisconnect(
+               this.options.stopLocalTrackOnUnpublish,
+@@ -996,6 +1131,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+         maxRetries: connectOptions.maxRetries,
+         e2eeEnabled: !!this.e2eeManager,
+         websocketTimeout: connectOptions.websocketTimeout,
++        meshApp: meshAppParam(connectOptions.meshApp),
+       },
+       abortController.signal,
+       !roomOptions.singlePeerConnection,
+@@ -1022,6 +1158,8 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+     this.localParticipant.sid = pi.sid;
+     this.localParticipant.identity = pi.identity;
+     this.localParticipant.setEnabledPublishCodecs(joinResponse.enabledPublishCodecs);
++    // WordPlus Mesh (1.0.8): the node's codec policy, which the product reads when it publishes a camera or a screen
++    this.meshCodecPolicy = meshCodecPolicy(joinResponse);
+ 
+     if (this.e2eeManager) {
+       try {
+@@ -1102,6 +1240,10 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+       if (err instanceof ConnectionError) {
+         resultingError.reason = err.reason;
+         resultingError.status = err.status;
++        // WordPlus Mesh: and what a mesh node's 429 said (Retry-After, the kind of refusal, the node),
++        // which the join reads off this error to walk past a busy node or wait for a place
++        // (meshRefusal, meshJoinRetry). Without it every refusal looked like an unreachable server.
++        (resultingError as ConnectionError).context = err.context;
+       }
+       this.log.debug(`error trying to establish signal connection`, {
+         error: err,
+@@ -1143,9 +1285,44 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+     // Notify region provider about successful connection
+     if (this.regionUrlProvider) {
+       this.regionUrlProvider.notifyConnected();
++      this.fetchMeshRegionsLate();
+     }
+   };
+ 
++  /** The region list fetched over HTTP, without waiting for it. */
++  private fetchRegionsNow() {
++    this.regionUrlProvider
++      ?.fetchRegionSettings()
++      .then((settings) => {
++        this.regionUrlProvider?.setServerReportedRegions(settings);
++      })
++      .catch((e) => {
++        this.log.warn('could not fetch region settings', { error: e });
++      });
++  }
++
++  /**
++   * WordPlus Mesh: a mesh server that sent no region list over the signal connection within
++   * MESH_REGIONS_WAIT_MS of the join (a node before WordPlus Mesh 1.0.21) has the client fetch it
++   * over HTTP and refresh it every max-age, as upstream does: a failover needs a list from before.
++   */
++  private fetchMeshRegionsLate() {
++    const provider = this.regionUrlProvider;
++    if (!provider || !isMeshServer(provider.getServerUrl()) || provider.hasSignalRegions()) {
++      return;
++    }
++    setTimeout(() => {
++      if (
++        this.regionUrlProvider === provider &&
++        this.state === ConnectionState.Connected &&
++        !provider.hasSignalRegions()
++      ) {
++        this.log.debug('no region list from the server: fetching it');
++        this.fetchRegionsNow();
++      }
++    }, MESH_REGIONS_WAIT_MS);
++  }
++
+   /**
+    * disconnects the room, emits [[RoomEvent.Disconnected]]
+    */
+@@ -1353,7 +1530,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+        * as a workaround, we create an audio element with an empty track, so that
+        * silent audio is always playing
+        */
+-      const audioId = 'livekit-dummy-audio-el';
++      const audioId = 'rtc-dummy-audio-el';
+       let dummyAudioEl = document.getElementById(audioId) as HTMLAudioElement | null;
+       if (!dummyAudioEl) {
+         dummyAudioEl = document.createElement('audio');
+@@ -1575,8 +1752,9 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+   private recreateEngine(sendLeave?: boolean) {
+     const oldEngine = this.engine;
+ 
++    // WordPlus Mesh: every caller joins again right after, so the leave says so (SignalClient.sendLeave)
+     if (sendLeave && oldEngine && !oldEngine.client.isDisconnected) {
+-      oldEngine.client.sendLeave().finally(() => oldEngine.close());
++      oldEngine.client.sendLeave(LeaveRequest_Action.RECONNECT).finally(() => oldEngine.close());
+     } else {
+       oldEngine?.close();
+     }
+@@ -2603,6 +2781,53 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+     );
+   }
+ 
++  /**
++   * WordPlus Mesh (1.0.10): tells the node which encoder each published video runs on (room/meshEncoders.ts) while
++   * connected, once a reading changed, and all of it again after a reconnect, to a node that may hold no session of it.
++   */
++  private setMeshEncoderReports(enabled: boolean) {
++    if (enabled && this.onMesh) {
++      this.meshEncodersSent = '';
++      if (!this.meshEncodersInterval) {
++        this.meshEncodersInterval = CriticalTimers.setInterval(() => {
++          // reportMeshEncoders handles its own errors, nothing to await here
++          this.reportMeshEncoders();
++        }, REPORT_EVERY_MS);
++      }
++    } else if (this.meshEncodersInterval) {
++      CriticalTimers.clearInterval(this.meshEncodersInterval);
++      this.meshEncodersInterval = undefined;
++    }
++  }
++
++  private reportMeshEncoders = async () => {
++    if (!this.onMesh || this.state !== ConnectionState.Connected || !this.engine) {
++      return;
++    }
++    const tracks: MeshEncoderTrack[] = [];
++    for (const pub of this.localParticipant.videoTrackPublications.values()) {
++      const track = pub.videoTrack;
++      if (!track || !pub.trackSid) {
++        continue;
++      }
++      try {
++        const read = await readTrackEncoders(pub.trackSid, track);
++        if (read) {
++          tracks.push(read);
++        }
++      } catch {
++        // a sender gone while it was read
++      }
++    }
++    const json = JSON.stringify(tracks);
++    if (json === this.meshEncodersSent || (!tracks.length && !this.meshEncodersSent)) {
++      return;
++    }
++    if (await this.engine.client.sendMeshEncoders(tracks)) {
++      this.meshEncodersSent = json;
++    }
++  };
++
+   private setStatsLogging(enabled: boolean) {
+     if (enabled) {
+       if (!this.statsLogInterval) {
+@@ -2702,6 +2927,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+     this.state = state;
+     this.incomingDataStreamManager.setConnected(state === ConnectionState.Connected);
+     this.setStatsLogging(state === ConnectionState.Connected);
++    this.setMeshEncoderReports(state === ConnectionState.Connected);
+ 
+     this.emit(RoomEvent.ConnectionStateChanged, this.state);
+ 
+@@ -2764,6 +2990,14 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+ 
+     this.emit(RoomEvent.LocalTrackPublished, pub, this.localParticipant);
+ 
++    // WordPlus Mesh: a new video's encoders are told within a few seconds, once its encoders run, not at the next
++    // reading
++    if (this.onMesh && pub.kind === Track.Kind.Video) {
++      CriticalTimers.setTimeout(() => {
++        this.reportMeshEncoders();
++      }, 3000);
++    }
++
+     if (isLocalAudioTrack(pub.track)) {
+       const trackIsSilent = await pub.track.checkForSilence();
+       if (trackIsSilent) {
+diff --git a/src/room/data-track/outgoing/errors.ts b/src/room/data-track/outgoing/errors.ts
+index 568dd0b..cba98c9 100644
+--- a/src/room/data-track/outgoing/errors.ts
++++ b/src/room/data-track/outgoing/errors.ts
+@@ -77,7 +77,7 @@ export class DataTrackPublishError<
+ 
+   static timeout() {
+     return new DataTrackPublishError(
+-      'Publish data track timed-out. Does the LiveKit server support data tracks?',
++      'Publish data track timed-out. Does the server support data tracks?',
+       DataTrackPublishErrorReason.Timeout,
+     );
+   }
+diff --git a/src/room/errors.ts b/src/room/errors.ts
+index 2a84880..3143e66 100644
+--- a/src/room/errors.ts
++++ b/src/room/errors.ts
+@@ -9,7 +9,7 @@ export class LivekitError extends Error {
+ 
+   constructor(code: number, message?: string, options?: { cause?: unknown }) {
+     super(message || 'an error has occurred');
+-    this.name = 'LiveKitError';
++    this.name = 'RtcError';
+     this.code = code;
+ 
+     if (typeof options?.cause !== 'undefined') {
+@@ -56,7 +56,18 @@ type NotAllowed = {
+ type InternalError = {
+   reason: ConnectionErrorReason.InternalError;
+   status: never;
+-  context?: { status?: number; statusText?: string };
++  // WordPlus Mesh: a 429's Retry-After (retryAfter, ms), what kind of refusal it is (refused: busy,
++  // slot or full) and which node gave it (node), the mesh's answer when it refuses a join
++  context?: MeshRefusalContext;
++};
++
++/** WordPlus Mesh: what a mesh node's 429 carries (SignalClient.handleConnectionError). */
++export type MeshRefusalContext = {
++  status?: number;
++  statusText?: string;
++  retryAfter?: number;
++  refused?: string;
++  node?: string;
+ };
+ 
+ type ConnectionTimeout = {
+@@ -153,7 +164,7 @@ export class ConnectionError<
+     );
+   }
+ 
+-  static internal(message: string, context?: { status?: number; statusText?: string }) {
++  static internal(message: string, context?: MeshRefusalContext) {
+     return new ConnectionError<InternalError>(
+       message,
+       ConnectionErrorReason.InternalError,
+diff --git a/src/room/events.ts b/src/room/events.ts
+index 65bde87..f3cd1d4 100644
+--- a/src/room/events.ts
++++ b/src/room/events.ts
+@@ -620,6 +620,8 @@ export enum EngineEvent {
+   SubscriptionPermissionUpdate = 'subscriptionPermissionUpdate',
+   RemoteMute = 'remoteMute',
+   SubscribedQualityUpdate = 'subscribedQualityUpdate',
++  /** WordPlus Mesh (rtc-client 1.0.7): whether anyone hears one of the local audio tracks */
++  SubscribedAudioCodecUpdate = 'subscribedAudioCodecUpdate',
+   LocalTrackUnpublished = 'localTrackUnpublished',
+   LocalTrackSubscribed = 'localTrackSubscribed',
+   Offline = 'offline',
+@@ -633,6 +635,8 @@ export enum EngineEvent {
+   Joined = 'joined',
+   TokenRefreshed = 'tokenRefreshed',
+   ServerRegionsReported = 'serverRegionsReported',
++  /** WordPlus Mesh: the region list a mesh node sent over the signal connection */
++  MeshRegionsReported = 'meshRegionsReported',
+ }
+ 
+ export enum TrackEvent {
+diff --git a/src/room/meshEncoders.test.ts b/src/room/meshEncoders.test.ts
+new file mode 100644
+index 0000000..a7db09c
+--- /dev/null
++++ b/src/room/meshEncoders.test.ts
+@@ -0,0 +1,167 @@
++import { SignalRequest } from '@livekit/protocol';
++import { describe, expect, it } from 'vitest';
++import { MESH_ENCODERS_FIELD, lengthDelimited } from '../api/utils';
++import { adapterEncoders, captureMode, encoderHardware, layersOf, sinceLast } from './meshEncoders';
++
++const layer = (rid: string, height: number, encoder?: string, extra: object = {}) => ({
++  rid,
++  height,
++  encoder,
++  active: true,
++  mime: 'video/H264',
++  ...extra,
++});
++
++describe('meshEncoders (WordPlus Mesh)', () => {
++  it('reads a simulcast adapter as one encoder a layer, the smallest first', () => {
++    // what Chrome 155 on a Mac gives a camera in H.264 Baseline (TestBrowserH264Encoder)
++    const name = 'SimulcastEncoderAdapter (OpenH264, VideoToolbox, VideoToolbox)';
++    expect(adapterEncoders(name)).toEqual(['OpenH264', 'VideoToolbox', 'VideoToolbox']);
++    const read = layersOf([layer('f', 1080, name), layer('q', 270, name), layer('h', 540, name)]);
++    expect(read?.layers).toEqual([
++      { rid: 'q', encoder: 'OpenH264', hw: false },
++      { rid: 'h', encoder: 'VideoToolbox', hw: true },
++      { rid: 'f', encoder: 'VideoToolbox', hw: true },
++    ]);
++  });
++
++  it('maps the adapter over the layers that encode, a paused one by its frames though it still reads active', () => {
++    // a camera whose 540p the server paused (dynacast): Chrome names the encoders of q and f alone (the lab, 2026-10-18)
++    const name = 'SimulcastEncoderAdapter (OpenH264, VideoToolbox)';
++    const read = layersOf([
++      layer('q', 270, name, { fps: 30 }),
++      layer('h', 540, name, { fps: 0 }),
++      layer('f', 1080, name, { fps: 29.6, limit: 'none' }),
++    ]);
++    expect(read?.layers).toEqual([
++      { rid: 'q', encoder: 'OpenH264', hw: false, fps: 30, height: 270 },
++      { rid: 'h' },
++      { rid: 'f', encoder: 'VideoToolbox', hw: true, fps: 30, height: 1080 },
++    ]);
++  });
++
++  it('says what holds a layer back while it encodes', () => {
++    // a 2560×1440 share in VP8 on a PC whose CPU can't keep up: Chrome lowers its frames and its size
++    const read = layersOf([
++      layer('q', 720, 'SimulcastEncoderAdapter (libvpx, libvpx)', { fps: 15, limit: 'none' }),
++      layer('h', 1080, 'SimulcastEncoderAdapter (libvpx, libvpx)', { fps: 8, limit: 'cpu' }),
++    ]);
++    expect(read?.layers[1]).toEqual({
++      rid: 'h',
++      encoder: 'libvpx',
++      hw: false,
++      fps: 8,
++      height: 1080,
++      limit: 'cpu',
++    });
++  });
++
++  it('gives every layer the one encoder an adapter names alone, however its layers read', () => {
++    const name = 'SimulcastEncoderAdapter (libvpx, libvpx)';
++    const read = layersOf([layer('q', 180, name), layer('h', 360, name), layer('f', 720, name)]);
++    expect(read?.layers).toEqual([
++      { rid: 'q', encoder: 'libvpx', hw: false },
++      { rid: 'h', encoder: 'libvpx', hw: false },
++      { rid: 'f', encoder: 'libvpx', hw: false },
++    ]);
++  });
++
++  it("takes one encoder for every layer, by its name or the browser's power efficiency", () => {
++    expect(
++      layersOf([layer('q', 270, 'MediaFoundationVideoEncodeAccelerator (AMDh264Encoder)')])?.layers,
++    ).toEqual([
++      { rid: 'q', encoder: 'MediaFoundationVideoEncodeAccelerator (AMDh264Encoder)', hw: true },
++    ]);
++    expect(encoderHardware('libvpx')).toBe(false);
++    expect(encoderHardware('OpenH264')).toBe(false);
++    expect(encoderHardware('libaom')).toBe(false);
++    expect(encoderHardware('VideoToolbox')).toBe(true);
++    expect(encoderHardware(undefined, true)).toBe(true);
++    expect(encoderHardware(undefined)).toBeNull();
++  });
++
++  it("tells a sender's layers whose browser names no encoder (Firefox, Safari), its encoder unnamed", () => {
++    const read = layersOf([layer('q', 180, undefined, { fps: 15 }), layer('h', 360, undefined, { fps: 15 })]);
++    expect(read?.encoder).toBe('');
++    expect(read?.layers).toEqual([
++      { rid: 'q', fps: 15, height: 180 },
++      { rid: 'h', fps: 15, height: 360 },
++    ]);
++    expect(layersOf([])).toBeUndefined();
++  });
++
++  it('takes what a layer did between two readings: ms a frame, key frames made and asked for', () => {
++    expect(sinceLast(undefined, { encodeTime: 1, frames: 30, keyFrames: 1, plis: 0 })).toEqual({});
++    // 10 s at 7 frames a second, 52 ms a frame, 6 key frames for 9 requests: a slow encoder in a storm of key frames
++    expect(
++      sinceLast(
++        { encodeTime: 10, frames: 1000, keyFrames: 20, plis: 30 },
++        { encodeTime: 13.64, frames: 1070, keyFrames: 26, plis: 39 },
++      ),
++    ).toEqual({ encodeMs: 52, keyFrames: 6, plis: 9 });
++    // a total the browser doesn't keep, or one that went back (a sender started over), says nothing
++    expect(sinceLast({ frames: 100, keyFrames: 5 }, { frames: 40, keyFrames: 6 })).toEqual({
++      keyFrames: 1,
++    });
++    // no frame encoded: no time a frame
++    expect(sinceLast({ encodeTime: 2, frames: 10 }, { encodeTime: 2, frames: 10 })).toEqual({});
++  });
++
++  it('puts the readings on a layer that encodes, not on one that does not', () => {
++    const name = 'SimulcastEncoderAdapter (OpenH264, MediaFoundationVideoEncodeAccelerator (AMDh264Encoder))';
++    const read = layersOf([
++      layer('q', 180, name, { fps: 3, encodeMs: 4.1, keyFrames: 0, plis: 0 }),
++      layer('h', 360, name, { fps: 3, encodeMs: 61.5, keyFrames: 6, plis: 9 }),
++      layer('f', 720, name, { fps: 0, keyFrames: 0, plis: 0 }),
++    ]);
++    expect(read?.layers[1]).toEqual({
++      rid: 'h',
++      encoder: 'MediaFoundationVideoEncodeAccelerator (AMDh264Encoder)',
++      hw: true,
++      fps: 3,
++      height: 360,
++      encodeMs: 61.5,
++      keyFrames: 6,
++      plis: 9,
++    });
++    expect(read?.layers[2]).toEqual({ rid: 'f' });
++  });
++
++  it("says the mode a capture was opened at, from the track's settings", () => {
++    const track = (s: object) => ({ getSettings: () => s }) as unknown as MediaStreamTrack;
++    expect(captureMode(track({ width: 1920, height: 1080, frameRate: 15.000015 }))).toEqual({
++      width: 1920,
++      height: 1080,
++      fps: 15,
++    });
++    expect(captureMode(track({ width: 1280, height: 720 }))).toEqual({ width: 1280, height: 720 });
++    expect(captureMode(track({}))).toBeUndefined();
++    expect(captureMode(undefined)).toBeUndefined();
++  });
++
++  it('puts the report where a node reads it: a request with no message, the JSON in its unknown field', () => {
++    const req = new SignalRequest({});
++    const json = JSON.stringify({ tracks: [{ sid: 'TR_a', codecs: [] }] });
++    req
++      .getType()
++      .runtime.bin.onUnknownField(
++        req,
++        MESH_ENCODERS_FIELD,
++        2,
++        lengthDelimited(new TextEncoder().encode(json)),
++      );
++    const back = SignalRequest.fromBinary(req.toBinary());
++    expect(back.message.case).toBeUndefined();
++    const field = back
++      .getType()
++      .runtime.bin.listUnknownFields(back)
++      .find((f) => f.no === MESH_ENCODERS_FIELD);
++    expect(field?.wireType).toBe(2);
++    // the length, then the bytes
++    expect(new TextDecoder().decode(field!.data.subarray(1))).toBe(json);
++    // a long one's length takes two bytes
++    expect(lengthDelimited(new Uint8Array(300)).subarray(0, 2)).toEqual(
++      new Uint8Array([0xac, 0x02]),
++    );
++  });
++});
+diff --git a/src/room/meshEncoders.ts b/src/room/meshEncoders.ts
+new file mode 100644
+index 0000000..171ed1e
+--- /dev/null
++++ b/src/room/meshEncoders.ts
+@@ -0,0 +1,281 @@
++/**
++ * WordPlus Mesh (rtc-client 1.0.10): which encoder each published video runs on, hardware or software, told to the
++ * node for its live view (2026-10-18), so a call's people show whether each browser publishes in hardware or in
++ * software. Only the browser knows it, in its senders' stats: `encoderImplementation`, which Chrome gives as
++ * "SimulcastEncoderAdapter (OpenH264, VideoToolbox, VideoToolbox)" for a camera's three layers, one encoder a layer
++ * from the smallest up, and `powerEfficientEncoder`. Both are shown only to a page that captures, as a call does.
++ * Firefox and Safari give neither.
++ *
++ * 1.0.11: each layer's encode time a frame, key frames made and key frames asked for (PLI, FIR) since the last
++ * reading, the capture's mode (its size and the frames a second it was opened at), and a browser that names no
++ * encoder still tells its layers' frames and size (2026-10-19: a call where many people sent few frames a second,
++ * one of them a Windows PC that encoded 3-7 of the 14 frames its camera gave, its 360p some 100 kbit a
++ * frame: an encoder too slow and a storm of key frames look alike without them, as a dim room and a camera that
++ * opens 1080p at 15 frames do without its mode).
++ *
++ * Read every REPORT_EVERY_MS while connected and sent when it changed, and again after a reconnect, in a signal
++ * request with no message of LiveKit's and the JSON in MESH_ENCODERS_FIELD: a node before 1.0.35 handles it as
++ * nothing. Only to the mesh's servers.
++ */
++import type { MeshEncoderLayer, MeshEncoderTrack } from '../api/utils';
++import type LocalVideoTrack from './track/LocalVideoTrack';
++
++export const REPORT_EVERY_MS = 10_000;
++
++/** Encoders that run on the CPU, by the name the browser gives; any other a browser names is a device's. */
++const SOFTWARE = /^(libvpx|openh264|libaom|svt|ffmpeg|libx26|dav1d|rav1e|fake)/i;
++
++/** Whether an encoder named so runs in hardware: null when the browser named none. */
++export function encoderHardware(
++  name: string | undefined,
++  powerEfficient?: boolean,
++): boolean | null {
++  if (!name) {
++    return typeof powerEfficient === 'boolean' ? powerEfficient : null;
++  }
++  return !SOFTWARE.test(name.trim());
++}
++
++/** The encoders a SimulcastEncoderAdapter names, in its streams' order; the name itself for any other. */
++export function adapterEncoders(name: string): string[] {
++  const m = /^SimulcastEncoderAdapter\s*\((.*)\)\s*$/.exec(name.trim());
++  return m
++    ? m[1]
++        .split(',')
++        .map((s) => s.trim())
++        .filter(Boolean)
++    : [name.trim()];
++}
++
++const RID_ORDER = ['q', 'h', 'f'];
++
++type Outbound = {
++  rid: string;
++  height: number;
++  encoder?: string;
++  powerEfficient?: boolean;
++  active: boolean;
++  /** frames a second it encodes now; undefined where the browser doesn't say */
++  fps?: number;
++  /** what holds its quality back: "cpu", "bandwidth", "other", "none" (qualityLimitationReason) */
++  limit?: string;
++  /** frames a second its source (the camera, the screen capture) gives the encoder */
++  captured?: number;
++  mime: string;
++  /** since the sender's last reading (sinceLast): ms of encoding a frame, key frames made, key frames asked for */
++  encodeMs?: number;
++  keyFrames?: number;
++  plis?: number;
++};
++
++/** A layer's running totals in its stats, from which sinceLast takes what changed between two readings. */
++export type Totals = { encodeTime?: number; frames?: number; keyFrames?: number; plis?: number };
++
++/**
++ * What a layer did between two readings of its totals: the time it took to encode a frame, in ms, and the key frames
++ * it made and was asked for (PLI and FIR). Nothing from a first reading, nor from a total the browser doesn't keep or
++ * that went back (a sender started over).
++ */
++export function sinceLast(
++  prev: Totals | undefined,
++  now: Totals,
++): { encodeMs?: number; keyFrames?: number; plis?: number } {
++  const out: { encodeMs?: number; keyFrames?: number; plis?: number } = {};
++  if (!prev) {
++    return out;
++  }
++  const delta = (a?: number, b?: number) =>
++    typeof a === 'number' && typeof b === 'number' && b >= a ? b - a : undefined;
++  const frames = delta(prev.frames, now.frames);
++  const time = delta(prev.encodeTime, now.encodeTime);
++  if (frames && time !== undefined) {
++    out.encodeMs = Math.round((time / frames) * 10_000) / 10;
++  }
++  const keyFrames = delta(prev.keyFrames, now.keyFrames);
++  if (keyFrames !== undefined) {
++    out.keyFrames = keyFrames;
++  }
++  const plis = delta(prev.plis, now.plis);
++  if (plis !== undefined) {
++    out.plis = plis;
++  }
++  return out;
++}
++
++/** Each sender's layers' totals at its last reading, by rid. */
++const lastTotals = new WeakMap<RTCRtpSender, Map<string, Totals>>();
++
++/**
++ * Whether a layer encodes now: Chrome's adapter names the encoders of those alone, and a layer the server paused
++ * (dynacast) can still read active for a moment after it stopped, so its frames decide where it says them.
++ */
++const sending = (o: Outbound) => o.active && (o.fps === undefined || o.fps > 0);
++
++/**
++ * One sender's layers, each with its own encoder where the adapter's list matches the layers that encode, or the one
++ * encoder every one of them runs on; a browser that names none (Firefox, Safari) still gets its layers' frames and
++ * size told, its encoder "".
++ */
++export function layersOf(
++  outbound: Outbound[],
++): { encoder: string; layers: MeshEncoderLayer[] } | undefined {
++  if (!outbound.length) {
++    return undefined;
++  }
++  const named = outbound.find((o) => o.encoder);
++  const order = (o: Outbound) => {
++    const i = RID_ORDER.indexOf(o.rid);
++    return i < 0 ? RID_ORDER.length + o.height : i;
++  };
++  const sorted = [...outbound].sort((a, b) => order(a) - order(b) || a.height - b.height);
++  const list = named?.encoder ? adapterEncoders(named.encoder) : [];
++  const active = sorted.filter(sending);
++  const one = list.length > 0 && new Set(list).size === 1;
++  const layers = sorted.map((o): MeshEncoderLayer => {
++    let encoder: string | undefined;
++    if (one) {
++      encoder = list[0];
++    } else if (list.length && list.length === active.length && sending(o)) {
++      encoder = list[active.indexOf(o)];
++    } else if (list.length && list.length === sorted.length) {
++      encoder = list[sorted.indexOf(o)];
++    }
++    const layer: MeshEncoderLayer = { rid: o.rid };
++    if (encoder) {
++      layer.encoder = encoder.slice(0, 80);
++      const hw = encoderHardware(encoder, list.length === 1 ? o.powerEfficient : undefined);
++      if (hw !== null) {
++        layer.hw = hw;
++      }
++    }
++    // what it encodes now, and what holds it back: Chrome lowers a layer's frames and size for its CPU or its upload
++    // (a Windows PC's 2560×1440 share in VP8 went out at 1-1.4 Mbit/s of an estimated 5, 2026-10-18)
++    if (sending(o) && o.fps !== undefined) {
++      layer.fps = Math.round(o.fps);
++      if (o.height) {
++        layer.height = o.height;
++      }
++      if (o.limit && o.limit !== 'none') {
++        layer.limit = o.limit;
++      }
++      // how it encodes: ms a frame, and key frames made and asked for since the last reading, which a slow encoder
++      // and a storm of key frames tell apart
++      if (o.encodeMs !== undefined) {
++        layer.encodeMs = o.encodeMs;
++      }
++      if (o.keyFrames !== undefined) {
++        layer.keyFrames = o.keyFrames;
++      }
++      if (o.plis !== undefined) {
++        layer.plis = o.plis;
++      }
++    }
++    return layer;
++  });
++  return { encoder: named?.encoder?.slice(0, 200) ?? '', layers };
++}
++
++async function outboundOf(sender: RTCRtpSender | undefined): Promise<Outbound[]> {
++  if (!sender) {
++    return [];
++  }
++  const out: Outbound[] = [];
++  const stats = await sender.getStats();
++  const before = lastTotals.get(sender);
++  const totals = new Map<string, Totals>();
++  const num = (v: unknown) => (typeof v === 'number' ? v : undefined);
++  stats.forEach((s) => {
++    if (s.type !== 'outbound-rtp' || s.kind !== 'video') {
++      return;
++    }
++    const codec = s.codecId ? stats.get(s.codecId) : undefined;
++    const source = s.mediaSourceId ? stats.get(s.mediaSourceId) : undefined;
++    const rid = typeof s.rid === 'string' ? s.rid : '';
++    const now: Totals = {
++      encodeTime: num(s.totalEncodeTime),
++      frames: num(s.framesEncoded),
++      keyFrames: num(s.keyFramesEncoded),
++      plis:
++        num(s.pliCount) !== undefined || num(s.firCount) !== undefined
++          ? (num(s.pliCount) ?? 0) + (num(s.firCount) ?? 0)
++          : undefined,
++    };
++    totals.set(rid, now);
++    out.push({
++      ...sinceLast(before?.get(rid), now),
++      captured: typeof source?.framesPerSecond === 'number' ? source.framesPerSecond : undefined,
++      rid,
++      height: s.frameHeight ?? 0,
++      encoder: typeof s.encoderImplementation === 'string' ? s.encoderImplementation : undefined,
++      powerEfficient:
++        typeof s.powerEfficientEncoder === 'boolean' ? s.powerEfficientEncoder : undefined,
++      active: s.active !== false,
++      fps: typeof s.framesPerSecond === 'number' ? s.framesPerSecond : undefined,
++      limit: typeof s.qualityLimitationReason === 'string' ? s.qualityLimitationReason : undefined,
++      mime: typeof codec?.mimeType === 'string' ? codec.mimeType : '',
++    });
++  });
++  lastTotals.set(sender, totals);
++  return out;
++}
++
++/**
++ * The mode the browser opened its capture at: the size and the frames a second it asked the device for (its
++ * settings), apart from the frames the device gives (captured). A camera opened at 30 that gives 15 is in a dim room;
++ * one opened at 15 can do no more at that size.
++ */
++export function captureMode(track: MediaStreamTrack | undefined): MeshEncoderTrack['mode'] {
++  try {
++    const s = track?.getSettings();
++    if (s && typeof s.width === 'number' && typeof s.height === 'number') {
++      return {
++        width: s.width,
++        height: s.height,
++        ...(typeof s.frameRate === 'number' ? { fps: Math.round(s.frameRate) } : {}),
++      };
++    }
++  } catch {
++    // a track ended while it was read
++  }
++  return undefined;
++}
++
++/** What one published video's encoders are: its own codec's, and its backup's when that sends. */
++export async function readTrackEncoders(
++  sid: string,
++  track: LocalVideoTrack,
++): Promise<MeshEncoderTrack | undefined> {
++  const senders: [RTCRtpSender | undefined, string | undefined][] = [[track.sender, undefined]];
++  for (const [codec, info] of track.simulcastCodecs) {
++    senders.push([info.sender, codec]);
++  }
++  const codecs: MeshEncoderTrack['codecs'] = [];
++  for (const [sender, named] of senders) {
++    let outbound: Outbound[];
++    try {
++      outbound = await outboundOf(sender);
++    } catch {
++      continue;
++    }
++    const read = layersOf(outbound);
++    if (!read) {
++      continue;
++    }
++    const mime = outbound.find((o) => o.mime)?.mime ?? '';
++    const codec = (named ?? mime.replace(/^video\//i, '')).toLowerCase();
++    // the frames a second the source gives the encoder (its media-source stats): a capture that gives few itself
++    // and an encoder that drops what it is given look alike from the layers alone
++    const captured = Math.max(...outbound.map((o) => o.captured ?? -1));
++    codecs.push({
++      codec,
++      encoder: read.encoder,
++      layers: read.layers,
++      ...(captured >= 0 ? { captured: Math.round(captured) } : {}),
++    });
++  }
++  if (!codecs.length) {
++    return undefined;
++  }
++  const mode = captureMode(track.mediaStreamTrack);
++  return mode ? { sid, codecs, mode } : { sid, codecs };
++}
+diff --git a/src/room/participant/LocalParticipant.ts b/src/room/participant/LocalParticipant.ts
+index 1993a1d..d4814d9 100644
+--- a/src/room/participant/LocalParticipant.ts
++++ b/src/room/participant/LocalParticipant.ts
+@@ -15,6 +15,7 @@ import {
+   RequestResponse_Reason,
+   SimulcastCodec,
+   SipDTMF,
++  SubscribedAudioCodecUpdate,
+   SubscribedQualityUpdate,
+   TrackInfo,
+   TrackUnpublishedResponse,
+@@ -270,6 +271,7 @@ export default class LocalParticipant extends Participant {
+       .on(EngineEvent.Resuming, this.handleReconnecting)
+       .on(EngineEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished)
+       .on(EngineEvent.SubscribedQualityUpdate, this.handleSubscribedQualityUpdate)
++      .on(EngineEvent.SubscribedAudioCodecUpdate, this.handleSubscribedAudioCodecUpdate)
+       .on(EngineEvent.Closing, this.handleClosing)
+       .on(EngineEvent.SignalRequestResponse, this.handleSignalRequestResponse);
+   }
+@@ -2068,6 +2070,19 @@ export default class LocalParticipant extends Participant {
+     }
+   };
+ 
++  /**
++   * WordPlus Mesh (rtc-client 1.0.7): the node says whether anyone hears one of this participant's audio tracks
++   * (any codec enabled, or none), which it says only to a client whose join named audio-pause: a node pauses a video
++   * nobody watches through dynacast, and nothing did that for a microphone (WordPlus Mesh 1.0.32).
++   */
++  private handleSubscribedAudioCodecUpdate = async (update: SubscribedAudioCodecUpdate) => {
++    const pub = this.audioTrackPublications.get(update.trackSid);
++    if (!pub?.audioTrack) {
++      return;
++    }
++    await pub.audioTrack.setMeshHeard(update.subscribedAudioCodecs.some((c) => c.enabled));
++  };
++
+   private handleLocalTrackUnpublished = (unpublished: TrackUnpublishedResponse) => {
+     const track = this.trackPublications.get(unpublished.trackSid);
+     if (!track) {
+diff --git a/src/room/track/LocalAudioTrack.ts b/src/room/track/LocalAudioTrack.ts
+index 05c6db4..e1c9590 100644
+--- a/src/room/track/LocalAudioTrack.ts
++++ b/src/room/track/LocalAudioTrack.ts
+@@ -1,3 +1,4 @@
++import { Mutex } from '@livekit/mutex';
+ import { AudioTrackFeature } from '@livekit/protocol';
+ import { TrackEvent } from '../events';
+ import { computeBitrate, monitorFrequency } from '../stats';
+@@ -45,6 +46,50 @@ export default class LocalAudioTrack extends LocalTrack<Track.Kind.Audio> {
+     this.checkForSilence();
+   }
+ 
++  /** WordPlus Mesh (rtc-client 1.0.7): the node said nobody hears this track (setMeshHeard). */
++  private meshUnheard = false;
++
++  private meshHeardLock = new Mutex();
++
++  /**
++   * WordPlus Mesh (rtc-client 1.0.7): stops sending this track while nobody hears it, as its mesh node says
++   * (SubscribedAudioCodecUpdate, its codec disabled), and sends it again when someone does. The sender's encodings
++   * are made inactive: the microphone is kept and the track isn't muted, so the page, the browser's indicator and
++   * the others' view of it stay as they are, and a track replaced or restarted meanwhile stays paused as told.
++   */
++  async setMeshHeard(heard: boolean) {
++    this.meshUnheard = !heard;
++    const unlock = await this.meshHeardLock.lock();
++    try {
++      const sender = this.sender;
++      if (!sender) {
++        return;
++      }
++      const params = sender.getParameters();
++      if (!params.encodings?.length) {
++        return;
++      }
++      const active = !this.meshUnheard;
++      if (params.encodings.every((e) => (e.active ?? true) === active)) {
++        return;
++      }
++      params.encodings.forEach((e) => {
++        e.active = active;
++      });
++      await sender.setParameters(params);
++      this.log.info(
++        active
++          ? 'someone hears the track again: sending it'
++          : 'nobody hears the track: not sending it',
++        this.logContext,
++      );
++    } catch (e) {
++      this.log.warn('could not change whether the track is sent', { ...this.logContext, error: e });
++    } finally {
++      unlock();
++    }
++  }
++
+   async mute(): Promise<typeof this> {
+     const unlock = await this.muteLock.lock();
+     try {
+diff --git a/src/room/utils.test.ts b/src/room/utils.test.ts
+index 3614abe..7c02dfb 100644
+--- a/src/room/utils.test.ts
++++ b/src/room/utils.test.ts
+@@ -1,15 +1,247 @@
+ import { ClientInfo_Capability } from '@livekit/protocol';
+ import { afterEach, describe, expect, it, vi } from 'vitest';
++import { ConnectionError } from './errors';
+ import {
+   ddExtensionURI,
++  deviceType,
+   extractMaxAgeFromRequestHeaders,
+   getClientInfo,
++  isMeshServer,
++  isMeshWait,
++  isServerFull,
++  meshAppParam,
++  meshJoinRetry,
++  meshRefusal,
++  meshWaitOn,
+   negotiateDependencyDescriptor,
++  networkQuality,
++  networkType,
++  resumeMoves,
++  retryAfterMs,
++  serverAnswers,
+   splitUtf8,
+   supportsAdaptiveStream,
+   toWebsocketUrl,
++  withMeshWait,
+ } from './utils';
+ 
++describe('WordPlus Mesh: what a node is told of the client for its live view', () => {
++  afterEach(() => {
++    vi.unstubAllGlobals();
++  });
++
++  it("names the room's product, with nothing a URL or a log would trip on", () => {
++    expect(meshAppParam()).toBeUndefined();
++    expect(meshAppParam({ name: 'better-messages', version: '3.1.3-dev.5d74df4e' })).toBe(
++      'better-messages/3.1.3-dev.5d74df4e',
++    );
++    expect(meshAppParam({ name: 'Easy Stream<script>', version: '1.0 beta' })).toBe(
++      'EasyStreamscript/1.0beta',
++    );
++    expect(meshAppParam({ name: 'wordplus-sdk' })).toBe('wordplus-sdk/');
++    expect(meshAppParam({ name: '', version: '1.0' })).toBeUndefined();
++  });
++
++  it("tells a phone, a tablet (an iPad's Mac user agent too) and a desktop apart", () => {
++    const as = (userAgent: string, maxTouchPoints = 0, mobile?: boolean) =>
++      vi.stubGlobal('navigator', {
++        userAgent,
++        maxTouchPoints,
++        userAgentData: mobile === undefined ? undefined : { mobile },
++      });
++    as('Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148');
++    expect(deviceType()).toBe('phone');
++    as('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15', 5);
++    expect(deviceType()).toBe('tablet');
++    as('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15', 0);
++    expect(deviceType()).toBe('desktop');
++    as(
++      'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/155.0.0.0 Mobile Safari/537.36',
++      5,
++      true,
++    );
++    expect(deviceType()).toBe('phone');
++    as(
++      'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/155.0.0.0 Safari/537.36',
++      5,
++      false,
++    );
++    expect(deviceType()).toBe('tablet');
++    as(
++      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/155.0.0.0 Safari/537.36',
++    );
++    expect(deviceType()).toBe('desktop');
++  });
++
++  it("reads the network's quality where the browser tells it, and says nothing where it doesn't", () => {
++    vi.stubGlobal('navigator', {
++      userAgent: 'x',
++      connection: { effectiveType: '4g', downlink: 8.5, rtt: 100, type: 'wifi' },
++    });
++    expect(networkQuality()).toBe('4g,8.5,100');
++    expect(networkType()).toBe('wifi');
++    vi.stubGlobal('navigator', { userAgent: 'x', connection: { effectiveType: '3g' } });
++    expect(networkQuality()).toBe('3g,,');
++    vi.stubGlobal('navigator', { userAgent: 'x' });
++    expect(networkQuality()).toBeUndefined();
++    expect(networkType()).toBeUndefined();
++  });
++});
++
++describe('WordPlus Mesh: a failed resume moves only off a server that has gone', () => {
++  afterEach(() => {
++    vi.unstubAllGlobals();
++  });
++
++  it('moves when its own server is silent and the next one answers, and stays otherwise', () => {
++    expect(resumeMoves(false, true)).toBe(true);
++    // the server is up: the resume failed on the way
++    expect(resumeMoves(true, true)).toBe(false);
++    expect(resumeMoves(true, false)).toBe(false);
++    // nothing answers: this client's own network is down
++    expect(resumeMoves(false, false)).toBe(false);
++  });
++
++  it("asks a server's HTTP origin for its signal URL, without CORS", async () => {
++    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
++    vi.stubGlobal('fetch', fetch);
++    expect(await serverAnswers('wss://n-5c03a.de.rtc.wordplus.cloud/rtc?access_token=x')).toBe(
++      true,
++    );
++    expect(fetch).toHaveBeenCalledWith(
++      'https://n-5c03a.de.rtc.wordplus.cloud/',
++      expect.objectContaining({ mode: 'no-cors', cache: 'no-store' }),
++    );
++    expect(await serverAnswers('ws://127.0.0.1:7880')).toBe(true);
++    expect(fetch).toHaveBeenLastCalledWith('http://127.0.0.1:7880/', expect.anything());
++  });
++
++  it('reads a refused request, a request past its time and a URL that is none as no answer', async () => {
++    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
++    expect(await serverAnswers('wss://gone.rtc.wordplus.cloud')).toBe(false);
++
++    vi.stubGlobal(
++      'fetch',
++      vi.fn((_url: string, init: RequestInit) => {
++        return new Promise((_resolve, reject) => {
++          init.signal?.addEventListener('abort', () =>
++            reject(new DOMException('aborted', 'AbortError')),
++          );
++        });
++      }),
++    );
++    const started = Date.now();
++    expect(await serverAnswers('wss://slow.rtc.wordplus.cloud', 30)).toBe(false);
++    expect(Date.now() - started).toBeLessThan(1000);
++
++    expect(await serverAnswers('not a url')).toBe(false);
++  });
++});
++
++describe('WordPlus Mesh: isMeshServer', () => {
++  it('is true on a mesh domain and the names under it, false elsewhere', () => {
++    expect(isMeshServer('wss://rtc.wordplus.cloud')).toBe(true);
++    expect(isMeshServer(new URL('wss://n-de.RTC.wordplus.cloud/rtc'))).toBe(true);
++    expect(isMeshServer('wss://video-cloud.example.com')).toBe(false);
++    expect(isMeshServer('wss://project.livekit.cloud')).toBe(false);
++    expect(isMeshServer('not a url')).toBe(false);
++  });
++});
++
++describe('WordPlus Mesh: join retries', () => {
++  const full = (retryAfter?: number) =>
++    ConnectionError.internal('server full', { status: 429, retryAfter });
++
++  it('reads Retry-After in seconds or as a date', () => {
++    expect(retryAfterMs('5')).toBe(5_000);
++    expect(retryAfterMs('0')).toBe(0);
++    expect(retryAfterMs(new Date(10_000).toUTCString(), 4_000)).toBe(6_000);
++    expect(retryAfterMs('soon')).toBeUndefined();
++    expect(retryAfterMs(null)).toBeUndefined();
++  });
++
++  it('tells a full cluster from other failures', () => {
++    expect(isServerFull(full(5_000))).toBe(true);
++    expect(isServerFull(ConnectionError.internal('boom', { status: 500 }))).toBe(false);
++    expect(isServerFull(ConnectionError.timeout('slow'))).toBe(false);
++    expect(isServerFull(new Error('x'))).toBe(false);
++  });
++
++  it('comes back on the slot a full node named, within a second after it', () => {
++    const now = 1_000;
++    expect(meshJoinRetry(full(5_000), now + 30_000, now, () => 0)).toBe(5_000);
++    expect(meshJoinRetry(full(5_000), now + 30_000, now, () => 0.999)).toBe(5_999);
++    expect(meshJoinRetry(full(0), now + 30_000, now, () => 0.5)).toBe(500);
++  });
++
++  it('waits a full cluster that names no wait out 5 s, give or take half', () => {
++    const now = 1_000;
++    expect(meshJoinRetry(full(), now + 30_000, now, () => 0)).toBe(2_500);
++    expect(meshJoinRetry(full(), now + 30_000, now, () => 0.5)).toBe(5_000);
++  });
++
++  it('starts over after 1-3 s when no server answered', () => {
++    const now = 1_000;
++    for (const e of [
++      ConnectionError.timeout('slow'),
++      ConnectionError.serverUnreachable('gone'),
++      ConnectionError.internal('boom'),
++    ]) {
++      expect(meshJoinRetry(e, now + 30_000, now, () => 0)).toBe(1_000);
++      expect(meshJoinRetry(e, now + 30_000, now, () => 1)).toBe(3_000);
++    }
++  });
++
++  it('gives up on a final error, or past its deadline', () => {
++    const now = 1_000;
++    expect(meshJoinRetry(ConnectionError.notAllowed('no', 401), now + 30_000, now)).toBeUndefined();
++    expect(meshJoinRetry(ConnectionError.cancelled('stop'), now + 30_000, now)).toBeUndefined();
++    expect(meshJoinRetry(full(5_000), now + 2_000, now, () => 0.5)).toBeUndefined();
++    expect(meshJoinRetry(new Error('x'), now + 30_000, now)).toBeUndefined();
++  });
++
++  it("reads a mesh node's refusal: its kind and the node that gave it", () => {
++    const refusal = (kind?: string, node?: string) =>
++      ConnectionError.internal('server full', {
++        status: 429,
++        retryAfter: 2_000,
++        refused: kind,
++        node,
++      });
++    expect(meshRefusal(refusal('busy', 'ND_a'))).toEqual({
++      kind: 'busy',
++      node: 'ND_a',
++      retryAfter: 2_000,
++    });
++    expect(meshRefusal(refusal('slot', 'ND_a'))?.kind).toBe('slot');
++    expect(meshRefusal(refusal('full'))?.kind).toBe('full');
++    expect(meshRefusal(refusal())).toEqual({ kind: undefined, node: undefined, retryAfter: 2_000 });
++    expect(meshRefusal(refusal('nonsense'))?.kind).toBeUndefined();
++    expect(meshRefusal(ConnectionError.timeout('slow'))).toBeUndefined();
++  });
++
++  it('says it will wait on a server by its URL, which the join and its validation both carry', () => {
++    expect(withMeshWait('wss://n-de.rtc.wordplus.cloud')).toBe(
++      'wss://n-de.rtc.wordplus.cloud/?mesh_wait=1',
++    );
++    expect(isMeshWait(withMeshWait('wss://n-de.rtc.wordplus.cloud'))).toBe(true);
++    expect(isMeshWait('wss://n-de.rtc.wordplus.cloud')).toBe(false);
++    expect(withMeshWait(withMeshWait('wss://a.example'))).toBe('wss://a.example/?mesh_wait=1');
++  });
++
++  it('waits on the home region that frees first, and on another region only without one', () => {
++    const busy = [
++      { url: 'de-1', region: 'de1', freeAt: 3_000 },
++      { url: 'de-2', region: 'de1', freeAt: 2_000 },
++      { url: 'sg-1', region: 'sgp1', freeAt: 500 },
++    ];
++    expect(meshWaitOn(busy, 'de1')?.url).toBe('de-2');
++    expect(meshWaitOn(busy, 'bhs5')?.url).toBe('sg-1');
++    expect(meshWaitOn(busy)?.url).toBe('sg-1');
++    expect(meshWaitOn([], 'de1')).toBeUndefined();
++  });
++});
++
+ describe('toWebsocketUrl', () => {
+   it('leaves wss urls alone', () => {
+     expect(toWebsocketUrl('ws://mywebsite.com')).toEqual('ws://mywebsite.com');
+diff --git a/src/room/utils.ts b/src/room/utils.ts
+index 3ab39e4..da4770c 100644
+--- a/src/room/utils.ts
++++ b/src/room/utils.ts
+@@ -304,12 +304,180 @@ export function isReactNative(): boolean {
+   return navigator.product == 'ReactNative';
+ }
+ 
++/**
++ * WordPlus Mesh: domains whose servers answer `/settings/regions` as LiveKit Cloud's do, so the
++ * client keeps a list of other servers and moves to the next one when its own can't be reached.
++ * A host matches the domain itself or any name under it.
++ */
++const regionDomains = new Set<string>(['rtc.wordplus.cloud']);
++
++/** WordPlus Mesh: adds domains served by a mesh, beside the built-in ones. */
++export function addRegionDomains(...domains: string[]) {
++  for (const d of domains) {
++    regionDomains.add(d.toLowerCase().replace(/^\.+|\.+$/g, ''));
++  }
++}
++
++function isRegionDomain(hostname: string) {
++  for (const d of regionDomains) {
++    if (hostname === d || hostname.endsWith(`.${d}`)) {
++      return true;
++    }
++  }
++  return false;
++}
++
++/**
++ * WordPlus Mesh: whether a server URL is a mesh's, one of its domains. A mesh tells the room a hang-up
++ * (`CLIENT_INITIATED`) from a client leaving only to join again (`SIGNAL_CLOSE`, SignalClient.sendLeave);
++ * any other server reports both as `CLIENT_INITIATED`.
++ */
++export function isMeshServer(serverUrl: string | URL) {
++  try {
++    return isRegionDomain(new URL(serverUrl).hostname.toLowerCase());
++  } catch {
++    return false;
++  }
++}
++
+ export function isCloud(serverUrl: URL) {
+   return (
+-    serverUrl.hostname.endsWith('.livekit.cloud') || serverUrl.hostname.endsWith('.livekit.run')
++    serverUrl.hostname.endsWith('.livekit.cloud') ||
++    serverUrl.hostname.endsWith('.livekit.run') ||
++    isRegionDomain(serverUrl.hostname.toLowerCase())
+   );
+ }
+ 
++/**
++ * WordPlus Mesh (rtc-client 1.0.6): a room's product (RoomConnectOptions.meshApp) as a join names it (rtc_app),
++ * "better-messages/3.1.3": letters, digits and . _ - only, 40 of each; none without a name.
++ */
++export function meshAppParam(app?: { name: string; version?: string }): string | undefined {
++  const clean = (s: unknown) =>
++    String(s ?? '')
++      .replace(/[^A-Za-z0-9._-]/g, '')
++      .slice(0, 40);
++  const name = clean(app?.name);
++  return name ? `${name}/${clean(app?.version)}` : undefined;
++}
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.6): the kind of device the browser runs on, as far as it can tell: an iPad says it is a
++ * Mac, and gives itself away by its touch screen; an Android tablet's browser leaves "Mobile" out of its user agent.
++ * Nothing it reads may fail a join: a navigator that throws (a wrapped one, a webview's) says nothing.
++ */
++export function deviceType(): 'phone' | 'tablet' | 'desktop' | undefined {
++  try {
++    if (typeof navigator === 'undefined' || !navigator.userAgent) {
++      return undefined;
++    }
++    const ua = navigator.userAgent;
++    if (/iPad/.test(ua) || (/Macintosh/.test(ua) && (navigator.maxTouchPoints ?? 0) > 1)) {
++      return 'tablet';
++    }
++    // @ts-ignore userAgentData is Chromium's
++    if (/iPhone|iPod|Mobi/.test(ua) || navigator.userAgentData?.mobile) {
++      return 'phone';
++    }
++    if (/Android/.test(ua)) {
++      return 'tablet';
++    }
++    return 'desktop';
++  } catch {
++    return undefined;
++  }
++}
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.6): the network's type, wifi, cellular, ethernet..., where the browser tells it
++ * (Chromium on Android and ChromeOS; a desktop's Chromium, Safari and Firefox don't). Upstream names it (network) only
++ * on a join without a join request; a mesh join names it on both.
++ */
++export function networkType(): string | undefined {
++  try {
++    // @ts-ignore Chromium's
++    const type = typeof navigator !== 'undefined' ? navigator.connection?.type : undefined;
++    return type
++      ? String(type)
++          .replace(/[^a-z0-9-]/gi, '')
++          .slice(0, 16) || undefined
++      : undefined;
++  } catch {
++    return undefined;
++  }
++}
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.6): the network's quality as Chromium's Network Information API says it, for a mesh
++ * node's live view (net_quality): its class, downlink in Mbit/s and round trip in ms, "4g,8.5,100"; none where the
++ * browser doesn't tell (Safari, Firefox).
++ */
++export function networkQuality(): string | undefined {
++  try {
++    // @ts-ignore Chromium's
++    const c = typeof navigator !== 'undefined' ? navigator.connection : undefined;
++    if (!c?.effectiveType) {
++      return undefined;
++    }
++    const n = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '');
++    return [
++      String(c.effectiveType)
++        .replace(/[^a-z0-9-]/gi, '')
++        .slice(0, 10),
++      n(c.downlink),
++      n(c.rtt),
++    ].join(',');
++  } catch {
++    return undefined;
++  }
++}
++
++/** WordPlus Mesh (rtc-client 1.0.5): how long (in ms) a probe of whether a server answers may take. */
++export const serverProbeTimeoutMs = 3_000;
++
++/** WordPlus Mesh (rtc-client 1.0.12): how many servers a failed resume probes before it stays where it is. */
++export const resumeMoveTries = 3;
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.5): whether a server answers an HTTP request within timeoutMs: its signal URL's
++ * origin over HTTP(S), fetched without CORS, so the answer can't be read and needn't be. A server that is up answers
++ * any request; one that is gone, or out of this client's reach, doesn't.
++ */
++export async function serverAnswers(
++  url: string,
++  timeoutMs = serverProbeTimeoutMs,
++): Promise<boolean> {
++  let origin: string;
++  try {
++    const u = new URL(url);
++    u.protocol = u.protocol.replace(/^ws/, 'http');
++    origin = u.origin;
++  } catch {
++    return false;
++  }
++  const timeout = new AbortController();
++  const timer = setTimeout(() => timeout.abort(), timeoutMs);
++  try {
++    await fetch(`${origin}/`, { mode: 'no-cors', cache: 'no-store', signal: timeout.signal });
++    return true;
++  } catch {
++    return false;
++  } finally {
++    clearTimeout(timer);
++  }
++}
++
++/**
++ * WordPlus Mesh (rtc-client 1.0.5): whether a failed resume goes to the next server of the region list: only when
++ * its own server has stopped answering and the next one answers. When its own still answers, the server is up and the
++ * resume failed on the way. When neither answers, it is this client's network that is down, and every server would
++ * fail alike: walking the list then took a phone in a call on France's node to Limburg and on to Canada during its
++ * own outage, and kept it there for the rest of the call (a large audio chat, 2026-10-17).
++ */
++export function resumeMoves(ownAnswers: boolean, nextAnswers: boolean): boolean {
++  return !ownAnswers && nextAnswers;
++}
++
+ export function extractProjectFromUrl(serverUrl: URL): string | null {
+   if (!isCloud(serverUrl)) {
+     return null;
+@@ -317,6 +485,133 @@ export function extractProjectFromUrl(serverUrl: URL): string | null {
+   return serverUrl.hostname.split('.')[0];
+ }
+ 
++/** WordPlus Mesh: how long a join keeps trying (Room.connect) before it reports its last error. */
++export const meshJoinBudgetMs = 30_000;
++
++/** WordPlus Mesh: the mesh's wait when every node is full, if its 429 names none. */
++const meshFullRetryMs = 5_000;
++
++/** WordPlus Mesh: a Retry-After header in ms: seconds, or an HTTP date; undefined if neither. */
++export function retryAfterMs(header: string | null, now = Date.now()): number | undefined {
++  if (!header) {
++    return undefined;
++  }
++  const seconds = Number(header);
++  if (Number.isFinite(seconds) && seconds >= 0) {
++    return seconds * 1000;
++  }
++  const at = Date.parse(header);
++  return Number.isNaN(at) ? undefined : Math.max(0, at - now);
++}
++
++/** WordPlus Mesh: the answer of a server whose cluster has no room for another participant. */
++export function isServerFull(error: unknown): boolean {
++  return (
++    error instanceof Error &&
++    (error as ConnectionError).reason === ConnectionErrorReason.InternalError &&
++    (error as ConnectionError<any>).context?.status === 429
++  );
++}
++
++/**
++ * WordPlus Mesh: whether, and after how long, a join that failed tries again from the best server
++ * (Room.connect). A node that refused it named a slot of its own in Retry-After, reserved for this
++ * join (a mesh node hands a rush's refused joins slots one after another, at the rate it takes
++ * joins), so the join comes back on it: the whole seconds the header names, which are never short
++ * of the slot, and up to one more, so the joins whose slots fall in one second don't all come at
++ * its end. Earlier would be refused again, later would lose its place to the next. A server that
++ * names no wait (an older one) is waited out 5 s, give or take half. A server that can't be
++ * reached, times out or fails, once every server of the list was tried, is tried again from the top
++ * after 1-3 s. Undefined when the join should give up: the error is final (refused, cancelled), or
++ * the wait would end past the join's deadline.
++ */
++export function meshJoinRetry(
++  error: unknown,
++  deadline: number,
++  now = Date.now(),
++  random = Math.random,
++): number | undefined {
++  if (!(error instanceof Error) || !('reason' in error)) {
++    return undefined;
++  }
++  let delay: number;
++  if (isServerFull(error)) {
++    const retryAfter: number | undefined = (error as ConnectionError<any>).context?.retryAfter;
++    delay =
++      retryAfter !== undefined ? retryAfter + 1_000 * random() : meshFullRetryMs * (0.5 + random());
++  } else if (
++    [
++      ConnectionErrorReason.InternalError,
++      ConnectionErrorReason.ServerUnreachable,
++      ConnectionErrorReason.Timeout,
++      ConnectionErrorReason.WebSocket,
++    ].includes((error as ConnectionError).reason)
++  ) {
++    delay = 1_000 + 2_000 * random();
++  } else {
++    return undefined;
++  }
++  return now + delay < deadline ? Math.round(delay) : undefined;
++}
++
++/**
++ * WordPlus Mesh: what a mesh node's 429 says (the server's pkg/mesh/gate.go). `busy`: only this node
++ * is busy and it keeps nothing for the join, which tries its list's next server now. `slot`: a slot
++ * is kept for the join on this node, at retryAfter. `full`: no node has room, and a slot is kept
++ * here as for `slot`. Undefined kind from a server that names none (an older one, LiveKit Cloud).
++ */
++export type MeshRefusal = {
++  kind?: 'busy' | 'slot' | 'full';
++  node?: string;
++  retryAfter?: number;
++};
++
++/** WordPlus Mesh: the mesh's refusal in a failed join's error; undefined if it isn't one (isServerFull). */
++export function meshRefusal(error: unknown): MeshRefusal | undefined {
++  if (!isServerFull(error)) {
++    return undefined;
++  }
++  const context = (error as ConnectionError<any>).context ?? {};
++  const kind = ['busy', 'slot', 'full'].includes(context.refused) ? context.refused : undefined;
++  return { kind, node: context.node || undefined, retryAfter: context.retryAfter };
++}
++
++/**
++ * WordPlus Mesh: a server's URL with the join saying it will wait there (mesh_wait=1): a busy node
++ * keeps it a slot rather than only saying it is busy. livekit-client keeps a server URL's query on
++ * the join and on its validation alike (createV0RtcUrl, createValidateUrl).
++ */
++export function withMeshWait(url: string): string {
++  const u = new URL(url);
++  u.searchParams.set('mesh_wait', '1');
++  return u.toString();
++}
++
++/** WordPlus Mesh: whether a server URL is one the join said it will wait on (withMeshWait). */
++export function isMeshWait(url: string): boolean {
++  try {
++    return new URL(url).searchParams.get('mesh_wait') === '1';
++  } catch {
++    return false;
++  }
++}
++
++/**
++ * WordPlus Mesh: of the busy servers a join found, the one to wait on: the home region's that frees
++ * first, and only when the home region had none of them, another region's. A user waits a little
++ * near rather than be served far.
++ */
++export function meshWaitOn<T extends { region?: string; freeAt: number }>(
++  busy: T[],
++  home?: string,
++): T | undefined {
++  const near = busy.filter((b) => home !== undefined && b.region === home);
++  return (near.length ? near : busy).reduce<T | undefined>(
++    (best, b) => (!best || b.freeAt < best.freeAt ? b : best),
++    undefined,
++  );
++}
++
+ function getLKReactNativeInfo(): LiveKitReactNativeInfo | undefined {
+   // global defined only for ReactNative.
+   // @ts-ignore
+diff --git a/src/utils/hardwareDecoders.test.ts b/src/utils/hardwareDecoders.test.ts
+new file mode 100644
+index 0000000..93f2d40
+--- /dev/null
++++ b/src/utils/hardwareDecoders.test.ts
+@@ -0,0 +1,64 @@
++import { afterEach, describe, expect, it, vi } from 'vitest';
++import { forgetHardwareDecoders, hardwareDecoders, hardwareEncoders } from './hardwareDecoders';
++
++const withCapabilities = (mediaCapabilities: unknown) =>
++  vi.stubGlobal('navigator', Object.assign(Object.create(navigator), { mediaCapabilities }));
++
++describe('hardwareDecoders (WordPlus Mesh)', () => {
++  afterEach(() => {
++    vi.unstubAllGlobals();
++    forgetHardwareDecoders();
++  });
++
++  it('names the codecs decoded power efficiently, in a fixed order, asked for WebRTC at 720p', async () => {
++    const decodingInfo = vi.fn(async (config: { type: string; video: { contentType: string; height: number } }) => ({
++      supported: config.video.contentType !== 'video/AV1',
++      powerEfficient: !config.video.contentType.startsWith('video/VP8'),
++    }));
++    withCapabilities({ decodingInfo });
++    expect(await hardwareDecoders()).toEqual(['h264', 'h265', 'vp9']);
++    expect(decodingInfo.mock.calls.every(([c]) => c.type === 'webrtc' && c.video.height === 720)).toBe(true);
++  });
++
++  it('says nothing where the browser cannot tell: no mediaCapabilities, every probe refused, or no answer in time', async () => {
++    withCapabilities(undefined);
++    expect(await hardwareDecoders()).toBeUndefined();
++
++    forgetHardwareDecoders();
++    withCapabilities({ decodingInfo: async () => Promise.reject(new TypeError('no webrtc type')) });
++    expect(await hardwareDecoders()).toBeUndefined();
++
++    forgetHardwareDecoders();
++    withCapabilities({ decodingInfo: () => new Promise(() => {}) });
++    expect(await hardwareDecoders(20)).toBeUndefined();
++  });
++
++  it('says an empty list when it decodes none in hardware', async () => {
++    withCapabilities({ decodingInfo: async () => ({ supported: true, powerEfficient: false }) });
++    expect(await hardwareDecoders()).toEqual([]);
++  });
++
++  it('counts H.264 encoded in hardware in Baseline as well as Constrained Baseline, as Chrome on a desktop answers', async () => {
++    // Chrome 155 on a Mac: VideoToolbox for Baseline, OpenH264 for Constrained Baseline; H.265 in hardware
++    const chrome = async (config: { video: { contentType: string } }) => ({
++      supported: true,
++      powerEfficient: /42001f|h265/i.test(config.video.contentType),
++    });
++    const encodingInfo = vi.fn(chrome);
++    const decodingInfo = vi.fn(chrome);
++    withCapabilities({ encodingInfo, decodingInfo });
++    expect(await hardwareEncoders()).toEqual(['h264', 'h265']);
++    // the decoders are asked as before, Constrained Baseline alone
++    expect(await hardwareDecoders()).toEqual(['h265']);
++    expect(decodingInfo.mock.calls.some(([c]) => /42001f/.test(c.video.contentType))).toBe(false);
++  });
++
++  it('counts H.264 once when both answers say hardware, and not at all when neither does', async () => {
++    withCapabilities({ encodingInfo: async () => ({ supported: true, powerEfficient: true }) });
++    expect(await hardwareEncoders()).toEqual(['h264', 'h265', 'vp8', 'vp9', 'av1']);
++
++    forgetHardwareDecoders();
++    withCapabilities({ encodingInfo: async (c: { video: { contentType: string } }) => ({ supported: true, powerEfficient: c.video.contentType === 'video/H265' }) });
++    expect(await hardwareEncoders()).toEqual(['h265']);
++  });
++});
+diff --git a/src/utils/hardwareDecoders.ts b/src/utils/hardwareDecoders.ts
+new file mode 100644
+index 0000000..f12e17c
+--- /dev/null
++++ b/src/utils/hardwareDecoders.ts
+@@ -0,0 +1,109 @@
++/**
++ * WordPlus Mesh: the video codecs this browser decodes in hardware, which a join names (mesh_hwdec) so the node
++ * gives it a track in one of them before any other codec the track has, and its CPU decodes only what it has no
++ * hardware for. Asked once a page of navigator.mediaCapabilities, for WebRTC at 720p: a codec counts when it is
++ * supported and power efficient. Undefined where the browser can't tell (no mediaCapabilities, or no answer within
++ * the wait), and a join then says nothing: the node gives it the track's own codec first, as before.
++ *
++ * 1.0.8: and those it encodes in hardware, which a join names too (mesh_hwenc), for the node's live view: what a
++ * server's codec policy (Room.meshCodecPolicy) could have each publisher send, before it asks for it.
++ */
++const PROBES: [name: string, contentType: string][] = [
++  ['h264', 'video/H264;profile-level-id=42e01f;packetization-mode=1'],
++  ['h265', 'video/H265'],
++  ['vp8', 'video/VP8'],
++  ['vp9', 'video/VP9'],
++  ['av1', 'video/AV1'],
++];
++
++/**
++ * 1.0.9: encoders are asked of H.264 Baseline too, and H.264 counts when either answer does. Chrome on a desktop
++ * encodes Baseline, Main and High in hardware (VideoToolbox on a Mac, Media Foundation on Windows) and the Constrained
++ * Baseline asked above in OpenH264, and answers so per profile (Chrome 155, 2026-10-18); WordPlus Mesh 1.0.34 takes
++ * its Baseline, so its H.264 is hardware's, which the live view showed as software. Decoders answer alike for both.
++ */
++const ENCODE_PROBES: [name: string, contentType: string][] = [
++  ...PROBES,
++  ['h264', 'video/H264;profile-level-id=42001f;packetization-mode=1'],
++];
++
++/** How long a join waits for the answer, the first time. */
++export const hardwareDecodersWaitMs = 300;
++
++type Kind = 'decodingInfo' | 'encodingInfo';
++
++const asked: Partial<Record<Kind, Promise<string[] | undefined>>> = {};
++
++type CapabilitiesProbe = Partial<
++  Record<Kind, (config: unknown) => Promise<{ supported: boolean; powerEfficient?: boolean }>>
++>;
++
++async function probe(kind: Kind): Promise<string[] | undefined> {
++  const capabilities =
++    typeof navigator !== 'undefined'
++      ? ((navigator as unknown as { mediaCapabilities?: CapabilitiesProbe }).mediaCapabilities ??
++        undefined)
++      : undefined;
++  const ask = capabilities?.[kind];
++  if (!capabilities || typeof ask !== 'function') {
++    return undefined;
++  }
++  let answered = 0;
++  const found: string[] = [];
++  await Promise.all(
++    (kind === 'encodingInfo' ? ENCODE_PROBES : PROBES).map(async ([name, contentType]) => {
++      try {
++        const info = await ask.call(capabilities, {
++          type: 'webrtc',
++          video: { contentType, width: 1280, height: 720, bitrate: 2_000_000, framerate: 30 },
++        });
++        answered++;
++        if (info.supported && info.powerEfficient) {
++          found.push(name);
++        }
++      } catch {
++        // a codec this browser doesn't know by that name
++      }
++    }),
++  );
++  if (answered === 0) {
++    return undefined;
++  }
++  return PROBES.map(([name]) => name).filter((name) => found.includes(name));
++}
++
++async function inHardware(kind: Kind, waitMs: number): Promise<string[] | undefined> {
++  asked[kind] ??= probe(kind).catch(() => undefined);
++  let timer: ReturnType<typeof setTimeout> | undefined;
++  const late = new Promise<undefined>((resolve) => {
++    timer = setTimeout(() => resolve(undefined), waitMs);
++  });
++  try {
++    return await Promise.race([asked[kind]!, late]);
++  } finally {
++    clearTimeout(timer);
++  }
++}
++
++/**
++ * The codecs this browser decodes in hardware, as the join names them ("h264", "h265", "vp8", "vp9", "av1"); undefined
++ * when it can't tell within `waitMs`. The answer stays for the page.
++ */
++export function hardwareDecoders(
++  waitMs: number = hardwareDecodersWaitMs,
++): Promise<string[] | undefined> {
++  return inHardware('decodingInfo', waitMs);
++}
++
++/** WordPlus Mesh (1.0.8): the codecs this browser encodes in hardware, as hardwareDecoders() those it decodes. */
++export function hardwareEncoders(
++  waitMs: number = hardwareDecodersWaitMs,
++): Promise<string[] | undefined> {
++  return inHardware('encodingInfo', waitMs);
++}
++
++/** @internal for tests: ask again. */
++export function forgetHardwareDecoders() {
++  delete asked.decodingInfo;
++  delete asked.encodingInfo;
++}
+diff --git a/src/version.ts b/src/version.ts
+index 75ad4d2..2fef043 100644
+--- a/src/version.ts
++++ b/src/version.ts
+@@ -3,6 +3,13 @@ import { version as v } from '../package.json';
+ export const version = v;
+ export const protocolVersion = 17;
+ 
++/**
++ * WordPlus Mesh: @wordplus/rtc-client's own version, which a mesh node is told on each join (rtc_client) beside the
++ * upstream version the client reports as its SDK's, which servers and SDKs gate protocol features on. build.sh refuses
++ * a patch whose version here isn't the one its revisions list.
++ */
++export const rtcClientVersion = '1.0.13';
++
+ /** Initial client protocol. */
+ export const CLIENT_PROTOCOL_DEFAULT = 0;
+ /** Replaces RPC v1 protocol with a v2 data streams based one to support unlimited request /

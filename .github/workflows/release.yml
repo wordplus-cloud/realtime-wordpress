@@ -1,0 +1,29 @@
+# The release of a Composer package (wordplus/realtime, wordplus/realtime-php): a tag vX.Y.Z, pushed by WordPlus's
+# publish script with the release's files, makes the GitHub release with the package's zip, for copying it into a
+# project without Composer. Packagist reads the tag itself.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The package's zip
+        run: |
+          name="$(jq -r .name composer.json | tr / -)-${GITHUB_REF_NAME#v}"
+          git archive --format=zip -o "$name.zip" HEAD
+          echo "ZIP=$name.zip" >> "$GITHUB_ENV"
+
+      - name: The GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$ZIP" --title "$GITHUB_REF_NAME" --notes "$(jq -r .name composer.json) ${GITHUB_REF_NAME#v}"

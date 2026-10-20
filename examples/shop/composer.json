@@ -1,0 +1,15 @@
+{
+    "name": "wordplus/realtime-wordpress-example",
+    "type": "wordpress-plugin",
+    "description": "The API demo on WordPress: the rooms, presence, webhooks, calls and group calls of wordplus/realtime, and the Better Messages screens.",
+    "license": "GPL-2.0-or-later",
+    "repositories": [
+        { "type": "path", "url": "../..", "options": { "symlink": false } }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "wordplus/realtime": "*@dev"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

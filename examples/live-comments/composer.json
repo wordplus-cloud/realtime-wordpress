@@ -1,0 +1,10 @@
+{
+    "name": "wordplus/live-comments-example",
+    "description": "An example of the WordPlus realtime SDK: comments appear live, with who is reading.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4",
+        "wordplus/realtime": "^1.0"
+    }
+}
