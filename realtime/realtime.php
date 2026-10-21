@@ -168,7 +168,7 @@ if ( ! function_exists( 'wordplus_realtime_call_screen_script' ) ) {
 	 * `wordplus-realtime-call-screen` after the calls script it runs on. An empty string when no copy
 	 * carries it, or the calls.
 	 *
-	 * Since protocol 3 the screen is @wordplus/realtime-ui's elements (realtime-ui.min.js): Better Messages'
+	 * Since protocol 3 the screen is @wordplus/realtime-ui's elements (realtime-ui.min.js): the Better Messages
 	 * call screens, on the same elements and the same `window.wordplusRealtimeCalls.page()`. A copy from
 	 * before carries the old screen under its own names, which still count; a copy carrying both gives the
 	 * new one.

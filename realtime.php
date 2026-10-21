@@ -29,7 +29,7 @@ if ( ! isset( $GLOBALS['wordplus_realtime_sdk_copies'] ) || ! is_array( $GLOBALS
 	$GLOBALS['wordplus_realtime_sdk_copies'] = array();
 }
 
-$GLOBALS['wordplus_realtime_sdk_copies'][ __DIR__ ] = '1.0.0';
+$GLOBALS['wordplus_realtime_sdk_copies'][ __DIR__ ] = '1.0.1';
 
 if ( ! function_exists( 'wordplus_realtime' ) ) {
 	/**

@@ -1,7 +1,7 @@
 {
   "name": "@wordplus/realtime-client",
   "version": "1.0.16",
-  "description": "How every WordPlus product's browser code connects to the realtime server: one connection per browser shared by every product (its connector and SharedWorker), direct connections to its nodes, moves when a node drains, and the node cache they share; channels() for any plugin's channels, presence and events on it, sealed end to end; the call engine every product runs (./calls); and Easy Stream's live stream engine (./streams)",
+  "description": "How every WordPlus product's browser code connects to the realtime server: one connection per browser shared by every product (its connector and SharedWorker), direct connections to its nodes, moves when a node drains, and the node cache they share. Also channels() for any plugin's channels, presence and events on it, sealed end to end, the call engine every product runs (./calls), and Easy Stream's live stream engine (./streams)",
   "license": "MIT",
   "private": true,
   "type": "module",

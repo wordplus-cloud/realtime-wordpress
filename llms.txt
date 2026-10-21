@@ -1,18 +1,18 @@
 # wordplus/realtime
 
-> The WordPlus realtime SDK for WordPress, on WordPlus Cloud: rooms with presence, live counts and history, events from the server and between browsers, who is online and sending to a user, for any plugin or theme; calls between two people that ring in the browser, group calls, and Better Messages' ready-made screens. PHP declares the rooms and calls by pattern and decides who may use each; the browser part joins, sends and runs the calls.
+> The WordPlus realtime SDK for WordPress, on WordPlus Cloud: rooms with presence, live counts and history, events from the server and between browsers, who is online and sending to a user, for any plugin or theme. Calls between two people that ring in the browser, group calls, and the ready-made Better Messages screens. PHP declares the rooms and calls by pattern and decides who may use each. The browser part joins, sends and runs the calls.
 
 ## Docs
 
 - [Getting started](docs/getting-started.md): installing with Composer, the site's credentials, a first room and a first call
 - [Rooms](docs/rooms.md): names, owning rooms by pattern with a rule, their options, joining in the browser, history
-- [Presence](docs/presence.md): who is in a room, members' info, visitors, live counts, who is online across the site
+- [Presence](docs/presence.md): who is in a room, each member's info, visitors, live counts, who is online across the site
 - [Sending from your server](docs/sending.md): to()->emit(), to_user()->emit(), except() and tab(), batch(), in() and online(), webhooks with on()
 - [Events from the page](docs/events.md): events between browsers, acks, volatile, keeping the conversation from the webhook, the ready-made chat
 - [Calls](docs/calls.md): calls between two people, ringing, answering, the Call object, end reasons
 - [Group calls](docs/group-calls.md): group_calls(), group calls on WordPlus Cloud's media servers
 - [The call screen](docs/call-screen.md): <call-button>, <room-button>, the ring and the call window, the other ready-made parts
-- [Encryption and the site's users](docs/encryption.md): what is sealed by default, keys(), who gets which key, rotating, rt.users() and the users' directory
+- [Encryption and the site's users](docs/encryption.md): what is sealed by default, keys(), who gets which key, rotating, rt.users() and the directory of users
 - [PHP reference](docs/php-reference.md): every method, route and filter
 - [JavaScript reference](docs/javascript-reference.md): wordplusRealtimeClient, wordplusRealtimeCalls, wordplusRealtimeUi
 - [Errors](docs/errors.md): every refusal's code

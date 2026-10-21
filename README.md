@@ -2,11 +2,11 @@
 
 The realtime SDK for any WordPress plugin, theme or custom code on a site with a WordPlus Cloud subscription:
 
-- **Rooms:** events from your server to browsers and between browsers, with presence, live counts and 5 minutes of history for pages that reconnect; who is online across the site; and sending to a user.
+- **Rooms:** events from your server to browsers and between browsers, with presence, live counts and 5 minutes of history for pages that reconnect. Also who is online across the site, and sending to a user.
 - **Calls between two people:** they ring in the browser and run directly between the two browsers, through TURN when a network needs it, or in a room on WordPlus Cloud's media servers when nothing else works.
 - **Group calls:** rooms on WordPlus Cloud's media servers, which span regions.
-- **Better Messages' screens, ready-made:** call buttons, the ring and the call window, who is in a room, and the chat, with no JavaScript to write.
-- **Encrypted, with WordPress's own users:** what your plugin sends goes sealed with keys only the site and its users hold, so WordPlus Cloud carries it without reading it, and every plugin on the site shares one directory of its users' names and avatars.
+- **The Better Messages screens, ready-made:** call buttons, the ring and the call window, who is in a room, and the chat, with no JavaScript to write.
+- **Encrypted, with WordPress's own users:** what your plugin sends goes sealed with keys only the site and its users hold, so WordPlus Cloud carries it without reading it, and every plugin on the site shares one directory with the names and avatars of its users.
 
 Everything rides the one connection a page shares with WordPlus's own plugins, which connects straight to a realtime server and moves to another without a drop when one restarts.
 
@@ -43,8 +43,8 @@ wordplus_realtime()->to( 'order:42' )->emit( 'updated', array( 'status' => 'paid
 5. [Events from the page](docs/events.md): events between browsers, keeping the conversation, the chat.
 6. [Calls](docs/calls.md): calls between two people, ringing, and your own call interface.
 7. [Group calls](docs/group-calls.md): rooms on the media servers.
-8. [The call screen](docs/call-screen.md): Better Messages' screens, ready-made.
-9. [Encryption and the site's users](docs/encryption.md): what is sealed, who gets which key, the users' directory.
+8. [The call screen](docs/call-screen.md): the Better Messages screens, ready-made.
+9. [Encryption and the site's users](docs/encryption.md): what is sealed, who gets which key, the directory of users.
 10. [PHP reference](docs/php-reference.md) and [JavaScript reference](docs/javascript-reference.md).
 11. [Errors](docs/errors.md), [limits](docs/limits.md) and [other servers](docs/self-hosted.md).
 12. [The example](docs/example.md): the API demo as a plugin, and the demo at wordpress.docs.wordplus.cloud.
