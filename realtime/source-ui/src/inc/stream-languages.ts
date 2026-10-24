@@ -9,11 +9,11 @@ import he from "../languages/streams/he.json";
 import { addLanguages } from "./translations.ts";
 
 /**
- * Gives the package's translator the live streams' words in the WordPlus languages, in their text domain, `wordplus-stream`.
+ * Gives the package's translator the live streams' words in the WordPlus languages, in their text domain, `wordplus-live-stream`.
  * They are kept apart from the shared ones (scripts/languages.mjs keeps both), so only a script with the stream's views
  * carries them: the elements' realtime-ui.min.js stays its size without them. The views' i18n.ts calls it, and Easy
  * Stream's WordPress build replaces that module with wp.i18n, so its scripts carry none of them either.
  */
 export function addStreamLanguages(): void {
-    addLanguages( "wordplus-stream", { de, es, fr, it, nl, pl, hr, he } );
+    addLanguages( "wordplus-live-stream", { de, es, fr, it, nl, pl, hr, he } );
 }

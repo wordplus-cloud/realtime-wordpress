@@ -88,8 +88,8 @@ export function useGroupCall(
 
         // A listener starts with nothing on: what they may not send, they never ask the browser for.
         if ( group.can?.publish !== false ) {
-            void media.enableMic();
-            if ( type === 'video' ) void media.enableCamera();
+            // On a video call, the camera asked for with the microphone, so the browser asks once.
+            void ( type === 'video' ? media.enableMicAndCamera() : media.enableMic() );
         }
 
         const tick = window.setInterval( () => {

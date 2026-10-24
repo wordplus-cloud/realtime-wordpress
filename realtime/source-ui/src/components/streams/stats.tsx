@@ -14,38 +14,41 @@ import {sentText} from "./studio.tsx";
 
 const EVERY_MS = 1000;
 
-const ms = ( n : number ) => sprintf( _x( '%s ms', 'a length of time in milliseconds', 'wordplus-stream' ), count( n ) );
-const seconds = ( n : number ) => sprintf( _x( '%s s', 'a length of time in seconds', 'wordplus-stream' ), ( Math.round( n / 100 ) / 10 ).toLocaleString() );
-const percent = ( n : number ) => sprintf( _x( '%s%%', 'a percentage', 'wordplus-stream' ), n.toLocaleString() );
-const kbps = ( n : number ) => sprintf( _x( '%s kbps', 'kilobits a second', 'wordplus-stream' ), count( n ) );
-const height = ( n : number ) => sprintf( _x( '%dp', 'a picture\'s height, as in 720p', 'wordplus-stream' ), n );
+const ms = ( n : number ) => sprintf( _x( '%s ms', 'a length of time in milliseconds', 'wordplus-live-stream' ), count( n ) );
+const seconds = ( n : number ) => sprintf( _x( '%s s', 'a length of time in seconds', 'wordplus-live-stream' ), ( Math.round( n / 100 ) / 10 ).toLocaleString() );
+const percent = ( n : number ) => sprintf( _x( '%s%%', 'a percentage', 'wordplus-live-stream' ), n.toLocaleString() );
+const kbps = ( n : number ) => sprintf( _x( '%s kbps', 'kilobits a second', 'wordplus-live-stream' ), count( n ) );
+const height = ( n : number ) => sprintf( _x( '%dp', 'a picture\'s height, as in 720p', 'wordplus-live-stream' ), n );
 
 function eventName( kind : PlaybackEvent['kind'] ) : string {
     switch( kind ){
-        case 'joining': return _x( 'Joining', 'a stream\'s video, in the statistics', 'wordplus-stream' );
-        case 'joined': return _x( 'Joined', 'a stream\'s video, in the statistics', 'wordplus-stream' );
-        case 'first-frame': return _x( 'First picture', 'in the statistics', 'wordplus-stream' );
-        case 'stalled': return _x( 'Picture stopped', 'in the statistics', 'wordplus-stream' );
-        case 'resumed': return _x( 'Picture back', 'in the statistics', 'wordplus-stream' );
-        case 'reconnecting': return __( 'Reconnecting…', 'wordplus-stream' );
-        case 'reconnected': return _x( 'Reconnected', 'in the statistics', 'wordplus-stream' );
-        case 'rejoined': return _x( 'Joined again', 'a stream\'s video, in the statistics', 'wordplus-stream' );
-        case 'offline': return __( 'You are offline', 'wordplus-stream' );
-        case 'online': return _x( 'Online again', 'in the statistics', 'wordplus-stream' );
-        case 'quality': return _x( 'Quality chosen', 'in the statistics', 'wordplus-stream' );
-        case 'error': return _x( 'Error', 'in the statistics', 'wordplus-stream' );
-        case 'published': return _x( 'Started sending', 'the camera, microphone or screen, in the statistics', 'wordplus-stream' );
-        case 'unpublished': return _x( 'Stopped sending', 'the camera, microphone or screen, in the statistics', 'wordplus-stream' );
-        default: return _x( 'Left', 'a stream\'s video, in the statistics', 'wordplus-stream' );
+        case 'joining': return _x( 'Joining', 'a stream\'s video, in the statistics', 'wordplus-live-stream' );
+        case 'joined': return _x( 'Joined', 'a stream\'s video, in the statistics', 'wordplus-live-stream' );
+        case 'first-frame': return _x( 'First picture', 'in the statistics', 'wordplus-live-stream' );
+        case 'stalled': return _x( 'Picture stopped', 'in the statistics', 'wordplus-live-stream' );
+        case 'resumed': return _x( 'Picture back', 'in the statistics', 'wordplus-live-stream' );
+        case 'reconnecting': return __( 'Reconnecting…', 'wordplus-live-stream' );
+        case 'reconnected': return _x( 'Reconnected', 'in the statistics', 'wordplus-live-stream' );
+        case 'rejoined': return _x( 'Joined again', 'a stream\'s video, in the statistics', 'wordplus-live-stream' );
+        case 'offline': return __( 'You are offline', 'wordplus-live-stream' );
+        case 'online': return _x( 'Online again', 'in the statistics', 'wordplus-live-stream' );
+        case 'quality': return _x( 'Quality chosen', 'in the statistics', 'wordplus-live-stream' );
+        case 'error': return _x( 'Error', 'in the statistics', 'wordplus-live-stream' );
+        case 'published': return _x( 'Started sending', 'the camera, microphone or screen, in the statistics', 'wordplus-live-stream' );
+        case 'unpublished': return _x( 'Stopped sending', 'the camera, microphone or screen, in the statistics', 'wordplus-live-stream' );
+        case 'too-slow': return _x( 'Connection too slow for the picture', 'in the statistics', 'wordplus-live-stream' );
+        case 'picture-off': return _x( 'Picture off', 'on a slow connection, in the statistics', 'wordplus-live-stream' );
+        case 'picture-retry': return _x( 'Picture tried again', 'on a slow connection, in the statistics', 'wordplus-live-stream' );
+        default: return _x( 'Left', 'a stream\'s video, in the statistics', 'wordplus-live-stream' );
     }
 }
 
 // What sends, by the RTC client's name for it.
 function sourceName( source : string ) : string {
     switch( source ){
-        case 'camera': return __( 'Camera', 'wordplus-stream' );
-        case 'microphone': return __( 'Microphone', 'wordplus-stream' );
-        case 'screen_share': return _x( 'Screen', 'a shared screen, in the statistics', 'wordplus-stream' );
+        case 'camera': return __( 'Camera', 'wordplus-live-stream' );
+        case 'microphone': return __( 'Microphone', 'wordplus-live-stream' );
+        case 'screen_share': return _x( 'Screen', 'a shared screen, in the statistics', 'wordplus-live-stream' );
         default: return source;
     }
 }
@@ -61,15 +64,15 @@ function eventDetail( event : PlaybackEvent ) : string {
 
 function limitName( limit : SendLimit ) : string {
     switch( limit ){
-        case 'cpu': return _x( 'The computer', 'what holds a picture back, in the statistics', 'wordplus-stream' );
-        case 'bandwidth': return _x( 'The connection', 'what holds a picture back, in the statistics', 'wordplus-stream' );
-        case 'other': return _x( 'Something else', 'what holds a picture back, in the statistics', 'wordplus-stream' );
+        case 'cpu': return _x( 'The computer', 'what holds a picture back, in the statistics', 'wordplus-live-stream' );
+        case 'bandwidth': return _x( 'The connection', 'what holds a picture back, in the statistics', 'wordplus-live-stream' );
+        case 'other': return _x( 'Something else', 'what holds a picture back, in the statistics', 'wordplus-live-stream' );
         default: return '–';
     }
 }
 
 const size = ( width : number, height : number ) => width + '×' + height;
-const fps = ( n : number ) => sprintf( _x( '%d fps', 'frames a second', 'wordplus-stream' ), n );
+const fps = ( n : number ) => sprintf( _x( '%d fps', 'frames a second', 'wordplus-live-stream' ), n );
 
 type Row = [ string, ReactNode ] | null;
 
@@ -103,25 +106,25 @@ function PictureOut( props : { video : VideoOut } ){
     const sum = ( pick : ( l : VideoOut['layers'][number] ) => number ) => video.layers.reduce( ( n, l ) => n + pick( l ), 0 );
 
     return (
-        <Section title={ video.source === 'screen' ? _x( 'Sending the screen', 'in the statistics', 'wordplus-stream' ) : _x( 'Sending the camera', 'in the statistics', 'wordplus-stream' ) } rows={ [
-            video.capture ? [ _x( 'Captured', 'the picture a camera or screen gives, in the statistics', 'wordplus-stream' ), size( video.capture.width, video.capture.height ) + ' · ' + fps( video.capture.fps ) ] : null,
-            video.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-stream' ), [ video.codec, encoder?.encoder, encoder?.hardware ? _x( 'in hardware', 'a video encoded by the device chip', 'wordplus-stream' ) : null ].filter( Boolean ).join( ', ' ) ] : null,
-            [ _x( 'Bitrate', 'in the statistics', 'wordplus-stream' ), kbps( video.kbps ) ],
+        <Section title={ video.source === 'screen' ? _x( 'Sending the screen', 'in the statistics', 'wordplus-live-stream' ) : _x( 'Sending the camera', 'in the statistics', 'wordplus-live-stream' ) } rows={ [
+            video.capture ? [ _x( 'Captured', 'the picture a camera or screen gives, in the statistics', 'wordplus-live-stream' ), size( video.capture.width, video.capture.height ) + ' · ' + fps( video.capture.fps ) ] : null,
+            video.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-live-stream' ), [ video.codec, encoder?.encoder, encoder?.hardware ? _x( 'in hardware', 'a video encoded by the device chip', 'wordplus-live-stream' ) : null ].filter( Boolean ).join( ', ' ) ] : null,
+            [ _x( 'Bitrate', 'in the statistics', 'wordplus-live-stream' ), kbps( video.kbps ) ],
             ...video.layers.map( ( l ) : Row => [
-                sprintf( _x( 'Layer %s', 'a simulcast layer by its height, as 720p, in the statistics', 'wordplus-stream' ), l.height > 0 ? height( l.height ) : ( l.rid ?? '' ) ),
-                ! l.active ? _x( 'Off, no viewer needs it', 'a simulcast layer, in the statistics', 'wordplus-stream' )
+                sprintf( _x( 'Layer %s', 'a simulcast layer by its height, as 720p, in the statistics', 'wordplus-live-stream' ), l.height > 0 ? height( l.height ) : ( l.rid ?? '' ) ),
+                ! l.active ? _x( 'Off, no viewer needs it', 'a simulcast layer, in the statistics', 'wordplus-live-stream' )
                     : l.height > 0 ? [ size( l.width, l.height ), fps( l.fps ), kbps( l.kbps ) ].join( ' · ' )
                         : '–'
             ] ),
-            top ? [ _x( 'Held back by', 'in the statistics', 'wordplus-stream' ), limitName( top.limited ) ] : null,
+            top ? [ _x( 'Held back by', 'in the statistics', 'wordplus-live-stream' ), limitName( top.limited ) ] : null,
             video.limitedMs.cpu + video.limitedMs.bandwidth > 0 ? [
-                _x( 'Time held back', 'in the statistics', 'wordplus-stream' ),
-                sprintf( _x( 'Computer %1$s, connection %2$s', 'how long the picture was held back by each, in the statistics', 'wordplus-stream' ), seconds( video.limitedMs.cpu ), seconds( video.limitedMs.bandwidth ) )
+                _x( 'Time held back', 'in the statistics', 'wordplus-live-stream' ),
+                sprintf( _x( 'Computer %1$s, connection %2$s', 'how long the picture was held back by each, in the statistics', 'wordplus-live-stream' ), seconds( video.limitedMs.cpu ), seconds( video.limitedMs.bandwidth ) )
             ] : null,
-            [ _x( 'Packet loss', 'in the statistics', 'wordplus-stream' ), percent( Math.max( 0, ...on.map( ( l ) => l.lossPct ) ) ) ],
-            top?.rttMs ? [ _x( 'Round trip', 'in the statistics', 'wordplus-stream' ), ms( top.rttMs ) ] : null,
-            [ _x( 'Sent again', 'what was lost and sent once more, in the statistics', 'wordplus-stream' ), kbps( sum( ( l ) => l.resentKbps ) ) ],
-            [ _x( 'Repairs asked', 'NACK and PLI requests, in the statistics', 'wordplus-stream' ), sprintf( _x( '%1$s NACK, %2$s PLI, %3$s FIR', 'counts of three kinds of repair requests', 'wordplus-stream' ), count( sum( ( l ) => l.nacks ) ), count( sum( ( l ) => l.plis ) ), count( sum( ( l ) => l.firs ) ) ) ]
+            [ _x( 'Packet loss', 'in the statistics', 'wordplus-live-stream' ), percent( Math.max( 0, ...on.map( ( l ) => l.lossPct ) ) ) ],
+            top?.rttMs ? [ _x( 'Round trip', 'in the statistics', 'wordplus-live-stream' ), ms( top.rttMs ) ] : null,
+            [ _x( 'Sent again', 'what was lost and sent once more, in the statistics', 'wordplus-live-stream' ), kbps( sum( ( l ) => l.resentKbps ) ) ],
+            [ _x( 'Repairs asked', 'NACK and PLI requests, in the statistics', 'wordplus-live-stream' ), sprintf( _x( '%1$s NACK, %2$s PLI, %3$s FIR', 'counts of three kinds of repair requests', 'wordplus-live-stream' ), count( sum( ( l ) => l.nacks ) ), count( sum( ( l ) => l.plis ) ), count( sum( ( l ) => l.firs ) ) ) ]
         ] } />
     );
 }
@@ -129,13 +132,13 @@ function PictureOut( props : { video : VideoOut } ){
 function SoundOut( props : { audio : AudioOut } ){
     const { audio } = props;
     return (
-        <Section title={ _x( 'Sending the sound', 'in the statistics', 'wordplus-stream' ) } rows={ [
-            audio.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-stream' ), audio.codec ] : null,
-            [ _x( 'Level', 'how loud the microphone is, in the statistics', 'wordplus-stream' ), audio.muted ? _x( 'Muted', 'the microphone, in the statistics', 'wordplus-stream' ) : percent( Math.round( ( audio.level ?? 0 ) * 100 ) ) ],
-            [ _x( 'Bitrate', 'in the statistics', 'wordplus-stream' ), kbps( audio.kbps ) ],
-            [ _x( 'Packet loss', 'in the statistics', 'wordplus-stream' ), percent( audio.lossPct ) ],
-            [ _x( 'Jitter', 'in the statistics', 'wordplus-stream' ), ms( audio.jitterMs ) ],
-            audio.rttMs ? [ _x( 'Round trip', 'in the statistics', 'wordplus-stream' ), ms( audio.rttMs ) ] : null
+        <Section title={ _x( 'Sending the sound', 'in the statistics', 'wordplus-live-stream' ) } rows={ [
+            audio.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-live-stream' ), audio.codec ] : null,
+            [ _x( 'Level', 'how loud the microphone is, in the statistics', 'wordplus-live-stream' ), audio.muted ? _x( 'Muted', 'the microphone, in the statistics', 'wordplus-live-stream' ) : percent( Math.round( ( audio.level ?? 0 ) * 100 ) ) ],
+            [ _x( 'Bitrate', 'in the statistics', 'wordplus-live-stream' ), kbps( audio.kbps ) ],
+            [ _x( 'Packet loss', 'in the statistics', 'wordplus-live-stream' ), percent( audio.lossPct ) ],
+            [ _x( 'Jitter', 'in the statistics', 'wordplus-live-stream' ), ms( audio.jitterMs ) ],
+            audio.rttMs ? [ _x( 'Round trip', 'in the statistics', 'wordplus-live-stream' ), ms( audio.rttMs ) ] : null
         ] } />
     );
 }
@@ -221,7 +224,7 @@ export function StatsPanel(){
 
     const transportText = transport?.protocol
         ? transport.relayed
-            ? sprintf( _x( '%1$s, through a relay (%2$s)', 'the network protocol, then the relay protocol', 'wordplus-stream' ), transport.protocol.toUpperCase(), ( transport.relayProtocol ?? '' ).toUpperCase() )
+            ? sprintf( _x( '%1$s, through a relay (%2$s)', 'the network protocol, then the relay protocol', 'wordplus-live-stream' ), transport.protocol.toUpperCase(), ( transport.relayProtocol ?? '' ).toUpperCase() )
             : transport.protocol.toUpperCase()
         : null;
 
@@ -234,17 +237,17 @@ export function StatsPanel(){
             ref={ panel }
             className="estream-stats"
             role="region"
-            aria-label={ __( 'Statistics', 'wordplus-stream' ) }
+            aria-label={ __( 'Statistics', 'wordplus-live-stream' ) }
             tabIndex={ -1 }
             onKeyDown={ ( e ) => { if( e.key === 'Escape' ){ e.stopPropagation(); close(); } } }
         >
             <div className="estream-stats__head">
-                <h2 className="estream-stats__title">{ __( 'Statistics', 'wordplus-stream' ) }</h2>
+                <h2 className="estream-stats__title">{ __( 'Statistics', 'wordplus-live-stream' ) }</h2>
                 <button type="button" className="estream-stats__button" onClick={ copy }>
                     <Icon name={ copied ? 'check' : 'copy' } />
-                    { copied ? __( 'Copied', 'wordplus-stream' ) : __( 'Copy', 'wordplus-stream' ) }
+                    { copied ? __( 'Copied', 'wordplus-live-stream' ) : __( 'Copy', 'wordplus-live-stream' ) }
                 </button>
-                <button type="button" className="estream-stats__button estream-stats__close" aria-label={ _x( 'Close', 'the statistics', 'wordplus-stream' ) } onClick={ close }>
+                <button type="button" className="estream-stats__button estream-stats__close" aria-label={ _x( 'Close', 'the statistics', 'wordplus-live-stream' ) } onClick={ close }>
                     <Icon name="close" />
                 </button>
             </div>
@@ -253,49 +256,49 @@ export function StatsPanel(){
                 { detail?.video.map( ( v ) => <PictureOut key={ v.source } video={ v } /> ) }
                 { detail?.audio && <SoundOut audio={ detail.audio } /> }
                 { ! detail && sending && (
-                    <Section title={ _x( 'Sending', 'what a host sends, in the statistics', 'wordplus-stream' ) } rows={ [
-                        [ _x( 'Picture', 'the video, in the statistics', 'wordplus-stream' ), sentText( sending, state ) ]
+                    <Section title={ _x( 'Sending', 'what a host sends, in the statistics', 'wordplus-live-stream' ) } rows={ [
+                        [ _x( 'Picture', 'the video, in the statistics', 'wordplus-live-stream' ), sentText( sending, state ) ]
                     ] } />
                 ) }
-                <Section title={ _x( 'Picture', 'the video, in the statistics', 'wordplus-stream' ) } rows={ video ? [
-                    [ _x( 'Resolution', 'in the statistics', 'wordplus-stream' ), video.width > 0 ? video.width + '×' + video.height : '' ],
-                    video.layer && layers ? [ _x( 'Layer', 'a simulcast layer, in the statistics', 'wordplus-stream' ), sprintf( _x( '%1$s, of %2$s sent', 'the layer arriving, then the layers sent', 'wordplus-stream' ), height( video.height ), layers ) ] : null,
-                    [ _x( 'Frame rate', 'in the statistics', 'wordplus-stream' ), sprintf( _x( '%d fps', 'frames a second', 'wordplus-stream' ), video.fps ) ],
-                    [ _x( 'Bitrate', 'in the statistics', 'wordplus-stream' ), kbps( video.kbps ) ],
-                    video.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-stream' ), [ video.codec, video.decoder, video.hardware ? _x( 'in hardware', 'a video decoded by the device chip', 'wordplus-stream' ) : null ].filter( Boolean ).join( ', ' ) ] : null,
-                    [ _x( 'Packet loss', 'in the statistics', 'wordplus-stream' ), percent( video.lossPct ) ],
-                    [ _x( 'Jitter', 'in the statistics', 'wordplus-stream' ), ms( video.jitterMs ) ],
-                    video.bufferMs > 0 ? [ _x( 'Buffer', 'how long frames wait to play, in the statistics', 'wordplus-stream' ), ms( video.bufferMs ) ] : null,
-                    [ _x( 'Dropped frames', 'in the statistics', 'wordplus-stream' ), count( video.dropped ) ],
-                    [ _x( 'Freezes', 'in the statistics', 'wordplus-stream' ), sprintf( _x( '%1$s, %2$s in all', 'how many times the picture froze, then for how long', 'wordplus-stream' ), count( video.freezes ), seconds( video.frozenMs ) ) ],
-                    [ _x( 'Repairs asked', 'NACK and PLI requests, in the statistics', 'wordplus-stream' ), sprintf( _x( '%1$s NACK, %2$s PLI', 'counts of two kinds of repair requests', 'wordplus-stream' ), count( video.nacks ), count( video.plis ) ) ]
+                <Section title={ _x( 'Picture', 'the video, in the statistics', 'wordplus-live-stream' ) } rows={ video ? [
+                    [ _x( 'Resolution', 'in the statistics', 'wordplus-live-stream' ), video.width > 0 ? video.width + '×' + video.height : '' ],
+                    video.layer && layers ? [ _x( 'Layer', 'a simulcast layer, in the statistics', 'wordplus-live-stream' ), sprintf( _x( '%1$s, of %2$s sent', 'the layer arriving, then the layers sent', 'wordplus-live-stream' ), height( video.height ), layers ) ] : null,
+                    [ _x( 'Frame rate', 'in the statistics', 'wordplus-live-stream' ), sprintf( _x( '%d fps', 'frames a second', 'wordplus-live-stream' ), video.fps ) ],
+                    [ _x( 'Bitrate', 'in the statistics', 'wordplus-live-stream' ), kbps( video.kbps ) ],
+                    video.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-live-stream' ), [ video.codec, video.decoder, video.hardware ? _x( 'in hardware', 'a video decoded by the device chip', 'wordplus-live-stream' ) : null ].filter( Boolean ).join( ', ' ) ] : null,
+                    [ _x( 'Packet loss', 'in the statistics', 'wordplus-live-stream' ), percent( video.lossPct ) ],
+                    [ _x( 'Jitter', 'in the statistics', 'wordplus-live-stream' ), ms( video.jitterMs ) ],
+                    video.bufferMs > 0 ? [ _x( 'Buffer', 'how long frames wait to play, in the statistics', 'wordplus-live-stream' ), ms( video.bufferMs ) ] : null,
+                    [ _x( 'Dropped frames', 'in the statistics', 'wordplus-live-stream' ), count( video.dropped ) ],
+                    [ _x( 'Freezes', 'in the statistics', 'wordplus-live-stream' ), sprintf( _x( '%1$s, %2$s in all', 'how many times the picture froze, then for how long', 'wordplus-live-stream' ), count( video.freezes ), seconds( video.frozenMs ) ) ],
+                    [ _x( 'Repairs asked', 'NACK and PLI requests, in the statistics', 'wordplus-live-stream' ), sprintf( _x( '%1$s NACK, %2$s PLI', 'counts of two kinds of repair requests', 'wordplus-live-stream' ), count( video.nacks ), count( video.plis ) ) ]
                 ] : [] } />
-                <Section title={ _x( 'Sound', 'the audio, in the statistics', 'wordplus-stream' ) } rows={ audio ? [
-                    audio.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-stream' ), audio.codec ] : null,
-                    [ _x( 'Bitrate', 'in the statistics', 'wordplus-stream' ), kbps( audio.kbps ) ],
-                    [ _x( 'Packet loss', 'in the statistics', 'wordplus-stream' ), percent( audio.lossPct ) ],
-                    [ _x( 'Jitter', 'in the statistics', 'wordplus-stream' ), ms( audio.jitterMs ) ],
-                    [ _x( 'Concealed', 'sound made up for what did not arrive, in the statistics', 'wordplus-stream' ), percent( audio.concealedPct ) ]
+                <Section title={ _x( 'Sound', 'the audio, in the statistics', 'wordplus-live-stream' ) } rows={ audio ? [
+                    audio.codec ? [ _x( 'Codec', 'in the statistics', 'wordplus-live-stream' ), audio.codec ] : null,
+                    [ _x( 'Bitrate', 'in the statistics', 'wordplus-live-stream' ), kbps( audio.kbps ) ],
+                    [ _x( 'Packet loss', 'in the statistics', 'wordplus-live-stream' ), percent( audio.lossPct ) ],
+                    [ _x( 'Jitter', 'in the statistics', 'wordplus-live-stream' ), ms( audio.jitterMs ) ],
+                    [ _x( 'Concealed', 'sound made up for what did not arrive, in the statistics', 'wordplus-live-stream' ), percent( audio.concealedPct ) ]
                 ] : [] } />
-                <Section title={ _x( 'Connection', 'in the statistics', 'wordplus-stream' ) } rows={ [
-                    server ? [ __( 'Server', 'wordplus-stream' ), [ server.node, server.region ].filter( Boolean ).join( ', ' ) || ( server.url ?? '' ).replace( /^wss?:\/\//, '' ) ] : null,
-                    transportText ? [ _x( 'Transport', 'in the statistics', 'wordplus-stream' ), transportText ] : null,
-                    transport?.rttMs ? [ _x( 'Round trip', 'in the statistics', 'wordplus-stream' ), ms( transport.rttMs ) ] : null,
-                    upload !== null ? [ _x( 'Upload estimate', 'what the browser estimates it can send, in the statistics', 'wordplus-stream' ), kbps( upload ) ] : null,
-                    delay !== null ? [ _x( 'Delay after the server', 'the buffer and half the round trip, in the statistics', 'wordplus-stream' ), ms( delay ) ] : null,
-                    state.connection !== 'unknown' ? [ _x( 'Rated', 'how the media server rates the connection, in the statistics', 'wordplus-stream' ), state.connection === 'good' ? __( 'Good connection', 'wordplus-stream' ) : __( 'Weak connection', 'wordplus-stream' ) ] : null
+                <Section title={ _x( 'Connection', 'in the statistics', 'wordplus-live-stream' ) } rows={ [
+                    server ? [ __( 'Server', 'wordplus-live-stream' ), [ server.node, server.region ].filter( Boolean ).join( ', ' ) || ( server.url ?? '' ).replace( /^wss?:\/\//, '' ) ] : null,
+                    transportText ? [ _x( 'Transport', 'in the statistics', 'wordplus-live-stream' ), transportText ] : null,
+                    transport?.rttMs ? [ _x( 'Round trip', 'in the statistics', 'wordplus-live-stream' ), ms( transport.rttMs ) ] : null,
+                    upload !== null ? [ _x( 'Upload estimate', 'what the browser estimates it can send, in the statistics', 'wordplus-live-stream' ), kbps( upload ) ] : null,
+                    delay !== null ? [ _x( 'Delay after the server', 'the buffer and half the round trip, in the statistics', 'wordplus-live-stream' ), ms( delay ) ] : null,
+                    state.connection !== 'unknown' ? [ _x( 'Rated', 'how the media server rates the connection, in the statistics', 'wordplus-live-stream' ), state.connection === 'good' ? __( 'Good connection', 'wordplus-live-stream' ) : __( 'Weak connection', 'wordplus-live-stream' ) ] : null
                 ] } />
-                <Section title={ _x( 'Session', 'in the statistics', 'wordplus-stream' ) } rows={ session ? [
-                    [ _x( 'Picture in', 'how long the first picture took, in the statistics', 'wordplus-stream' ), session.startupMs !== null ? seconds( session.startupMs ) : '–' ],
-                    [ _x( 'Watched', 'how long, in the statistics', 'wordplus-stream' ), clock( session.watchedMs ) ],
-                    [ _x( 'Stalls', 'in the statistics', 'wordplus-stream' ), sprintf( _x( '%1$s, %2$s in all', 'how many times the picture froze, then for how long', 'wordplus-stream' ), count( session.stalls ), seconds( session.stalledMs ) ) ],
-                    [ _x( 'Reconnects', 'in the statistics', 'wordplus-stream' ), count( session.reconnects ) ],
-                    [ _x( 'Joined again', 'a stream\'s video, in the statistics', 'wordplus-stream' ), count( session.rejoins ) ],
-                    [ _x( 'Errors', 'in the statistics', 'wordplus-stream' ), count( session.errors ) ]
+                <Section title={ _x( 'Session', 'in the statistics', 'wordplus-live-stream' ) } rows={ session ? [
+                    [ _x( 'Picture in', 'how long the first picture took, in the statistics', 'wordplus-live-stream' ), session.startupMs !== null ? seconds( session.startupMs ) : '–' ],
+                    [ _x( 'Watched', 'how long, in the statistics', 'wordplus-live-stream' ), clock( session.watchedMs ) ],
+                    [ _x( 'Stalls', 'in the statistics', 'wordplus-live-stream' ), sprintf( _x( '%1$s, %2$s in all', 'how many times the picture froze, then for how long', 'wordplus-live-stream' ), count( session.stalls ), seconds( session.stalledMs ) ) ],
+                    [ _x( 'Reconnects', 'in the statistics', 'wordplus-live-stream' ), count( session.reconnects ) ],
+                    [ _x( 'Joined again', 'a stream\'s video, in the statistics', 'wordplus-live-stream' ), count( session.rejoins ) ],
+                    [ _x( 'Errors', 'in the statistics', 'wordplus-live-stream' ), count( session.errors ) ]
                 ] : [] } />
                 { stats && stats.events.length > 0 && (
                     <section className="estream-stats__section">
-                        <h3 className="estream-stats__heading">{ _x( 'What happened', 'the last events, in the statistics', 'wordplus-stream' ) }</h3>
+                        <h3 className="estream-stats__heading">{ _x( 'What happened', 'the last events, in the statistics', 'wordplus-live-stream' ) }</h3>
                         <ol className="estream-stats__events">
                             { [ ...stats.events ].reverse().slice( 0, 12 ).map( ( event, i ) => (
                                 <li key={ event.at + ':' + i }>
@@ -307,7 +310,7 @@ export function StatsPanel(){
                         </ol>
                     </section>
                 ) }
-                { ! stats && ! detail && <p className="estream-stats__empty">{ _x( 'Nothing arrives yet', 'in the statistics', 'wordplus-stream' ) }</p> }
+                { ! stats && ! detail && <p className="estream-stats__empty">{ _x( 'Nothing arrives yet', 'in the statistics', 'wordplus-live-stream' ) }</p> }
             </div>
         </div>
     );

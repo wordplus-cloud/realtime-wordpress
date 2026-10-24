@@ -13,12 +13,12 @@ export function HostNote( props : { hidden? : boolean } ){
     if( props.hidden || ! player.studioUrl || ( state.you && state.you.role !== 'host' ) ) return null;
 
     const live = state.stream?.state === 'live';
-    const label = live ? __( 'Open the studio', 'wordplus-stream' ) : __( 'Go live in the studio', 'wordplus-stream' );
+    const label = live ? __( 'Open the studio', 'wordplus-live-stream' ) : __( 'Go live in the studio', 'wordplus-live-stream' );
 
     return (
         <div className="estream-hostnote">
             <Icon name="broadcast" />
-            <span className="estream-hostnote__text">{ live ? __( 'You are live.', 'wordplus-stream' ) : __( 'You host this stream.', 'wordplus-stream' ) }</span>
+            <span className="estream-hostnote__text">{ live ? __( 'You are live.', 'wordplus-live-stream' ) : __( 'You host this stream.', 'wordplus-live-stream' ) }</span>
             { player.preview
                 ? <span className="estream-button estream-button--small estream-button--primary">{ label }</span>
                 : <a className="estream-button estream-button--small estream-button--primary" href={ player.studioUrl }>{ label }</a> }

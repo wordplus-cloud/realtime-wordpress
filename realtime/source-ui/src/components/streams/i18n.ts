@@ -1,5 +1,5 @@
 // The live streams' words, written as Easy Stream writes them: the text, a context where it takes a placeholder, and
-// its text domain, `wordplus-stream`. In an app the host translates them, from the package's languages/streams/ by default,
+// its text domain, `wordplus-live-stream`. In an app the host translates them, from the package's languages/streams/ by default,
 // which addStreamLanguages() gives the package's translator.
 //
 // One module on purpose: Easy Stream's WordPress build puts WordPress's own wp.i18n in its

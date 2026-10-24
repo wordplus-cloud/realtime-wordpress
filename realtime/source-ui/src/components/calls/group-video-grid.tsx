@@ -346,7 +346,9 @@ export default function GroupVideoGrid() {
 
         participants.forEach( ( participant, key ) => {
             if ( ! primaryItemsRef.current.has(key) ) {
-                if( participant.video || participant.screen ) {
+                // a camera moving to another codec keeps its place: it is out of the room for a moment only
+                // (videoOptimizing, optimizing.tsx)
+                if( participant.video || participant.screen || participant.videoOptimizing ) {
                     videosEnabled.add(key);
                 }
 
@@ -410,7 +412,7 @@ export default function GroupVideoGrid() {
                 const lastVisibleIndex = latestSecondaryPositions.current[ itemsPerPage - 1 ];
                 const lastParticipant = lastVisibleIndex ? participants.get( lastVisibleIndex ) : null;
 
-                if( lastParticipant && ! lastParticipant.video && ! lastParticipant.screen && ! lastParticipant.isSpeaking ){
+                if( lastParticipant && ! lastParticipant.video && ! lastParticipant.screen && ! lastParticipant.videoOptimizing && ! lastParticipant.isSpeaking ){
                     const before = latestSecondaryPositions.current.slice(0, itemsPerPage - 1);
                     const after = latestSecondaryPositions.current.slice(itemsPerPage - 1);
                     latestSecondaryPositions.current = [ ... before, 'me', ... after ];

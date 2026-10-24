@@ -200,6 +200,7 @@ export class P2PCallSession {
     private sentView: ViewHint | null = null;
     private viewPendingSince = 0;
     private remoteWanted: ViewHint | null = null;
+    private screenDegradation: RTCDegradationPreference = 'maintain-resolution';
     private handedOff = false;
     private readonly signalKey: string;
     private cipher: SignalCipher | null = null;
@@ -707,6 +708,8 @@ export class P2PCallSession {
         if( this.peerCaps ){
             peer.setPeerCaps( this.peerCaps );
         }
+
+        peer.setScreenDegradation( this.screenDegradation );
 
         for( const [ source, track ] of this.localTracks.entries() ){
             void peer.setLocalTrack( source, track );
@@ -1409,6 +1412,17 @@ export class P2PCallSession {
         }
 
         this.sendState();
+    }
+
+    // What the shared screen gives up when the link or the CPU can't keep
+    // everything (P2PPeer.setScreenDegradation): its frames for text, by
+    // default, or its pixels for a video played on it. Kept for every peer
+    // the call makes from here on.
+    setScreenDegradation( preference: RTCDegradationPreference ): void {
+        if( this.ended ) return;
+
+        this.screenDegradation = preference;
+        this.peer?.setScreenDegradation( preference );
     }
 
     private localState(): MediaState {

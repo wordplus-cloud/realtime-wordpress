@@ -95,10 +95,10 @@ const pageConnector = { name: 'page-connector', resolveId( source ){
 } };
 await bundle( 'dist/script-streams.js', 'dist/realtime-streams.min.js', 'wordplusRealtimeStreamsScript', 'live streams for the calls script, window.wordplusRealtimeStreams (Easy Stream\'s engine)', '', [ pageConnector ] );
 
-// The mesh's room client as WordPlus Mesh builds it (@wordplus/rtc-client: livekit-client 2.22.2 with
-// vendor/rtc-client-2.22.2.patch), already minified, with its licence named: a modified Apache-2.0 client SDK,
+// The mesh's room client as WordPlus Mesh builds it (@wordplus/rtc-client: livekit-client 2.23.0 with
+// vendor/rtc-client-2.23.0.patch), already minified, with its licence named: a modified Apache-2.0 client SDK,
 // whose NOTICE (upstream's and what we changed) is in the package.
-const MESH_CLIENT = 'wordplus-rtc-client-1.0.13';
+const MESH_CLIENT = 'wordplus-rtc-client-1.0.21';
 const MESH = '@wordplus/rtc-client ' + MESH_CLIENT.slice( 'wordplus-rtc-client-'.length );
 const umd = execFileSync( 'tar', [ '-xzOf', join( root, 'vendor', MESH_CLIENT + '.tgz' ), 'package/dist/rtc-client.umd.js' ], { maxBuffer: 16 << 20 } ).toString( 'utf8' );
 const rooms = '/*! @wordplus/realtime-client ' + version + ': the mesh\'s room client, ' + MESH_CLIENT + ' (WordPlus Mesh), window.WordPlusRTC. A modified client SDK, Apache License 2.0, Copyright 2021 LiveKit, Inc. */\n' + umd;
@@ -125,7 +125,7 @@ const notices = [
     `Third-party software in the scripts of @wordplus/realtime-client ${ version }`,
     '',
     ...packages.map( ( [ , { pkg, scripts } ] ) => `- ${ named( pkg ) }: in ${ [ ...scripts ].sort().join( ', ' ) }` ),
-    `- ${ MESH } (Apache-2.0), a modified livekit-client 2.22.2, and what it bundles: realtime-rooms.min.js, realtime-rooms-e2ee.worker.js`,
+    `- ${ MESH } (Apache-2.0), a modified livekit-client 2.23.0, and what it bundles: realtime-rooms.min.js, realtime-rooms-e2ee.worker.js`,
     '',
     ...packages.flatMap( ( [ dir, { pkg } ] ) => [ rule, named( pkg ), rule, '', licenceOf( dir, pkg.name ), '' ] ),
     rule, `${ MESH } (Apache-2.0): NOTICE`, rule, '', fromMesh( 'NOTICE' ), '',

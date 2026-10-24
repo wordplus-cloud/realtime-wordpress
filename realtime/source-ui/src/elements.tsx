@@ -7,6 +7,7 @@
 //     <typing-line room="chat:34:42"></typing-line>
 //     <online-count room="shop"></online-count>
 //     <chat-room room="chat:34:42" style="height: 520px"></chat-room>
+//     <call-spot call="support:{a}:{b}" style="height: 420px"></call-spot>   the call in the page, not in the corner
 //
 // The script (dist/realtime-ui.min.js, window.wordplusRealtimeUi) carries React inside and draws in a shadow root of
 // its own, so neither the page's styles nor its React reach in. @wordplus/realtime's rt.callScreen() loads it the first
@@ -14,11 +15,12 @@
 import React, { type ComponentType } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { configureUi, setUiUsers } from "./host.ts";
-import { controllerFor, type CallsController, type OwnedCall } from "./sdk/controller.ts";
+import { controllerFor, showingName, type CallsController, type OwnedCall } from "./sdk/controller.ts";
 import CallsApp, { type CallView } from "./sdk/calls-app.tsx";
 import { callUserOf, type CallUser, type SdkCalls } from "./sdk/types.ts";
 import { callName } from "./sdk/call-name.ts";
 import { MayCall } from "./sdk/may-call.tsx";
+import { PageCalls } from "./sdk/use-controller.ts";
 import { routeLoader } from "./sdk/route-loader.ts";
 import type { SdkRooms } from "./sdk/rooms.ts";
 import { RoomCount, RoomOnline, RoomTyping, type RoomCountProps, type RoomOnlineProps, type RoomPerson, type RoomTypingProps } from "./sdk/presence-views.tsx";
@@ -130,6 +132,9 @@ export function start( settings: ElementsSettings = {} ): boolean {
     createRoot( mount ).render( <PiecesProvider pieces={ { ...views.components, ...templatePieces( holder ) } }>
         <CallsApp controller={ controller } view={ views.CallView } />
     </PiecesProvider> );
+    // The spots on the page before it had its calls, and the chats that hold their call.
+    for ( const spot of spots ) spot.claim();
+    for ( const element of presence ) if ( element instanceof ChatElement ) element.render();
 
     return true;
 }
@@ -311,7 +316,7 @@ abstract class RoomElement extends HTMLElement {
     static readonly hostCss: string = '';
     /** Its holder's class beside `realtime-calls`, which the shared stylesheet styles it by. */
     static readonly holderClass: string = '';
-    static readonly observedAttributes = [ 'room', 'call', 'type', 'title', 'event', 'reactions', 'placeholder', 'max-length', 'messages' ];
+    static readonly observedAttributes = [ 'room', 'call', 'type', 'title', 'event', 'reactions', 'placeholder', 'max-length', 'messages', 'to', 'name', 'avatar', 'start-call' ];
     private holder: HTMLDivElement | null = null;
     private root: Root | null = null;
     /** The pieces its templates fill (templates.tsx), read at each connection. */
@@ -433,7 +438,10 @@ class CountElement extends RoomElement {
  * Better Messages' conversation on a room of the app's, typing, reactions and composer. It fills the height the page
  * gives it. The conversation is the app's: `messages` names its route for the messages it kept (`?before=<id>` for an
  * older page), asked with the page's cookies; or the page gives the element a `load` function of its own (Chat's), for
- * headers of its own. With neither, the room's history, 5 minutes long, is all it shows.
+ * headers of its own. With neither, the room's history, 5 minutes long, is all it shows. In a chat between two, `to` is
+ * the other person, on its top bar (`name` and `avatar` theirs, where the page has them), and `call` the call that shows
+ * in the chat while it is on: `call` alone the call
+ * named as the room, a value another (`date:{pair}`). `start-call="video"` calls them as the chat opens, once.
  */
 class ChatElement extends RoomElement {
     static readonly tag = 'chat-room';
@@ -463,14 +471,24 @@ class ChatElement extends RoomElement {
     protected view( rt: SdkRooms, room: string ): React.ReactElement {
         const reactions = this.getAttribute( 'reactions' );
         const maxLength = Number( this.getAttribute( 'max-length' ) ?? 0 );
+        // `call` alone, or `call="true"`, is the call named as the room, and any other value names it.
+        const call = this.getAttribute( 'call' );
+        const start = this.getAttribute( 'start-call' );
         const Conversation = views.Chat ?? Chat;
-        return <Conversation rt={ rt } room={ room }
+        return <PageCalls.Provider value={ controller }>
+            <Conversation rt={ rt } room={ room }
                      load={ this.loader ?? routeLoader( this.getAttribute( 'messages' ) ) }
                      reactions={ reactions === null ? undefined : reactions.split( /\s+/ ).filter( Boolean ) }
                      placeholder={ this.getAttribute( 'placeholder' ) ?? undefined }
                      maxLength={ Number.isFinite( maxLength ) && maxLength > 0 ? maxLength : 0 }
                      onSent={ ( message ) => this.dispatchEvent( new CustomEvent( 'sent', { detail: message } ) ) }
-                     components={ this.components() } />;
+                     to={ this.getAttribute( 'to' ) ?? undefined }
+                     name={ this.getAttribute( 'name' ) ?? undefined }
+                     avatar={ this.getAttribute( 'avatar' ) ?? undefined }
+                     call={ call === null ? undefined : call === '' || call === 'true' ? true : call }
+                     startCall={ start === 'video' || start === 'audio' ? start : undefined }
+                     components={ this.components() } />
+        </PageCalls.Provider>;
     }
 }
 
@@ -479,6 +497,87 @@ export { routeLoader };
 /** `<call-screen>`: where the call screen draws, holding the page's templates for its pieces. */
 class CallScreenElement extends HTMLElement {
     static readonly tag = 'call-screen';
+}
+
+// The call fills the spot, as high as the page makes it, else 360px. The spot's children show while no call is there.
+const SPOT_CSS = `
+:host { display: block; }
+:host([data-empty]) { display: none; }
+:host([data-call]) slot { display: none; }
+:host(:not([data-call])) .realtime-call-spot { display: none; }
+.realtime-call-spot { height: 100%; }
+`;
+
+/** The `<call-spot>` elements on the page, which take their calls once the page has them. */
+const spots = new Set<CallSpotElement>();
+
+/**
+ * `<call-spot call="match:{a}:{b}">`: a place in the page for the calls it names (a call's name, a pattern as the
+ * server's rules write them, or every call with no `call`), in place of the window in the corner. A call moves in when
+ * it starts, or once the spot is on the page, and back to the window when the spot goes, going on throughout. Its
+ * children show while no call is in it, and with none it is hidden until a call comes. `data-call` holds the call's
+ * name while one is here.
+ */
+class CallSpotElement extends HTMLElement {
+    static readonly tag = 'call-spot';
+    static readonly observedAttributes = [ 'call' ];
+    private place: HTMLDivElement | null = null;
+    private release: ( () => void ) | null = null;
+    private unplace: ( () => void ) | null = null;
+
+    connectedCallback(): void {
+        if ( ! this.place ) {
+            const shadow = this.attachShadow( { mode: 'open' } );
+            styled( shadow );
+            const own = document.createElement( 'style' );
+            own.textContent = SPOT_CSS;
+            this.place = document.createElement( 'div' );
+            this.place.className = 'realtime-call-spot';
+            shadow.append( own, this.place, document.createElement( 'slot' ) );
+        }
+        schemeOf( this );
+        spots.add( this );
+        this.claim();
+        this.show();
+    }
+
+    disconnectedCallback(): void {
+        spots.delete( this );
+        schemeOf( this, false );
+        this.unclaim();
+    }
+
+    attributeChangedCallback(): void {
+        if ( ! this.release ) return;
+        this.unclaim();
+        this.claim();
+    }
+
+    /** Takes its calls, once the page has its calls and the spot is on it. */
+    claim(): void {
+        if ( ! controller || ! this.place || this.release || ! this.isConnected ) return;
+        this.unplace = controller.onPlace( () => this.show() );
+        this.release = controller.spot( this.getAttribute( 'call' ) || null, this.place );
+    }
+
+    private unclaim(): void {
+        this.unplace?.();
+        this.release?.();
+        this.unplace = this.release = null;
+        this.show();
+    }
+
+    /** Says whether a call is here: `data-call` with its name, else `data-empty` with no children to show. */
+    private show(): void {
+        const view = this.release && controller ? controller.snapshot() : null;
+        const name = view && view.spot === this.place ? showingName( view.showing ) : null;
+        for ( const target of [ this, this.place ] ) {
+            if ( name ) target?.setAttribute( 'data-call', name );
+            else target?.removeAttribute( 'data-call' );
+        }
+        const content = [ ...this.childNodes ].some( ( node ) => node.nodeType === Node.ELEMENT_NODE || node.textContent?.trim() );
+        this.toggleAttribute( 'data-empty', ! name && ! content );
+    }
 }
 
 /** The page's prefix for the elements' names (element-names.ts): '' for their own. */
@@ -490,7 +589,7 @@ let prefix = loadPrefix;
  */
 export function define( given?: string ): void {
     if ( given !== undefined ) prefix = validPrefix( given );
-    defineElements( [ CallButton, RoomButton, OnlineElement, TypingElement, CountElement, ChatElement, CallScreenElement ], prefix );
+    defineElements( [ CallButton, RoomButton, OnlineElement, TypingElement, CountElement, ChatElement, CallScreenElement, CallSpotElement ], prefix );
 }
 
 export { configureUi, setUiUsers };

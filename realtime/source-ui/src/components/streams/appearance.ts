@@ -24,11 +24,20 @@ export interface Appearance {
     names? : boolean;
     // Whether viewers see how many are watching; hosts always do.
     viewers? : boolean;
-    // A logo over the picture: an image's address, its corner, its width in pixels and opacity in per cent.
+    // A logo over the picture: an image's address, its corner and opacity in per cent, and its size and place as shares
+    // of the picture, so it covers the same part of it in a player of any size: `logoWidth` in per cent of the
+    // picture's width, its distance from the corner's side in per cent of the width (`logoInsetX`) and from its top or
+    // bottom in per cent of the height (`logoInsetY`), each null or none for the player's own. The pixels of before
+    // (`logoSize`, `logoX`, `logoY`) count as those of a picture LOGO_REFERENCE wide, where the shares are missing.
     logo? : string;
     logoPosition? : 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-    logoSize? : number;
+    logoWidth? : number;
+    logoInsetX? : number | null;
+    logoInsetY? : number | null;
     logoOpacity? : number;
+    logoSize? : number;
+    logoX? : number | null;
+    logoY? : number | null;
     // The image before a stream starts.
     cover? : string;
     // Chat beside the stream when there is room, or always below it; its height; what it shows.
@@ -120,16 +129,44 @@ export function themeStyle( appearance : Appearance = {} ) : CSSProperties {
     return style as CSSProperties;
 }
 
-// The logo over the picture, where it goes and how it shows; null without one.
-export function logoOf( appearance : Appearance = {} ) : { src : string, position : string, width : number, opacity : number } | null {
+// How far a logo may sit from its corner's sides, in per cent of the picture's width or height: its middle is nearer
+// that corner than any other.
+export const LOGO_INSET_MAX = 50;
+
+// How wide a logo may be, in per cent of the picture's width, and how wide it is unless the site says.
+export const LOGO_WIDTH = { min: 2, max: 40, standard: 12 } as const;
+
+// The picture the logo's pixels of before count in: as wide and as tall as a player that size.
+export const LOGO_REFERENCE = { width: 800, height: 450 } as const;
+
+// How far the pixels of before could set a logo from its corner's sides.
+export const LOGO_OFFSET_MAX = 400;
+
+// A share in per cent, to a tenth.
+const tenth = ( value : number ) => Math.round( value * 10 ) / 10;
+
+// The logo over the picture, where it goes and how it shows; null without one. `width`, `x` and `y` in per cent of the
+// picture: its width, and its distance from the corner's side and from its top or bottom, null where the player keeps
+// its own (14 pixels, and under the Live badge in the top left corner). Its opacity from 1 per cent, so a site can have
+// it all but gone.
+export function logoOf( appearance : Appearance = {} ) : { src : string, position : string, width : number, opacity : number, x : number | null, y : number | null } | null {
     const src = safeImage( appearance.logo );
     if( ! src ) return null;
 
     const positions = [ 'top-left', 'top-right', 'bottom-left', 'bottom-right' ];
+    const number = ( value : unknown ) : value is number => typeof value === 'number' && Number.isFinite( value );
+    // The share, else the pixels of before as their share of the reference picture.
+    const share = ( value : unknown, pixels : unknown, across : number ) => number( value ) ? value : number( pixels ) ? pixels / across * 100 : null;
+    const within = ( value : number, min : number, max : number ) => tenth( Math.min( max, Math.max( min, value ) ) );
+    const inset = ( value : number | null ) => value === null ? null : within( value, 0, LOGO_INSET_MAX );
+    const width = share( appearance.logoWidth, appearance.logoSize, LOGO_REFERENCE.width );
+
     return {
         src,
         position: positions.includes( appearance.logoPosition ?? '' ) ? appearance.logoPosition! : 'top-right',
-        width: clamp( typeof appearance.logoSize === 'number' ? appearance.logoSize : 96, 32, 320 ),
-        opacity: clamp( typeof appearance.logoOpacity === 'number' ? appearance.logoOpacity : 80, 20, 100 ) / 100
+        width: within( width ?? LOGO_WIDTH.standard, LOGO_WIDTH.min, LOGO_WIDTH.max ),
+        opacity: clamp( number( appearance.logoOpacity ) ? appearance.logoOpacity : 80, 1, 100 ) / 100,
+        x: inset( share( appearance.logoInsetX, appearance.logoX, LOGO_REFERENCE.width ) ),
+        y: inset( share( appearance.logoInsetY, appearance.logoY, LOGO_REFERENCE.height ) )
     };
 }

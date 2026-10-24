@@ -93,6 +93,16 @@ export interface ComposerProps {
     maxLength: number;
 }
 
+/** The top bar of a chat between two (Chat's `to`): the other person, and their calls where the chat has its `call`. */
+export interface ChatHeaderProps {
+    person: { id: string; name: string; avatar?: string };
+    online: boolean;
+    /** Calls them, the call showing in the chat: none where the chat has no `call`. */
+    call?: ( type: "audio" | "video" ) => void;
+    /** Whether a call is on the screen now, where a call button does nothing. */
+    calling: boolean;
+}
+
 export interface Pieces {
     RingCard?: ComponentType<RingCardProps & Drawn>;
     CallStatus?: ComponentType<CallStatusProps & Drawn>;
@@ -103,6 +113,7 @@ export interface Pieces {
     Message?: ComponentType<MessageProps & Drawn>;
     Composer?: ComponentType<ComposerProps & Drawn>;
     EmptyConversation?: ComponentType<Drawn>;
+    ChatHeader?: ComponentType<ChatHeaderProps & Drawn>;
     /** A user's picture on the call screens, over configureUi()'s. */
     Avatar?: ComponentType<UserAvatarProps>;
     /** A user's name on the call screens, over configureUi()'s. */

@@ -28,12 +28,24 @@ export function controllerFor( calls: SdkCalls, options: { add?: boolean } = {} 
 /** What is on the screen: a call between two people, or a group call, and how it adds people. */
 export type Showing =
     | { kind: 'call'; call: SdkCall; peer: { name: string; avatar?: string }; people?: () => Promise<CallPerson[]>; add?: ( person: CallPerson ) => Promise<void> }
-    | { kind: 'group'; group: SdkGroupCall; type: 'audio' | 'video'; title: string; people?: () => Promise<CallPerson[]>; add?: ( person: CallPerson ) => Promise<void> };
+    | { kind: 'group'; group: SdkGroupCall; name: string; type: 'audio' | 'video'; title: string; people?: () => Promise<CallPerson[]>; add?: ( person: CallPerson ) => Promise<void> };
 
 export interface CallsView {
     rings: SdkIncoming[];
     showing: Showing | null;
     notice: string | null;
+    /** The spot in the page the call on the screen shows in (`spot()`), or null for the window in the corner. */
+    spot: HTMLElement | null;
+    /**
+     * Whether the chat beside the call shows, where its spot is a chat's (`spot()` with `chat`): the call's Show Chat and
+     * Hide Chat (`showChat()`). Null for any other place.
+     */
+    chat: boolean | null;
+}
+
+/** The name of the call on the screen: a call's, or the group call's. */
+export function showingName( showing: Showing | null ): string | null {
+    return showing === null ? null : showing.kind === 'call' ? showing.call.name : showing.name;
 }
 
 /**
@@ -58,8 +70,11 @@ export function namePattern( pattern: string ): RegExp {
  * lists whom a user may add (`add`).
  */
 export class CallsController {
-    private view: CallsView = { rings: [], showing: null, notice: null };
+    private view: CallsView = { rings: [], showing: null, notice: null, spot: null, chat: null };
     private readonly listeners = new Set<() => void>();
+    private readonly placers = new Set<() => void>();
+    /** The page's spots for calls (spot()), each ranked by how closely it names them: 2 a name, 1 a pattern, 0 every call. */
+    private spots: Array<{ pattern: RegExp; element: HTMLElement; rank: number; chat: boolean }> = [];
     private noticeTimer: ReturnType<typeof setTimeout> | null = null;
     private owners: Array<{ pattern: RegExp; take: ( call: OwnedCall ) => void }> = [];
 
@@ -72,6 +87,56 @@ export class CallsController {
         const owner = { pattern: typeof pattern === 'string' ? namePattern( pattern ) : pattern, take };
         this.owners.push( owner );
         return () => void ( this.owners = this.owners.filter( ( o ) => o !== owner ) );
+    }
+
+    /**
+     * Shows the calls whose names match `pattern` (`match:{a}:{b}`, a call's name, or every call for null) in `element`,
+     * in place of the window in the corner: a call moves in when it starts or once the element is on the page, and back
+     * to the window when the element goes, going on throughout. The spot that names a call most closely wins: its name,
+     * then a pattern, then a spot for every call, and the latest of those alike, so a page's spot for its own call wins
+     * over a layout's spot for every call whichever came first. `chat`: the spot sits beside a chat, which the call's
+     * controls show and hide (`view.chat`). Answers a function that takes it back.
+     */
+    spot( pattern: string | RegExp | null, element: HTMLElement, options: { chat?: boolean } = {} ): () => void {
+        const rank = pattern === null ? 0 : typeof pattern === 'string' && ! /\{[^}]+\}/.test( pattern ) ? 2 : 1;
+        const spot = { pattern: pattern === null ? /^/ : typeof pattern === 'string' ? namePattern( pattern ) : pattern, element, rank, chat: !! options.chat };
+        this.spots.push( spot );
+        this.respot();
+        return () => {
+            this.spots = this.spots.filter( ( s ) => s !== spot );
+            this.respot();
+        };
+    }
+
+    /**
+     * Hears where the call goes, as soon as it changes, before the page goes on: the screen moves its window then, so a
+     * spot leaving the page hands the call back before the spot is taken out.
+     */
+    onPlace = ( placer: () => void ) => {
+        this.placers.add( placer );
+        return () => void this.placers.delete( placer );
+    };
+
+    /**
+     * Shows or hides the chat beside the call, where the call is in a chat's spot: a value, or a function of the one it
+     * has, as React's setState takes it.
+     */
+    showChat = ( shown: boolean | ( ( shown: boolean ) => boolean ) ) => {
+        if ( this.view.chat === null ) return;
+        const next = typeof shown === 'function' ? shown( this.view.chat ) : shown;
+        if ( next !== this.view.chat ) this.set( { chat: next } );
+    };
+
+    private spotOf( showing: Showing | null ) {
+        const name = showingName( showing );
+        if ( name === null ) return null;
+        let best: ( typeof this.spots )[ number ] | null = null;
+        for ( const spot of this.spots ) if ( spot.pattern.test( name ) && ( ! best || spot.rank >= best.rank ) ) best = spot;
+        return best;
+    }
+
+    private respot(): void {
+        if ( ( this.spotOf( this.view.showing )?.element ?? null ) !== this.view.spot ) this.set( {} );
     }
 
     private ownerOf( name: string ) {
@@ -119,7 +184,7 @@ export class CallsController {
         try {
             const group = await this.calls.group( name, { type } );
             if ( owner ) return owner.take( { kind: 'group', group } );
-            this.set( { showing: { kind: 'group', group, type, title, ...this.adding( name, group ) } } );
+            this.set( { showing: { kind: 'group', group, name, type, title, ...this.adding( name, group ) } } );
         } catch ( error ) {
             this.refused( error );
         }
@@ -132,7 +197,7 @@ export class CallsController {
             const answered = await incoming.accept();
             if ( incoming.group ) {
                 const group = answered as SdkGroupCall;
-                this.set( { showing: { kind: 'group', group, type: incoming.type, title: '', ...this.adding( incoming.call, group ) } } );
+                this.set( { showing: { kind: 'group', group, name: incoming.call, type: incoming.type, title: '', ...this.adding( incoming.call, group ) } } );
             } else {
                 this.showCall( answered as SdkCall, { name: info.name ?? '', avatar: info.avatar } );
             }
@@ -155,7 +220,7 @@ export class CallsController {
     private showCall( call: SdkCall, peer: { name: string; avatar?: string } ): void {
         // Someone was added: the call goes on as a group call in its room, on the same screen.
         call.on( 'group', ( group: SdkGroupCall ) => {
-            this.set( { showing: { kind: 'group', group, type: call.type, title: '', ...this.adding( call.name, group ) } } );
+            this.set( { showing: { kind: 'group', group, name: call.name, type: call.type, title: '', ...this.adding( call.name, group ) } } );
         } );
         this.set( { showing: { kind: 'call', call, peer, ...this.adding( call.name, call ) } } );
     }
@@ -210,7 +275,13 @@ export class CallsController {
     }
 
     private set( change: Partial<CallsView> ): void {
-        this.view = { ...this.view, ...change };
+        const view = { ...this.view, ...change };
+        const spot = this.spotOf( view.showing );
+        // A chat's spot shows its chat beside the call as the call comes in, and then as the user leaves it.
+        view.chat = spot?.chat ? ( spot.element === this.view.spot && view.chat !== null ? view.chat : true ) : null;
+        view.spot = spot?.element ?? null;
+        this.view = view;
+        this.placers.forEach( ( place ) => place() );
         this.listeners.forEach( ( listener ) => listener() );
     }
 }

@@ -1,5 +1,6 @@
 import {useEffect} from "react";
 import {sharedTooltips} from "./shared.ts";
+import {WINDOW_ATTRIBUTE} from "./player.tsx";
 
 // Tooltips in place of the browser's (`title`), which shows late, plainly, and never in full screen: any element with
 // `data-estream-tip` shows that text over itself, under it where there is no room above, inside the window. A mouse or
@@ -8,7 +9,8 @@ import {sharedTooltips} from "./shared.ts";
 //
 // The WordPlus SDK's floater, which every WordPlus plugin on the page shares, where the page has it (shared.ts), styled
 // as ours (`estream-tip`); our own otherwise. One for the page, whichever stream trees it has: each installs it
-// (useTooltips) and the last one gone removes it. Ours goes into the element shown full screen, or the page's body.
+// (useTooltips) and the last one gone removes it. Ours goes into the element shown full screen, or filling the window
+// over the page, or the page's body.
 
 const ATTRIBUTE = 'data-estream-tip';
 const GAP = 8;
@@ -51,7 +53,7 @@ function show( el : HTMLElement ){
         tip.setAttribute( 'role', 'tooltip' );
     }
 
-    const host = document.fullscreenElement ?? document.body;
+    const host = document.fullscreenElement ?? el.closest( '[' + WINDOW_ATTRIBUTE + ']' ) ?? document.body;
     if( tip.parentNode !== host ) host.appendChild( tip );
 
     tip.textContent = text;

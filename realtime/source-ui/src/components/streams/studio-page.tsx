@@ -1,11 +1,12 @@
 import {useId, useState, type ReactNode, type RefObject} from "react";
 import {__, _x, sprintf} from "./i18n.ts";
 import {Chat} from "./chat.tsx";
+import {chatReached} from "./context.tsx";
 import {count, dateTime, relative, timeOfDay} from "./format.ts";
 import {Icon} from "./icons.tsx";
 import {useNow} from "./player.tsx";
 import {Stage} from "./stage.tsx";
-import {CopyField, Guests, StudioBar, StudioBody, StudioStatus, useStudio} from "./studio.tsx";
+import {CopyField, EncoderLost, Guests, StudioBar, StudioBody, StudioStatus, useStudio} from "./studio.tsx";
 
 // The studio as a page of its own, where a host goes live with room for everything at once (the WordPress
 // plugin's Easy Stream → Studio): the picture large with the controls under it, and beside it the chat, the
@@ -46,7 +47,7 @@ function StreamTab( props : { options : StudioPageOptions, page : string, onPage
         try {
             props.onPage( await makePage( options.createPage, options.nonce ) );
         } catch ( e ) {
-            setFailed( ( e as Error ).message || __( 'The page could not be made.', 'wordplus-stream' ) );
+            setFailed( ( e as Error ).message || __( 'The page could not be made.', 'wordplus-live-stream' ) );
         } finally {
             setMaking( false );
         }
@@ -55,21 +56,21 @@ function StreamTab( props : { options : StudioPageOptions, page : string, onPage
     return (
         <div className="estream-studio-page__details">
             <section>
-                <h2 className="estream-studio-page__heading">{ __( 'Where viewers watch', 'wordplus-stream' ) }</h2>
+                <h2 className="estream-studio-page__heading">{ __( 'Where viewers watch', 'wordplus-live-stream' ) }</h2>
                 { props.page ? (
                     <>
-                        <CopyField label={ __( 'Link to share', 'wordplus-stream' ) } value={ props.page } />
+                        <CopyField label={ __( 'Link to share', 'wordplus-live-stream' ) } value={ props.page } />
                         <a className="estream-button estream-button--quiet" href={ props.page } target="_blank" rel="noopener noreferrer">
                             <Icon name="external" />
-                            { __( 'Open the page', 'wordplus-stream' ) }
+                            { __( 'Open the page', 'wordplus-live-stream' ) }
                         </a>
                     </>
                 ) : (
                     <>
-                        <p className="estream-studio-page__note">{ __( 'No page shows this stream yet, so nobody can watch it.', 'wordplus-stream' ) }</p>
+                        <p className="estream-studio-page__note">{ __( 'No page shows this stream yet, so nobody can watch it.', 'wordplus-live-stream' ) }</p>
                         { options.createPage && (
                             <button type="button" className="estream-button estream-button--primary" disabled={ making } onClick={ () => void create() }>
-                                { making ? __( 'Making the page…', 'wordplus-stream' ) : __( 'Create a page for this stream', 'wordplus-stream' ) }
+                                { making ? __( 'Making the page…', 'wordplus-live-stream' ) : __( 'Create a page for this stream', 'wordplus-live-stream' ) }
                             </button>
                         ) }
                         { failed && <p className="estream-controls__error" role="alert">{ failed }</p> }
@@ -79,20 +80,20 @@ function StreamTab( props : { options : StudioPageOptions, page : string, onPage
 
             { props.scheduled ? (
                 <section>
-                    <h2 className="estream-studio-page__heading">{ __( 'Planned', 'wordplus-stream' ) }</h2>
+                    <h2 className="estream-studio-page__heading">{ __( 'Planned', 'wordplus-live-stream' ) }</h2>
                     <p className="estream-studio-page__note">{ dateTime( props.scheduled ) }</p>
                 </section>
             ) : null }
 
             <section>
-                <h2 className="estream-studio-page__heading">{ __( 'Streaming from OBS', 'wordplus-stream' ) }</h2>
-                <p className="estream-studio-page__note">{ __( 'Choose "Stream from OBS" under the picture for the server and key to enter in OBS.', 'wordplus-stream' ) }</p>
+                <h2 className="estream-studio-page__heading">{ __( 'Streaming from OBS', 'wordplus-live-stream' ) }</h2>
+                <p className="estream-studio-page__note">{ __( 'Choose "Stream from OBS" under the picture for the server and key to enter in OBS.', 'wordplus-live-stream' ) }</p>
             </section>
 
             { options.settings && (
                 <a className="estream-button estream-button--quiet" href={ options.settings }>
                     <Icon name="settings" />
-                    { __( 'Stream settings', 'wordplus-stream' ) }
+                    { __( 'Stream settings', 'wordplus-live-stream' ) }
                 </a>
             ) }
         </div>
@@ -108,35 +109,38 @@ export function StudioPage( props : { options : StudioPageOptions, chat : boolea
     const id = useId();
     const asking = state.hands.length;
     const stream = state.stream;
+    // No chat tab while the page has no chat to reach (a host setting up before the site is connected).
+    const chat = props.chat && chatReached( state );
+    const shown : Tab = tab === 'chat' && ! chat ? 'stream' : tab;
 
     const tabs : Array<{ key : Tab, label : string, badge? : number }> = [
-        ...( props.chat ? [ { key: 'chat' as Tab, label: __( 'Chat', 'wordplus-stream' ) } ] : [] ),
-        ...( props.guests ? [ { key: 'guests' as Tab, label: __( 'Guests', 'wordplus-stream' ), badge: asking } ] : [] ),
-        { key: 'stream', label: _x( 'Stream', 'the tab with the stream\'s details', 'wordplus-stream' ) }
+        ...( chat ? [ { key: 'chat' as Tab, label: __( 'Chat', 'wordplus-live-stream' ) } ] : [] ),
+        ...( props.guests ? [ { key: 'guests' as Tab, label: __( 'Guests', 'wordplus-live-stream' ), badge: asking } ] : [] ),
+        { key: 'stream', label: _x( 'Stream', 'the tab with the stream\'s details', 'wordplus-live-stream' ) }
     ];
 
-    const when = live && stream?.started_at ? sprintf( _x( 'Live since %s', 'a time of day', 'wordplus-stream' ), timeOfDay( stream.started_at ) )
-        : ended && stream?.ended_at ? sprintf( _x( 'Ended %s', 'a time, as "5 minutes ago"', 'wordplus-stream' ), relative( stream.ended_at, now ) )
-            : player.scheduled && player.scheduled > now ? sprintf( _x( 'Starts %s', 'a date and time', 'wordplus-stream' ), dateTime( player.scheduled ) )
-                : __( 'Not live', 'wordplus-stream' );
+    const when = live && stream?.started_at ? sprintf( _x( 'Live since %s', 'a time of day', 'wordplus-live-stream' ), timeOfDay( stream.started_at ) )
+        : ended && stream?.ended_at ? sprintf( _x( 'Ended %s', 'a time, as "5 minutes ago"', 'wordplus-live-stream' ), relative( stream.ended_at, now ) )
+            : player.scheduled && player.scheduled > now ? sprintf( _x( 'Starts %s', 'a date and time', 'wordplus-live-stream' ), dateTime( player.scheduled ) )
+                : __( 'Not live', 'wordplus-live-stream' );
 
     return (
         <div className="estream-studio-page">
             <header className="estream-studio-page__head">
                 { props.options.back && (
-                    <a className="estream-studio-page__back" href={ props.options.back } aria-label={ __( 'Back to your streams', 'wordplus-stream' ) } data-estream-tip={ __( 'Back to your streams', 'wordplus-stream' ) }>
+                    <a className="estream-studio-page__back" href={ props.options.back } aria-label={ __( 'Back to your streams', 'wordplus-live-stream' ) } data-estream-tip={ __( 'Back to your streams', 'wordplus-live-stream' ) }>
                         <Icon name="arrow-left" />
                     </a>
                 ) }
                 <div className="estream-studio-page__name">
-                    <h1 className="estream-studio-page__title">{ player.title || __( 'Studio', 'wordplus-stream' ) }</h1>
+                    <h1 className="estream-studio-page__title">{ player.title || __( 'Studio', 'wordplus-live-stream' ) }</h1>
                     { when && <p className="estream-studio-page__when">{ when }</p> }
                 </div>
                 <span className="estream-studio-page__spacer" />
                 { page && (
                     <a className="estream-button estream-button--quiet" href={ page } target="_blank" rel="noopener noreferrer">
                         <Icon name="external" />
-                        { __( 'View page', 'wordplus-stream' ) }
+                        { __( 'View page', 'wordplus-live-stream' ) }
                     </a>
                 ) }
             </header>
@@ -151,10 +155,11 @@ export function StudioPage( props : { options : StudioPageOptions, chat : boolea
                         it is, scrolling the column under the picture where it doesn't fit. */}
                     <div className="estream-studio-page__controls">
                         { live && (
-                            <div className="estream-studio-page__stats" role="group" aria-label={ __( 'Statistics', 'wordplus-stream' ) }>
+                            <div className="estream-studio-page__stats" role="group" aria-label={ __( 'Statistics', 'wordplus-live-stream' ) }>
                                 <StudioStatus stats={ sending } tally />
                             </div>
                         ) }
+                        <EncoderLost />
                         <StudioBar studio={ studio } />
                         { error && <p className="estream-controls__error" role="alert">{ error }</p> }
                         <StudioBody studio={ studio } />
@@ -162,16 +167,16 @@ export function StudioPage( props : { options : StudioPageOptions, chat : boolea
                 </main>
 
                 <aside className="estream-studio-page__side">
-                    <div className="estream-studio-page__tabs" role="tablist" aria-label={ __( 'Studio', 'wordplus-stream' ) }>
+                    <div className="estream-studio-page__tabs" role="tablist" aria-label={ __( 'Studio', 'wordplus-live-stream' ) }>
                         { tabs.map( ( t ) => (
                             <button
                                 key={ t.key }
                                 type="button"
                                 role="tab"
                                 id={ id + t.key }
-                                aria-selected={ tab === t.key }
+                                aria-selected={ shown === t.key }
                                 aria-controls={ id + 'panel' }
-                                className={ 'estream-studio-page__tab' + ( tab === t.key ? ' estream-studio-page__tab--on' : '' ) }
+                                className={ 'estream-studio-page__tab' + ( shown === t.key ? ' estream-studio-page__tab--on' : '' ) }
                                 onClick={ () => setTab( t.key ) }
                             >
                                 { t.label }
@@ -179,18 +184,18 @@ export function StudioPage( props : { options : StudioPageOptions, chat : boolea
                             </button>
                         ) ) }
                     </div>
-                    <div className={ 'estream-studio-page__panel estream-studio-page__panel--' + tab } role="tabpanel" id={ id + 'panel' } aria-labelledby={ id + tab }>
-                        { tab === 'chat' && <Chat /> }
-                        { tab === 'guests' && (
+                    <div className={ 'estream-studio-page__panel estream-studio-page__panel--' + shown } role="tabpanel" id={ id + 'panel' } aria-labelledby={ id + shown }>
+                        { shown === 'chat' && <Chat /> }
+                        { shown === 'guests' && (
                             <Guests empty={ (
                                 <p className="estream-studio-page__note">
                                     { live
-                                        ? __( 'Nobody has asked to join the stage yet. Viewers who are logged in ask from the page of the stream, and you invite them here.', 'wordplus-stream' )
-                                        : __( 'Once you are live, viewers can ask to join you on stage, and you invite them here.', 'wordplus-stream' ) }
+                                        ? __( 'Nobody has asked to join the stage yet. Viewers who are logged in ask from the page of the stream, and you invite them here.', 'wordplus-live-stream' )
+                                        : __( 'Once you are live, viewers can ask to join you on stage, and you invite them here.', 'wordplus-live-stream' ) }
                                 </p>
                             ) } />
                         ) }
-                        { tab === 'stream' && <StreamTab options={ props.options } page={ page } onPage={ setPage } scheduled={ player.scheduled } /> }
+                        { shown === 'stream' && <StreamTab options={ props.options } page={ page } onPage={ setPage } scheduled={ player.scheduled } /> }
                     </div>
                 </aside>
             </div>

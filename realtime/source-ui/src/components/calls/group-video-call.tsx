@@ -53,10 +53,13 @@ export default function GroupVideoCallLayout() {
         myScreenVideoTrackRef,
         enableCamera,
         disableCamera,
+        cameraChecking,
         enableMic,
         disableMic,
         enableShareScreen,
         disableShareScreen,
+        screenForVideo,
+        setScreenForVideo,
         enableFullScreen,
         disableFullScreen,
         fullScreenAvailable,
@@ -91,6 +94,11 @@ export default function GroupVideoCallLayout() {
     const [ isPending, run ] = usePendingActions();
     const busy = ( key: string ) => isPending( key ) ? 1 : undefined;
     const glyph = ( key: string, name: IconName ) => isPending( key )
+        ? <Icon name="spinner" size={ 20 } className="bm-svg-animate" />
+        : <Icon name={ name } size={ 20 } />;
+    // The camera spins as they do while it is checked before it goes out (context.ts). It still takes a press: turning
+    // the camera off wins over its check at once.
+    const cameraGlyph = ( name: IconName ) => cameraChecking
         ? <Icon name="spinner" size={ 20 } className="bm-svg-animate" />
         : <Icon name={ name } size={ 20 } />;
     const controlsRef = useRef<HTMLDivElement>(null);
@@ -184,17 +192,15 @@ export default function GroupVideoCallLayout() {
                             { canPublish && <>
                                 { myCameraTrack &&
                                     <Tooltip content={_x('Disable Camera', 'Group Video Chat', 'bp-better-messages')}>
-                                    <span onClick={disableCamera} className="bm-disable-video">
-                                        {! iconsReverted && <Icon name="videoOff" size={ 20 } />}
-                                        { iconsReverted && <Icon name="video" size={ 20 } />}
+                                    <span onClick={ disableCamera } data-busy={ cameraChecking ? 1 : undefined } className="bm-disable-video">
+                                        { cameraGlyph( iconsReverted ? 'video' : 'videoOff' ) }
                                     </span>
                                     </Tooltip>}
 
                                 { ! myCameraTrack &&
                                     <Tooltip content={_x('Enable Camera', 'Group Video Chat', 'bp-better-messages')}>
-                                        <span onClick={enableCamera} className="bm-enable-video">
-                                            { ! iconsReverted && <Icon name="video" size={ 20 } />}
-                                            { iconsReverted && <Icon name="videoOff" size={ 20 } />}
+                                        <span onClick={ enableCamera } data-busy={ cameraChecking ? 1 : undefined } className="bm-enable-video">
+                                            { cameraGlyph( iconsReverted ? 'videoOff' : 'video' ) }
                                         </span>
                                     </Tooltip>}
                             </>}
@@ -253,6 +259,15 @@ export default function GroupVideoCallLayout() {
                                         <Tooltip content={_x('Stop Screen Sharing', 'Group Video Chat', 'bp-better-messages')}>
                                             <span onClick={disableShareScreen} className="bm-switch-share-screen" data-active="1">
                                                 <Icon name="screenShareOff" size={ 20 } />
+                                            </span>
+                                        </Tooltip>
+                                    }
+
+                                    { ( myScreenVideoTrack && setScreenForVideo ) &&
+                                        <Tooltip content={_x('Optimize for video', 'Group Video Chat', 'bp-better-messages')}>
+                                            <span onClick={() => setScreenForVideo( ! screenForVideo )} className="bm-screen-for-video"
+                                                  aria-pressed={ !! screenForVideo } data-active={ screenForVideo ? "1" : undefined }>
+                                                <Icon name="play" size={ 20 } />
                                             </span>
                                         </Tooltip>
                                     }

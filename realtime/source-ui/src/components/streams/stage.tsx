@@ -1,4 +1,4 @@
-import {createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode} from "react";
+import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject} from "react";
 import {CHOSEN_MAX_SIDE, type Corner, type LayerQuality, type Layout, type PictureLayer, type Tile, type VideoChoice} from "@wordplus/realtime-client/streams";
 import {__, _nx, _x, sprintf} from "./i18n.ts";
 import {useClient, useStream} from "./context.tsx";
@@ -9,7 +9,7 @@ import {AudioTracks, VideoTrack} from "./media.tsx";
 import {MenuButton, MenuChoice, MenuHeading, MenuItem} from "./menu.tsx";
 import {usePlayer, useNow} from "./player.tsx";
 import {screenFor} from "./screens.tsx";
-import {logoOf, safeImage} from "./appearance.ts";
+import {LOGO_INSET_MAX, LOGO_WIDTH, logoOf, safeImage} from "./appearance.ts";
 import {StatsPanel} from "./stats.tsx";
 import {offeredReactions, reactionIcon} from "./reactions.ts";
 import {EmojiGlyph} from "./emoji-glyph.tsx";
@@ -18,7 +18,7 @@ import {EmojiGlyph} from "./emoji-glyph.tsx";
 const IDLE_MS = 3000;
 
 // A button's name with its key, for its tooltip: "Mute (m)".
-const withKey = ( label : string, key : string ) => sprintf( _x( '%1$s (%2$s)', 'a button\'s name, then its keyboard key', 'wordplus-stream' ), label, key );
+const withKey = ( label : string, key : string ) => sprintf( _x( '%1$s (%2$s)', 'a button\'s name, then its keyboard key', 'wordplus-live-stream' ), label, key );
 
 function Initials( props : { name : string } ){
     const letters = props.name.split( /\s+/ ).filter( Boolean ).slice( 0, 2 ).map( ( w ) => w[0]?.toUpperCase() ).join( '' );
@@ -66,7 +66,7 @@ function TileView( props : { tile : Tile, main? : boolean, primary? : boolean, n
                 : <Person name={ tile.name } avatar={ tile.avatar } /> }
             { info ? info( tile, named ) : ( named || tile.micMuted ) && (
                 <div className="estream-tile__name">
-                    { tile.micMuted && <span className="estream-tile__muted" role="img" aria-label={ __( 'Microphone off', 'wordplus-stream' ) }><Icon name="mic-off" /></span> }
+                    { tile.micMuted && <span className="estream-tile__muted" role="img" aria-label={ __( 'Microphone off', 'wordplus-live-stream' ) }><Icon name="mic-off" /></span> }
                     { named && <span>{ tile.name }</span> }
                 </div>
             ) }
@@ -109,7 +109,7 @@ function CornerCamera( props : { tile : Tile, side : 'left' | 'right' } ){
     const handlers = movable ? {
         tabIndex: 0,
         role: 'group',
-        'aria-label': __( 'Camera over the shared screen. Drag it, or move it with the arrow keys.', 'wordplus-stream' ),
+        'aria-label': __( 'Camera over the shared screen. Drag it, or move it with the arrow keys.', 'wordplus-live-stream' ),
         onPointerDown: ( e : ReactPointerEvent<HTMLDivElement> ) => {
             // The main button, or a finger
             if( e.button > 0 ) return;
@@ -271,7 +271,7 @@ function Floating(){
 // How long it has been on air.
 function OnAir( props : { since : number } ){
     const now = useNow( 1000 );
-    return <span className="estream-bar__time" aria-label={ __( 'Time on air', 'wordplus-stream' ) }>{ clock( now - props.since ) }</span>;
+    return <span className="estream-bar__time" aria-label={ __( 'Time on air', 'wordplus-live-stream' ) }>{ clock( now - props.since ) }</span>;
 }
 
 // An icon alone, named by `label`; its tooltip says the label, or `tip` (with its key).
@@ -301,8 +301,8 @@ function Volume(){
         <div className="estream-volume">
             <IconButton
                 icon={ silent ? 'volume-off' : player.volume < 0.5 ? 'volume-low' : 'volume' }
-                label={ silent ? __( 'Unmute', 'wordplus-stream' ) : __( 'Mute', 'wordplus-stream' ) }
-                tip={ withKey( silent ? __( 'Unmute', 'wordplus-stream' ) : __( 'Mute', 'wordplus-stream' ), 'm' ) }
+                label={ silent ? __( 'Unmute', 'wordplus-live-stream' ) : __( 'Mute', 'wordplus-live-stream' ) }
+                tip={ withKey( silent ? __( 'Unmute', 'wordplus-live-stream' ) : __( 'Mute', 'wordplus-live-stream' ), 'm' ) }
                 onClick={ () => {
                     // A click is what a browser that blocked sound waits for.
                     if( state.audioBlocked ) void client.startAudio();
@@ -317,7 +317,7 @@ function Volume(){
                     max={ 1 }
                     step={ 0.05 }
                     value={ level }
-                    aria-label={ __( 'Volume', 'wordplus-stream' ) }
+                    aria-label={ __( 'Volume', 'wordplus-live-stream' ) }
                     aria-valuetext={ Math.round( level * 100 ) + '%' }
                     style={ { '--estream-level': level * 100 + '%' } as CSSProperties }
                     onChange={ ( e ) => player.setVolume( Number( e.target.value ) ) }
@@ -336,12 +336,12 @@ export function mainTrack( tiles : Tile[], layout : Layout ) : Tile['camera'] {
     return remote.find( ( t ) => t.screen )?.screen ?? remote.find( ( t ) => t.camera )?.camera ?? null;
 }
 
-const heightName = ( height : number ) => sprintf( _x( '%dp', 'a picture\'s height, as in 720p', 'wordplus-stream' ), height );
+const heightName = ( height : number ) => sprintf( _x( '%dp', 'a picture\'s height, as in 720p', 'wordplus-live-stream' ), height );
 
 function qualityWord( quality : LayerQuality ) : string {
-    if( quality === 'high' ) return _x( 'High', 'picture quality', 'wordplus-stream' );
-    if( quality === 'medium' ) return _x( 'Medium', 'picture quality', 'wordplus-stream' );
-    return _x( 'Low', 'picture quality', 'wordplus-stream' );
+    if( quality === 'high' ) return _x( 'High', 'picture quality', 'wordplus-live-stream' );
+    if( quality === 'medium' ) return _x( 'Medium', 'picture quality', 'wordplus-live-stream' );
+    return _x( 'Low', 'picture quality', 'wordplus-live-stream' );
 }
 
 // The pictures a viewer may choose beside Auto: each layer the sender sends by its height (720p, 540p, 360p), the
@@ -383,7 +383,7 @@ function Settings( props : { quality : boolean } ){
     };
 
     return (
-        <MenuButton icon="sliders" label={ __( 'Settings', 'wordplus-stream' ) } className="estream-bar__settings">
+        <MenuButton icon="sliders" label={ __( 'Settings', 'wordplus-live-stream' ) } className="estream-bar__settings">
             { ( close ) => {
                 const choices = props.quality ? qualityChoices( client, state ) : [];
                 const shown = shownQuality( quality, choices );
@@ -391,14 +391,14 @@ function Settings( props : { quality : boolean } ){
                     <>
                         { props.quality && (
                             <>
-                                <MenuHeading>{ __( 'Quality', 'wordplus-stream' ) }</MenuHeading>
+                                <MenuHeading>{ __( 'Quality', 'wordplus-live-stream' ) }</MenuHeading>
                                 <MenuChoice
                                     checked={ quality === 'auto' }
                                     onSelect={ () => choose( 'auto', close ) }
                                     hint={ quality === 'auto' && height > 0 ? heightName( height ) : undefined }
-                                    note={ __( 'Follows the size of the player and your connection', 'wordplus-stream' ) }
+                                    note={ __( 'Follows the size of the player and your connection', 'wordplus-live-stream' ) }
                                 >
-                                    { _x( 'Auto', 'picture quality', 'wordplus-stream' ) }
+                                    { _x( 'Auto', 'picture quality', 'wordplus-live-stream' ) }
                                 </MenuChoice>
                             </>
                         ) }
@@ -407,13 +407,13 @@ function Settings( props : { quality : boolean } ){
                                 key={ c.quality }
                                 checked={ shown === c.quality }
                                 onSelect={ () => choose( c.quality, close ) }
-                                hint={ c.saves ? __( 'Saves data', 'wordplus-stream' ) : undefined }
+                                hint={ c.saves ? __( 'Saves data', 'wordplus-live-stream' ) : undefined }
                             >
                                 { c.label }
                             </MenuChoice>
                         ) ) }
                         <MenuItem icon="stats" onSelect={ () => { close(); toggleStats(); } }>
-                            { statsOpen ? _x( 'Hide statistics', 'of the player', 'wordplus-stream' ) : __( 'Statistics', 'wordplus-stream' ) }
+                            { statsOpen ? _x( 'Hide statistics', 'of the player', 'wordplus-live-stream' ) : __( 'Statistics', 'wordplus-live-stream' ) }
                         </MenuItem>
                     </>
                 );
@@ -440,24 +440,24 @@ function Bar( props : { shown : boolean } ){
             { player.chatToggles && (
                 <IconButton
                     icon={ player.chatHidden ? 'chat' : 'chat-off' }
-                    label={ player.chatHidden ? __( 'Show chat', 'wordplus-stream' ) : __( 'Hide chat', 'wordplus-stream' ) }
-                    tip={ withKey( player.chatHidden ? __( 'Show chat', 'wordplus-stream' ) : __( 'Hide chat', 'wordplus-stream' ), 'c' ) }
+                    label={ player.chatHidden ? __( 'Show chat', 'wordplus-live-stream' ) : __( 'Hide chat', 'wordplus-live-stream' ) }
+                    tip={ withKey( player.chatHidden ? __( 'Show chat', 'wordplus-live-stream' ) : __( 'Hide chat', 'wordplus-live-stream' ), 'c' ) }
                     onClick={ player.toggleChat }
                 />
             ) }
             { player.canPip && (
                 <IconButton
                     icon="pip"
-                    label={ player.pip ? __( 'Exit picture-in-picture', 'wordplus-stream' ) : __( 'Picture-in-picture', 'wordplus-stream' ) }
-                    tip={ withKey( player.pip ? __( 'Exit picture-in-picture', 'wordplus-stream' ) : __( 'Picture-in-picture', 'wordplus-stream' ), 'p' ) }
+                    label={ player.pip ? __( 'Exit picture-in-picture', 'wordplus-live-stream' ) : __( 'Picture-in-picture', 'wordplus-live-stream' ) }
+                    tip={ withKey( player.pip ? __( 'Exit picture-in-picture', 'wordplus-live-stream' ) : __( 'Picture-in-picture', 'wordplus-live-stream' ), 'p' ) }
                     onClick={ player.togglePip }
                 />
             ) }
             { player.canFullscreen && (
                 <IconButton
                     icon={ player.fullscreen ? 'fullscreen-exit' : 'fullscreen' }
-                    label={ player.fullscreen ? __( 'Exit full screen', 'wordplus-stream' ) : __( 'Full screen', 'wordplus-stream' ) }
-                    tip={ withKey( player.fullscreen ? __( 'Exit full screen', 'wordplus-stream' ) : __( 'Full screen', 'wordplus-stream' ), 'f' ) }
+                    label={ player.fullscreen ? __( 'Exit full screen', 'wordplus-live-stream' ) : __( 'Full screen', 'wordplus-live-stream' ) }
+                    tip={ withKey( player.fullscreen ? __( 'Exit full screen', 'wordplus-live-stream' ) : __( 'Full screen', 'wordplus-live-stream' ), 'f' ) }
                     onClick={ player.toggleFullscreen }
                 />
             ) }
@@ -479,13 +479,13 @@ function Top( props : { shown : boolean, bare? : boolean } ){
 
     return (
         <div className="estream-top">
-            { live && player.appearance.liveBadge !== false && <span className="estream-badge estream-badge--live">{ _x( 'Live', 'a stream on air', 'wordplus-stream' ) }</span> }
+            { live && player.appearance.liveBadge !== false && <span className="estream-badge estream-badge--live">{ _x( 'Live', 'a stream on air', 'wordplus-live-stream' ) }</span> }
             { since !== null && <span className="estream-badge estream-top__time"><OnAir since={ since } /></span> }
-            { preview && <span className="estream-badge estream-badge--preview">{ _x( 'Preview', 'a host\'s own picture before going live', 'wordplus-stream' ) }</span> }
+            { preview && <span className="estream-badge estream-badge--preview">{ _x( 'Preview', 'a host\'s own picture before going live', 'wordplus-live-stream' ) }</span> }
             { live && player.fullscreen && counted && (
                 <span className="estream-badge estream-top__count">
                     <Icon name="eye" />
-                    { sprintf( _nx( '%s watching', '%s watching', state.viewers, 'how many people watch', 'wordplus-stream' ), count( state.viewers ) ) }
+                    { sprintf( _nx( '%s watching', '%s watching', state.viewers, 'how many people watch', 'wordplus-live-stream' ), count( state.viewers ) ) }
                 </span>
             ) }
             { player.fullscreen && player.title && player.appearance.title !== false && <span className={ 'estream-top__title' + ( props.shown ? '' : ' estream-top__title--hidden' ) }>{ player.title }</span> }
@@ -493,7 +493,7 @@ function Top( props : { shown : boolean, bare? : boolean } ){
             { weak && state.tiles.length > 0 && (
                 <span className="estream-badge estream-top__weak" role="status">
                     <Icon name="signal" />
-                    { __( 'Weak connection', 'wordplus-stream' ) }
+                    { __( 'Weak connection', 'wordplus-live-stream' ) }
                 </span>
             ) }
         </div>
@@ -511,8 +511,254 @@ function MutedByHost( props : { at : number | null } ){
     return (
         <div className="estream-reconnecting" role="status">
             <Icon name="mic-off" />
-            { __( 'The host muted your microphone', 'wordplus-stream' ) }
+            { __( 'The host muted your microphone', 'wordplus-live-stream' ) }
         </div>
+    );
+}
+
+// Where a logo was let go where it moves (a settings page's preview, a studio that places it), which the page hears as
+// `estream-logo-move` on its element: the corner nearest it, and its distance from that corner's side and from its top
+// or bottom, in per cent of the picture's width and height, to a tenth.
+export interface LogoPlace {
+    position : 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+    x : number;
+    y : number;
+}
+
+// How wide a logo was made with its handle where it moves, which the page hears as `estream-logo-size` on its element,
+// in per cent of the picture's width, to a tenth.
+export interface LogoSize {
+    width : number;
+}
+
+// To a tenth: of a pixel, or of a per cent.
+const tenth = ( value : number ) => Math.round( value * 10 ) / 10;
+
+// The main picture's video: alone on the stage, or the one beside the strip of the others, never a camera in a corner.
+const MAIN_VIDEO = '.estream-tiles--n1 > .estream-tile > video, .estream-tiles__main video';
+
+// Where the picture shows in the stage, in the stage's own pixels, and how far its foot is above the stage's: the main
+// video without the bars a picture of another shape leaves at its sides (a screen not the player's shape, the player in
+// full screen), which the logo keeps to so that it covers the same part of the picture in every player.
+interface PictureBox {
+    left : number;
+    top : number;
+    width : number;
+    height : number;
+    below : number;
+}
+
+function pictureBox( stage : HTMLElement, video : HTMLVideoElement ) : PictureBox | null {
+    const s = stage.getBoundingClientRect();
+    const v = video.getBoundingClientRect();
+    // A stage drawn scaled (a settings page's preview) in its own pixels, which the screen's measures are not.
+    const scale = stage.offsetWidth > 0 && s.width > 0 ? s.width / stage.offsetWidth : 1;
+    let left = ( v.left - s.left ) / scale;
+    let top = ( v.top - s.top ) / scale;
+    let width = v.width / scale;
+    let height = v.height / scale;
+
+    // Shown whole, it leaves bars at its sides, or above and below it, where its shape isn't its tile's.
+    if( video.classList.contains( 'estream-video--contain' ) && video.videoWidth > 0 && video.videoHeight > 0 && width > 0 && height > 0 ){
+        const ratio = video.videoWidth / video.videoHeight;
+        if( width / height > ratio ){
+            left += ( width - height * ratio ) / 2;
+            width = height * ratio;
+        } else {
+            top += ( height - width / ratio ) / 2;
+            height = width / ratio;
+        }
+    }
+
+    if( width < 1 || height < 1 ) return null;
+    return { left: tenth( left ), top: tenth( top ), width: tenth( width ), height: tenth( height ), below: tenth( Math.max( 0, s.height / scale - top - height ) ) };
+}
+
+const sameBox = ( a : PictureBox | null, b : PictureBox | null ) =>
+    a === b || ( a !== null && b !== null && a.left === b.left && a.top === b.top && a.width === b.width && a.height === b.height && a.below === b.below );
+
+// The picture's box as the stage, the picture and its shape change, null where the stage shows no one picture (a
+// screen, or pictures side by side), and the logo keeps to the stage. `shown` changes with what the stage shows.
+function usePictureBox( stage : RefObject<HTMLDivElement | null>, shown : string ) : PictureBox | null {
+    const [ box, setBox ] = useState<PictureBox | null>( null );
+
+    useLayoutEffect( () => {
+        const el = stage.current;
+        const video = el?.querySelector<HTMLVideoElement>( MAIN_VIDEO ) ?? null;
+        const measure = () => {
+            const next = el && video ? pictureBox( el, video ) : null;
+            setBox( ( was ) => sameBox( was, next ) ? was : next );
+        };
+        measure();
+        if( ! el || ! video ) return;
+
+        const observer = typeof ResizeObserver === 'function' ? new ResizeObserver( measure ) : null;
+        observer?.observe( el );
+        observer?.observe( video );
+        video.addEventListener( 'resize', measure );
+        video.addEventListener( 'loadedmetadata', measure );
+        return () => {
+            observer?.disconnect();
+            video.removeEventListener( 'resize', measure );
+            video.removeEventListener( 'loadedmetadata', measure );
+        };
+    }, [ stage, shown ] );
+
+    return box;
+}
+
+// The logo over the picture, in its corner at the distance the site set, else at the player's own, as wide as the site
+// set, each a share of the picture, so it covers the same part of it however large the player. Where it moves (a
+// settings page's preview, a studio that places it) it is dragged anywhere over the picture, and where it is let go
+// goes to the page (LogoPlace), which saves it as the logo's corner and distance; and it has a handle at the corner
+// away from the one it keeps to, pulled out to make it bigger and in to make it smaller (LogoSize). It stays where it
+// was let go, as wide as it was made, until the site's settings change, for a page that saves them without drawing
+// the player again.
+function Logo( props : { logo : NonNullable<ReturnType<typeof logoOf>>, movable : boolean } ){
+    const [ placed, setPlaced ] = useState<LogoPlace | null>( null );
+    const [ sized, setSized ] = useState<number | null>( null );
+    useEffect( () => {
+        setPlaced( null );
+        setSized( null );
+    }, [ props.logo.position, props.logo.x, props.logo.y, props.logo.width ] );
+    const logo = { ...props.logo, ...placed, width: sized ?? props.logo.width };
+
+    const ref = useRef<HTMLElement>( null );
+    // Where it was held, and where the press began.
+    const grab = useRef<{ dx : number, dy : number, x : number, y : number } | null>( null );
+    const sizing = useRef<{ x : number, y : number, width : number, ratio : number, scale : number, room : number } | null>( null );
+    const [ at, setAt ] = useState<{ left : number, top : number } | null>( null );
+    const [ width, setWidth ] = useState<number | null>( null );
+    const right = logo.position.endsWith( 'right' );
+    const top = logo.position.startsWith( 'top' );
+
+    // The picture's box it keeps to, as wide and as tall as it is in its own pixels: a settings page may draw its
+    // preview scaled down, which the screen's measures are not.
+    const frameOf = () => {
+        const frame = ref.current?.parentElement;
+        if( ! frame ) return null;
+        const f = frame.getBoundingClientRect();
+        const scale = frame.offsetWidth > 0 && f.width > 0 ? f.width / frame.offsetWidth : 1;
+        return { box: f, scale, width: f.width / scale, height: f.height / scale };
+    };
+
+    // Where the pointer puts it in the picture, held inside it, in the picture's own pixels.
+    const pointedAt = ( x : number, y : number ) => {
+        const el = ref.current;
+        const frame = frameOf();
+        if( ! el || ! frame || ! grab.current ) return null;
+        const own = el.getBoundingClientRect();
+        const size = { width: own.width / frame.scale, height: own.height / frame.scale };
+        return {
+            left: Math.min( Math.max( 0, ( x - grab.current.dx - frame.box.left ) / frame.scale ), Math.max( 0, frame.width - size.width ) ),
+            top: Math.min( Math.max( 0, ( y - grab.current.dy - frame.box.top ) / frame.scale ), Math.max( 0, frame.height - size.height ) ),
+            room: { width: frame.width, height: frame.height },
+            own: size
+        };
+    };
+
+    // The width the handle has been pulled to, in per cent of the picture's: away from the corner the logo keeps to
+    // makes it bigger, across or down as much as along, whichever moved more.
+    const sizedTo = ( x : number, y : number ) => {
+        const s = sizing.current;
+        if( ! s || s.room <= 0 ) return null;
+        const across = ( x - s.x ) / s.scale * ( right ? -1 : 1 );
+        const down = ( y - s.y ) / s.scale * ( top ? 1 : -1 ) * s.ratio;
+        const pulled = Math.abs( across ) >= Math.abs( down ) ? across : down;
+        return tenth( Math.min( LOGO_WIDTH.max, Math.max( LOGO_WIDTH.min, ( s.width + pulled ) / s.room * 100 ) ) );
+    };
+
+    const sizeHandlers = {
+        onPointerDown: ( e : ReactPointerEvent<HTMLSpanElement> ) => {
+            if( e.button > 0 ) return;
+            e.stopPropagation();
+            e.preventDefault();
+            const el = ref.current;
+            const frame = frameOf();
+            if( ! el || ! frame ) return;
+            const own = el.getBoundingClientRect();
+            sizing.current = { x: e.clientX, y: e.clientY, width: own.width / frame.scale, ratio: own.height > 0 ? own.width / own.height : 1, scale: frame.scale, room: frame.width };
+            e.currentTarget.setPointerCapture?.( e.pointerId );
+        },
+        onPointerMove: ( e : ReactPointerEvent<HTMLSpanElement> ) => {
+            const next = sizedTo( e.clientX, e.clientY );
+            if( next !== null ) setWidth( next );
+        },
+        onPointerUp: ( e : ReactPointerEvent<HTMLSpanElement> ) => {
+            if( ! sizing.current ) return;
+            e.stopPropagation();
+            const next = sizedTo( e.clientX, e.clientY );
+            sizing.current = null;
+            setWidth( null );
+            if( next === null ) return;
+            setSized( next );
+            ref.current?.dispatchEvent( new CustomEvent<LogoSize>( 'estream-logo-size', { bubbles: true, detail: { width: next } } ) );
+        },
+        onPointerCancel: () => {
+            sizing.current = null;
+            setWidth( null );
+        }
+    };
+
+    const handlers = props.movable ? {
+        onPointerDown: ( e : ReactPointerEvent<HTMLElement> ) => {
+            // The main button, or a finger
+            if( e.button > 0 ) return;
+            e.stopPropagation();
+            e.preventDefault();
+            const own = e.currentTarget.getBoundingClientRect();
+            grab.current = { dx: e.clientX - own.left, dy: e.clientY - own.top, x: e.clientX, y: e.clientY };
+            e.currentTarget.setPointerCapture?.( e.pointerId );
+        },
+        onPointerMove: ( e : ReactPointerEvent<HTMLElement> ) => {
+            const next = grab.current ? pointedAt( e.clientX, e.clientY ) : null;
+            if( next ) setAt( { left: next.left, top: next.top } );
+        },
+        onPointerUp: ( e : ReactPointerEvent<HTMLElement> ) => {
+            const held = grab.current;
+            if( ! held ) return;
+            e.stopPropagation();
+            const p = pointedAt( e.clientX, e.clientY );
+            grab.current = null;
+            setAt( null );
+            // A press without a move leaves it where it is.
+            if( ! p || Math.abs( e.clientX - held.x ) + Math.abs( e.clientY - held.y ) < 3 ) return;
+            // The corner its middle is nearest, and how far it is from that corner's side and from its top or bottom.
+            const right = p.left + p.own.width / 2 > p.room.width / 2;
+            const bottom = p.top + p.own.height / 2 > p.room.height / 2;
+            const away = ( n : number, room : number ) => room > 0 ? tenth( Math.min( LOGO_INSET_MAX, Math.max( 0, n / room * 100 ) ) ) : 0;
+            const place : LogoPlace = {
+                position: ( ( bottom ? 'bottom-' : 'top-' ) + ( right ? 'right' : 'left' ) ) as LogoPlace['position'],
+                x: away( right ? p.room.width - p.left - p.own.width : p.left, p.room.width ),
+                y: away( bottom ? p.room.height - p.top - p.own.height : p.top, p.room.height )
+            };
+            setPlaced( place );
+            ref.current?.dispatchEvent( new CustomEvent<LogoPlace>( 'estream-logo-move', { bubbles: true, detail: place } ) );
+        },
+        onPointerCancel: () => {
+            grab.current = null;
+            setAt( null );
+        }
+    } : {};
+
+    const style : Record<string, string | number> = { width: ( width ?? logo.width ) + '%' };
+    if( logo.x !== null ) style[ '--estream-logo-x' ] = logo.x + '%';
+    if( logo.y !== null ) style[ '--estream-logo-y' ] = logo.y + '%';
+    if( at ) Object.assign( style, { left: at.left, top: at.top, right: 'auto', bottom: 'auto', transition: 'none' } );
+    const className = 'estream-logo estream-logo--' + logo.position + ( logo.x !== null ? ' estream-logo--x' : '' ) + ( logo.y !== null ? ' estream-logo--y' : '' );
+
+    if( ! props.movable ){
+        return <img ref={ ref as RefObject<HTMLImageElement> } className={ className } src={ logo.src } alt="" style={ { ...style, opacity: logo.opacity } as CSSProperties } draggable={ false } />;
+    }
+
+    // Where it moves, the image in a frame that also holds its handle, which keeps its own opacity however faint the
+    // logo, and says how it moves.
+    const tip = __( 'Drag the logo to place it. Pull its round handle to size it.', 'wordplus-live-stream' );
+    return (
+        <span ref={ ref } className={ className + ' estream-logo--movable' + ( width !== null ? ' estream-logo--sizing' : '' ) } style={ style as CSSProperties } role="img" aria-label={ tip } data-estream-tip={ tip } { ...handlers }>
+            <img className="estream-logo__image" src={ logo.src } alt="" style={ { opacity: logo.opacity } } draggable={ false } />
+            <span className={ 'estream-logo__size estream-logo__size--' + ( top ? 'bottom-' : 'top-' ) + ( right ? 'left' : 'right' ) } aria-hidden="true" { ...sizeHandlers } />
+        </span>
     );
 }
 
@@ -530,17 +776,37 @@ export function Stage( props : { scheduled? : number | null, studio? : boolean, 
     const logo = logoOf( player.appearance );
     // The cover behind the screen before the start and after the end.
     const cover = ! picture && state.status === 'ready' && state.stream?.state !== 'live' && ! state.encoder ? safeImage( player.cover ) : null;
+    // A connection too slow for the picture: said over its last frame, with the sound going on, and Try again. Turning
+    // the sound on, where the browser kept it off, is among its buttons then.
+    const slow = picture && state.tooSlow && state.media === 'live' && ! state.offline;
+    const unmute = state.audioBlocked && state.tiles.some( ( t ) => t.audio.length > 0 );
+    const soundOn = () => { void client.startAudio(); player.setMuted( false ); };
 
     // The controls show while the pointer moves, while anything in them has focus, and on a tap; they
-    // hide once it rests.
+    // hide once it rests, but for a mouse resting on them, which is there to press one.
     const [ awake, setAwake ] = useState( true );
     const [ focused, setFocused ] = useState( false );
     const timer = useRef<ReturnType<typeof setTimeout> | null>( null );
+    const stage = useRef<HTMLDivElement>( null );
+    // Where the mouse last moved over the stage, in the window's coordinates.
+    const mouse = useRef<{ x : number, y : number } | null>( null );
+
+    // The picture the logo keeps to, measured again whenever who shows, with what, or how they are laid out changes.
+    const showing = picture ? state.tiles.map( ( t ) => tileKey( t ) + ( t.screen ? ':screen' : '' ) + ( t.camera ? ':camera' : '' ) ).join( ' ' ) + '|' + state.layout.mode + '|' + ( state.layout.identity ?? '' ) : '';
+    const box = usePictureBox( stage, logo ? showing : '' );
+    // The host places the logo over their own picture before going live, where the page saves it.
+    const logoMoves = Boolean( player.preview ) || ( Boolean( player.placeLogo ) && picture && state.stream?.state !== 'live' );
 
     const wake = useCallback( () => {
         setAwake( true );
         if( timer.current ) clearTimeout( timer.current );
-        timer.current = setTimeout( () => setAwake( false ), IDLE_MS );
+        timer.current = setTimeout( () => {
+            // Measured as it rests, the bar showing: hidden, it takes no pointer, so what is under the mouse says nothing.
+            const bar = stage.current?.querySelector( '.estream-bar' )?.getBoundingClientRect();
+            const at = mouse.current;
+            if( bar && at && at.x >= bar.left && at.x < bar.right && at.y >= bar.top && at.y < bar.bottom ) return;
+            setAwake( false );
+        }, IDLE_MS );
     }, [] );
 
     useEffect( () => {
@@ -567,7 +833,10 @@ export function Stage( props : { scheduled? : number | null, studio? : boolean, 
     const touchBegan = useRef<{ at : number, onBar : boolean } | null>( null );
     const onBar = ( target : EventTarget | null ) => target instanceof Element && target.closest( '.estream-bar' ) !== null;
     const onPointerDown = ( event : ReactPointerEvent ) => {
-        if( event.pointerType !== 'mouse' ) touchBegan.current = { at: Date.now(), onBar: onBar( event.target ) };
+        if( event.pointerType === 'mouse' ) return;
+        touchBegan.current = { at: Date.now(), onBar: onBar( event.target ) };
+        // A screen that also has a mouse: once touched, where the mouse rests keeps nothing.
+        mouse.current = null;
     };
     const onClickCapture = ( event : ReactMouseEvent ) => {
         const began = touchBegan.current;
@@ -579,12 +848,21 @@ export function Stage( props : { scheduled? : number | null, studio? : boolean, 
 
     return (
         <div
+            ref={ stage }
             className={ 'estream-stage' + ( picture ? ' estream-stage--picture' : '' ) + ( shown ? '' : ' estream-stage--idle' ) }
             tabIndex={ picture ? 0 : undefined }
             role="region"
-            aria-label={ __( 'Live stream player', 'wordplus-stream' ) }
-            onPointerMove={ ( e ) => { if( e.pointerType === 'mouse' ) wake(); } }
-            onPointerLeave={ ( e ) => { if( e.pointerType === 'mouse' ) setAwake( false ); } }
+            aria-label={ __( 'Live stream player', 'wordplus-live-stream' ) }
+            onPointerMove={ ( e ) => {
+                if( e.pointerType !== 'mouse' ) return;
+                mouse.current = { x: e.clientX, y: e.clientY };
+                wake();
+            } }
+            onPointerLeave={ ( e ) => {
+                if( e.pointerType !== 'mouse' ) return;
+                mouse.current = null;
+                setAwake( false );
+            } }
             onPointerDown={ onPointerDown }
             onPointerUp={ onPointerUp }
             onClickCapture={ onClickCapture }
@@ -599,39 +877,53 @@ export function Stage( props : { scheduled? : number | null, studio? : boolean, 
             <AudioTracks tiles={ state.tiles } />
             { player.appearance.floating !== false && <Floating /> }
             { logo && (
-                <img
-                    className={ 'estream-logo estream-logo--' + logo.position }
-                    src={ logo.src }
-                    alt=""
-                    style={ { width: logo.width, opacity: logo.opacity } }
-                    draggable={ false }
-                />
+                <div
+                    className="estream-logo-frame"
+                    style={ box ? { left: box.left, top: box.top, width: box.width, height: box.height, '--estream-picture-below': box.below + 'px' } as CSSProperties : undefined }
+                >
+                    <Logo logo={ logo } movable={ logoMoves } />
+                </div>
             ) }
             <Top shown={ shown } bare={ props.bare } />
-            { picture && ! props.bare && <Bar shown={ shown } /> }
+            { /* Over a screen in place of the picture (before the start, after the end, waiting) the controls that still
+                 apply: the way out of full screen, which a phone has no key for, and the chat while it is hidden, which
+                 nothing else would bring back before the picture. */ }
+            { ( picture || player.fullscreen || player.chatHidden ) && ! props.bare && <Bar shown={ shown } /> }
             { player.countdown !== null && (
                 <div className="estream-going" role="status" aria-live="assertive">
                     <span key={ player.countdown } className="estream-going__number">{ player.countdown }</span>
-                    <span className="estream-going__label">{ __( 'Going live', 'wordplus-stream' ) }</span>
+                    <span className="estream-going__label">{ __( 'Going live', 'wordplus-live-stream' ) }</span>
                 </div>
             ) }
             <MutedByHost at={ state.mutedByHost } />
             { state.offline ? (
-                <div className="estream-reconnecting" role="status"><Icon name="signal" />{ __( 'You are offline', 'wordplus-stream' ) }</div>
+                <div className="estream-reconnecting" role="status"><Icon name="signal" />{ __( 'You are offline', 'wordplus-live-stream' ) }</div>
             ) : state.media === 'reconnecting' && (
-                <div className="estream-reconnecting" role="status"><span className="estream-spinner estream-spinner--small" />{ __( 'Reconnecting…', 'wordplus-stream' ) }</div>
+                <div className="estream-reconnecting" role="status"><span className="estream-spinner estream-spinner--small" />{ __( 'Reconnecting…', 'wordplus-live-stream' ) }</div>
             ) }
             { picture && state.stalled && state.media === 'live' && ! state.offline && (
                 <div className="estream-buffering" role="status">
                     <span className="estream-spinner" />
-                    <span className="estream-buffering__text">{ _x( 'The picture stopped. Waiting for it.', 'a stalled video, for screen readers', 'wordplus-stream' ) }</span>
+                    <span className="estream-buffering__text">{ _x( 'The picture stopped. Waiting for it.', 'a stalled video, for screen readers', 'wordplus-live-stream' ) }</span>
+                </div>
+            ) }
+            { slow && (
+                <div className="estream-slow" role="status">
+                    <Icon name="signal" />
+                    <p className="estream-slow__text">{ __( 'Your connection is too slow for the picture right now. The sound goes on.', 'wordplus-live-stream' ) }</p>
+                    <div className="estream-slow__actions">
+                        { unmute && <button type="button" className="estream-slow__button" onClick={ soundOn }><Icon name="volume-off" />{ __( 'Turn sound on', 'wordplus-live-stream' ) }</button> }
+                        <button type="button" className="estream-slow__button" onClick={ () => client.retryPicture() }>
+                            { _x( 'Try again', 'the picture, on a slow connection', 'wordplus-live-stream' ) }
+                        </button>
+                    </div>
                 </div>
             ) }
             { picture && <StatsPanel /> }
-            { state.audioBlocked && state.tiles.some( ( t ) => t.audio.length > 0 ) && (
-                <button type="button" className="estream-unmute" onClick={ () => { void client.startAudio(); player.setMuted( false ); } }>
+            { unmute && ! slow && (
+                <button type="button" className="estream-unmute" onClick={ soundOn }>
                     <Icon name="volume-off" />
-                    { __( 'Turn sound on', 'wordplus-stream' ) }
+                    { __( 'Turn sound on', 'wordplus-live-stream' ) }
                 </button>
             ) }
         </div>

@@ -13,6 +13,7 @@ import { usePictureDrawn } from "../../inc/calls/ratio.ts";
 import usePendingActions from "../../inc/calls/pending.ts";
 import useHeld, { PAUSED_NOTICE_MS } from "../../inc/hooks/held.ts";
 import { Piece } from "../../pieces.tsx";
+import { CameraOptimizingNotice, useCameraOptimizing } from "./optimizing.tsx";
 
 /**
  * One person's tile in a group video call: their camera or shared screen (their picture until one comes; the user's
@@ -40,7 +41,8 @@ export default memo(function GroupVideoGridItem({ unique_key, participant, width
         promoteParticipant,
         demoteParticipant,
         moderate,
-        moderation
+        moderation,
+        optimizingMaxMs
     } = useContext<CallContextInterface>( CallContext );
 
     const [ videoElement, setVideoElement ] = useStateRef<HTMLVideoElement | null>(null);
@@ -148,9 +150,15 @@ export default memo(function GroupVideoGridItem({ unique_key, participant, width
         ? <Icon name="spinner" size={ 14 } className="bm-svg-animate" />
         : <Icon name={ name } size={ 14 } />;
 
+    // Their camera moving to another codec: "Optimizing video quality..." over its last frame until the new one draws,
+    // the user's own tile too while theirs moves (the call marks it), rather than their avatar for the gap. Only where
+    // the tile shows their camera: a shared screen fills it then, and is never covered for the camera.
+    const optimizing = useCameraOptimizing( participant, videoElement, optimizingMaxMs );
+    const optimizingShown = optimizing.shown && ! participant.screen && ! participant.reconnecting;
+
     // A picture the media server paused for this page's download: frozen on its last frame, so the tile says why once
     // it has stayed so for a moment (most pauses end within one, when its guard finds a smaller picture fits).
-    const paused = useHeld( unique_key !== 'me' && ! participant.reconnecting
+    const paused = useHeld( unique_key !== 'me' && ! participant.reconnecting && ! optimizingShown
         && ( ( !! participant.video && !! participant.videoPaused ) || ( !! participant.screen && !! participant.screenPaused ) ), PAUSED_NOTICE_MS );
 
     // Their sound, in the tile's media, and after an app's own tile in its place (pieces.tsx).
@@ -237,6 +245,8 @@ export default memo(function GroupVideoGridItem({ unique_key, participant, width
                 { participant.reconnecting &&
                     <span className="bm-call-reconnecting" role="status">{ _x('Reconnecting...', 'Call Screen', 'bp-better-messages') }</span>
                 }
+
+                { optimizingShown && <CameraOptimizingNotice state={ optimizing } avatar={ participant.avatar } /> }
 
                 { paused &&
                     <span className="bm-call-paused" part="video-paused">

@@ -38,7 +38,7 @@ function Share(){
     return (
         <button type="button" className="estream-button estream-button--quiet" onClick={ () => void share() } aria-live="polite">
             <Icon name={ copied ? 'check' : 'share' } />
-            { copied ? __( 'Link copied', 'wordplus-stream' ) : __( 'Share', 'wordplus-stream' ) }
+            { copied ? __( 'Link copied', 'wordplus-live-stream' ) : __( 'Share', 'wordplus-live-stream' ) }
         </button>
     );
 }
@@ -62,9 +62,9 @@ export function Info( props : { guests : boolean, show? : InfoShows } ){
 
     const when = show.meta === false ? ''
         : stream?.state === 'live' && stream.started_at
-            ? sprintf( _x( 'Started %s', 'a time, as "12 minutes ago"', 'wordplus-stream' ), relative( stream.started_at, now ) )
+            ? sprintf( _x( 'Started %s', 'a time, as "12 minutes ago"', 'wordplus-live-stream' ), relative( stream.started_at, now ) )
             : stream?.state === 'ended' && stream.ended_at
-                ? sprintf( _x( 'Ended %s', 'a time, as "5 minutes ago"', 'wordplus-stream' ), relative( stream.ended_at, now ) )
+                ? sprintf( _x( 'Ended %s', 'a time, as "5 minutes ago"', 'wordplus-live-stream' ), relative( stream.ended_at, now ) )
                 : '';
 
     return (
@@ -76,7 +76,7 @@ export function Info( props : { guests : boolean, show? : InfoShows } ){
                         { when && <span>{ when }</span> }
                         { counted && (
                             <span className="estream-info__count">
-                                { sprintf( _nx( '%s watching', '%s watching', state.viewers, 'how many people watch', 'wordplus-stream' ), count( state.viewers ) ) }
+                                { sprintf( _nx( '%s watching', '%s watching', state.viewers, 'how many people watch', 'wordplus-live-stream' ), count( state.viewers ) ) }
                             </span>
                         ) }
                     </p>

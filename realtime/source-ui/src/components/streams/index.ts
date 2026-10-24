@@ -1,23 +1,24 @@
 // Live streams: Easy Stream's player, studio, chat and stage, moved here whole on
 // 2026-10-13 (step 4), on the stream engine of @wordplus/realtime-client/streams, which their host gives them
 // (EasyStreamProvider). Their look is Easy Stream's: the `estream-` classes, the --estream-* properties, and the
-// appearance settings as props (appearance.ts). Their words are i18n.ts's, in the `wordplus-stream` text domain.
+// appearance settings as props (appearance.ts). Their words are i18n.ts's, in the `wordplus-live-stream` text domain.
 export {EasyStreamApp, AllInOne, type EasyStreamAppProps} from "./app.tsx";
 export {EasyStreamParts, PART_NAMES, VIDEO_PARTS, type EasyStreamPartsProps, type Part, type PartName, type PartOptions} from "./parts.tsx";
-export {themeClass, themeStyle, contrastText, logoOf, safeImage, shapeOf, type Appearance, type Shape} from "./appearance.ts";
-export {EasyStreamProvider, useClient, useStream} from "./context.tsx";
-export {Stage, mainTrack, qualityChoices, shownQuality, type TileInfo} from "./stage.tsx";
+export {themeClass, themeStyle, contrastText, logoOf, LOGO_INSET_MAX, LOGO_OFFSET_MAX, LOGO_REFERENCE, LOGO_WIDTH, safeImage, shapeOf, type Appearance, type Shape} from "./appearance.ts";
+export {scheduleOf, SESSION_EARLY_MS, SESSION_KEPT_MS, THANKS_MS, type Schedule, type StreamSession} from "./sessions.ts";
+export {EasyStreamProvider, chatReached, useClient, useStream} from "./context.tsx";
+export {Stage, mainTrack, qualityChoices, shownQuality, type LogoPlace, type LogoSize, type TileInfo} from "./stage.tsx";
 export {reactionIcon, offeredReactions, REACTIONS_MAX} from "./reactions.ts";
 export {EmojiGlyph} from "./emoji-glyph.tsx";
 export {StatsPanel} from "./stats.tsx";
 export {ShortcutList} from "./shortcuts.tsx";
-export {Chat, BetterMessagesRoom} from "./chat.tsx";
+export {Chat, BetterMessagesRoom, FullScreenRoom, RoomHomeContext, ROOM_ATTRIBUTE, type RoomHome} from "./chat.tsx";
 export {Info, type InfoShows} from "./info.tsx";
 export {ViewerControls, InviteDialog} from "./controls.tsx";
-export {Studio, StudioBody, StudioBar, StudioStatus, Guests, useStudio, MicLevel, Summary, deviceName, deviceOf, sendingHealth, sentText, sendsHere, type StudioControls} from "./studio.tsx";
+export {Studio, StudioBody, StudioBar, StudioStatus, EncoderLost, Guests, useStudio, MicLevel, Summary, deviceName, deviceOf, sendingHealth, sentText, sendsHere, type StudioControls} from "./studio.tsx";
 export {StudioPage, type StudioPageOptions} from "./studio-page.tsx";
 export {RoomButton, RoomBanner, RoomStage, type RoomControls} from "./better-messages.tsx";
-export {usePlayer, PlayerProvider, WithAppearance, useNow, useShortcuts, pageUrl, type StreamTexts} from "./player.tsx";
+export {usePlayer, PlayerProvider, WithAppearance, useNow, useShortcuts, pageUrl, WINDOW_ATTRIBUTE, type StreamTexts} from "./player.tsx";
 export {ConfirmProvider, useConfirm, DialogBox} from "./dialog.tsx";
 export {VideoTrack, AudioTracks} from "./media.tsx";
 export {Screen, screenFor} from "./screens.tsx";

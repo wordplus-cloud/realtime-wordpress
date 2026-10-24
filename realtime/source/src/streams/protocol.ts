@@ -1,24 +1,27 @@
 // Easy Stream protocol, version 1: what a site signs, what the cloud answers, and
 // what travels over the chat socket. Types and limits only, so the browser client and the backend
 // helpers share them without pulling in each other's code.
+//
+// Under Live Stream's names: the grant's audience and key label, and the endpoints under /live-stream/v1. The cloud
+// still takes the names before them (`easy-stream`, `easy-stream grant v1`, /easy-stream/v1), which earlier clients use.
 
-export const GRANT_AUDIENCE = 'easy-stream';
-export const GRANT_KEY_LABEL = 'easy-stream grant v1';
+export const GRANT_AUDIENCE = 'live-stream';
+export const GRANT_KEY_LABEL = 'live-stream grant v1';
 export const GRANT_MAX_LIFETIME_S = 7 * 24 * 3600;
 
 export const STREAM_ID = /^[A-Za-z0-9-]{1,64}$/;
 export const USER_ID = /^[\w.@-]{1,64}$/;
 
-export const JOIN_PATH = '/easy-stream/v1/join';
+export const JOIN_PATH = '/live-stream/v1/join';
 // Where an encoder (OBS) posts its offer over WHIP, with the stream's ingest key as its bearer token, and
 // the identity it has in the stream's room.
-export const WHIP_PATH = '/easy-stream/v1/whip';
+export const WHIP_PATH = '/live-stream/v1/whip';
 export const INGEST_IDENTITY = 'ingest';
 // A site's live streams, once (`?site=`), with how many watch each: a Live now list's, and a page's that follows a stream
 // without watching it.
-export const LIVE_PATH = '/easy-stream/v1/live';
+export const LIVE_PATH = '/live-stream/v1/live';
 // A site's server turns a stream's reactions off or on, with a host's grant for it: `{ grant, on }`.
-export const REACTIONS_PATH = '/easy-stream/v1/reactions';
+export const REACTIONS_PATH = '/live-stream/v1/reactions';
 export const CHAT_MAX = 500;
 export const SLOW_MAX_S = 300;
 // A reaction is one emoji, which a site chooses for its streams: these where it chooses none. The cloud takes any one
@@ -59,23 +62,29 @@ export interface GrantClaims {
     //   without it, open before the start and closed after the end); its moderators always write;
     // - `links`: false takes links only from its moderators;
     // - `fresh`: a host's going live empties the chat;
-    // - `people`: who sees who is here ('mods', the default, or 'all').
+    // - `people`: who sees who is here ('mods', the default, or 'all');
+    // - `viewers`: who is told how many watch ('all', the default, or 'mods': its hosts and moderators alone).
     offline? : 'open' | 'closed';
     links? : boolean;
     fresh? : boolean;
     people? : 'all' | 'mods';
+    viewers? : 'all' | 'mods';
     // false: the stream takes no reactions, as its site has it set. The stream's own state, which the site changes the
     // moment its setting does (REACTIONS_PATH), rules once there is one.
     reactions? : boolean;
     // true: the site hears this person's watch at its webhook, as they start and stop watching the stream live
     // (stream.joined and stream.left). Only for someone signed in (`sub`). An app hears them without it.
     track? : boolean;
+    // true, in a host's grant: the stream goes live as its encoder connects over WHIP, with nobody in the studio, and
+    // again after it ended by itself (its room closed with nobody in it). After a host's end, its encoder stays out
+    // until a host takes the stream's key again. Its chat is emptied then where `fresh` says so.
+    autostart? : boolean;
     org? : string[];
     iat? : number;
     exp : number;
 }
 
-export const CLAIM_ORDER = [ 'iss', 'aud', 'str', 'role', 'sub', 'name', 'avatar', 'chat', 'mod', 'src', 'q', 'stage', 'offline', 'links', 'fresh', 'people', 'reactions', 'track', 'org', 'iat', 'exp' ] as const;
+export const CLAIM_ORDER = [ 'iss', 'aud', 'str', 'role', 'sub', 'name', 'avatar', 'chat', 'mod', 'src', 'q', 'stage', 'offline', 'links', 'fresh', 'people', 'viewers', 'reactions', 'track', 'autostart', 'org', 'iat', 'exp' ] as const;
 
 export type StreamPhase = 'idle' | 'live' | 'ended';
 
@@ -84,6 +93,9 @@ export interface StreamState {
     state : StreamPhase;
     started_at : number | null;
     ended_at : number | null;
+    // A live stream's encoder gone from its room since then (ms): the cloud ends it once it stays gone. Absent while it
+    // sends, and from a cloud before it.
+    encoder_lost_at? : number;
 }
 
 // A stream in a site's live list (LIVE_PATH): `{ ok: true, live: LiveStream[] }`.
@@ -177,7 +189,7 @@ export interface Usage {
 
 // The check a site's admin and a host's studio ask (`POST`, `{grant}`): whether the cloud takes the site's grants,
 // and what it has left.
-export const CHECK_PATH = '/easy-stream/v1/check';
+export const CHECK_PATH = '/live-stream/v1/check';
 
 // `no_hours`: a viewer, while the site's streams take no new ones (its account's credits spent, a month's allowance
 // borrowed too; the code kept from when they were hours).
@@ -241,7 +253,13 @@ export interface Hello {
     // Whether the stream takes reactions now; `reacting { on }` says when that changes. Absent from a cloud before it:
     // it does.
     reactions? : boolean;
+    // What the page does with the stream's pictures while it is hidden, by how many watch against the number the cloud
+    // sets: keeps each coming at its smallest layer (`low`), or pauses them (`pause`); `hidden` says when that changes.
+    // Absent from a cloud before 2026-10-23: paused.
+    hidden? : HiddenPictures;
 }
+
+export type HiddenPictures = 'low' | 'pause';
 
 export type Ack<T extends object = {}> = ( { ok : true } & T ) | { ok : false, error : string };
 
@@ -270,6 +288,8 @@ export interface ServerEvents {
     reactions : ( counts : Partial<Record<Reaction, number>> ) => void;
     // The audience, and the stream's peak since it went live (absent from a cloud before 2026-10-12).
     viewers : ( p : { n : number, peak? : number } ) => void;
+    // What the page does with the stream's pictures while hidden, once that changes (the hello's `hidden`).
+    hidden : ( p : { pictures : HiddenPictures } ) => void;
     slow : ( p : { seconds : number } ) => void;
     hands : ( hands : Hand[] ) => void;
     invited : () => void;

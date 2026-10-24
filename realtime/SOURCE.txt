@@ -1,18 +1,18 @@
-@wordplus/realtime-client 1.0.16, the realtime connector every WordPlus product shares
-wordplus-realtime-client 1fe6372
+@wordplus/realtime-client 1.0.46, the realtime connector every WordPlus product shares
+wordplus-realtime-client 0c3207f
 
 The worker, the page script and the calls are built from source/ by its build-worker.mjs (rollup and terser),
 after tsc. The first two bundle socket.io-client 4.8.4 with its dependencies (engine.io-client,
 socket.io-parser, @socket.io/component-emitter), all MIT licensed: https://github.com/socketio/socket.io. The page
 script also bundles @noble/ciphers (MIT).
 
-realtime-rooms.min.js is WordPlus Mesh's room client, @wordplus/rtc-client 1.0.13: LiveKit's client SDK,
-livekit-client v2.22.2 (Apache License 2.0, https://github.com/livekit/client-sdk-js), with
-source/vendor/rtc-client-2.22.2.patch applied and built by its own build, unchanged after it.
+realtime-rooms.min.js is WordPlus Mesh's room client, @wordplus/rtc-client 1.0.21: LiveKit's client SDK,
+livekit-client v2.23.0 (Apache License 2.0, https://github.com/livekit/client-sdk-js), with
+source/vendor/rtc-client-2.23.0.patch applied and built by its own build, unchanged after it.
 
 THIRD-PARTY-NOTICES.txt has each of their licences, the room client's NOTICE, and what the room client bundles.
 
-realtime-ui.min.js is @wordplus/realtime-ui 1.0.1 at wordplus-realtime-ui 66711a1: the Better Messages screens
+realtime-ui.min.js is @wordplus/realtime-ui 1.0.4 at wordplus-realtime-ui f02c95e: the Better Messages screens
 (the call screen, who is in a room, the chat) as elements, built from source-ui/ by its scripts/build.mjs with
 React and the styles and languages of the screens inside. realtime-ui-streams.min.js holds the live stream elements,
 built the same way. realtime-ui.THIRD-PARTY-NOTICES.txt has their licences.

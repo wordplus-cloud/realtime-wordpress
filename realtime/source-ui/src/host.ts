@@ -16,7 +16,7 @@ import { escapeHtml, plainName } from "./inc/names.ts";
 export interface UiHost {
     /**
      * A string the screens show, translated: `text` as written, `context` telling apart two meanings of one text, and
-     * `domain` the text domain it is written with (`bp-better-messages` for the call screens, `wordplus-stream` for the live
+     * `domain` the text domain it is written with (`bp-better-messages` for the call screens, `wordplus-live-stream` for the live
      * streams), for a host that translates more than one product's words.
      */
     translate( text: string, context?: string, domain?: string ): string;

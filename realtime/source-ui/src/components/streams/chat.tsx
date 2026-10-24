@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode} from "react";
+import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode} from "react";
 import {__, _n, _nx, _x, sprintf} from "./i18n.ts";
 import {CHAT_MAX, type Banned, type ChatMessage, type Person} from "@wordplus/realtime-client/streams";
 import {useClient, useStream} from "./context.tsx";
@@ -145,8 +145,8 @@ function time( at : number ) : { short : string, full : string } {
 }
 
 function RoleBadge( props : { role : ChatMessage['from']['role'] } ){
-    if( props.role === 'host' ) return <span className="estream-role estream-role--host">{ _x( 'Host', 'a role in chat', 'wordplus-stream' ) }</span>;
-    if( props.role === 'guest' ) return <span className="estream-role estream-role--guest">{ _x( 'Guest', 'a role in chat', 'wordplus-stream' ) }</span>;
+    if( props.role === 'host' ) return <span className="estream-role estream-role--host">{ _x( 'Host', 'a role in chat', 'wordplus-live-stream' ) }</span>;
+    if( props.role === 'guest' ) return <span className="estream-role estream-role--guest">{ _x( 'Guest', 'a role in chat', 'wordplus-live-stream' ) }</span>;
     return null;
 }
 
@@ -167,14 +167,14 @@ function Message( props : { message : ChatMessage, canModerate : boolean, self :
                 <span className="estream-message__text">{ linkify( message.text, props.emoji ) }</span>
             </div>
             { props.canModerate && (
-                <MenuButton icon="more" label={ sprintf( _x( 'Moderate the message of %s', 'a name in chat', 'wordplus-stream' ), message.from.name ) } className="estream-message__actions" placement="down">
+                <MenuButton icon="more" label={ sprintf( _x( 'Moderate the message of %s', 'a name in chat', 'wordplus-live-stream' ), message.from.name ) } className="estream-message__actions" placement="down">
                     { ( close ) => (
                         <>
                             <MenuItem icon="pin" onSelect={ () => { close(); void ( props.pinned ? client.unpin() : client.pin( message.id ) ); } }>
-                                { props.pinned ? __( 'Unpin message', 'wordplus-stream' ) : __( 'Pin message', 'wordplus-stream' ) }
+                                { props.pinned ? __( 'Unpin message', 'wordplus-live-stream' ) : __( 'Pin message', 'wordplus-live-stream' ) }
                             </MenuItem>
                             <MenuItem icon="close" onSelect={ () => { close(); void client.deleteMessage( message.id ); } }>
-                                { __( 'Delete message', 'wordplus-stream' ) }
+                                { __( 'Delete message', 'wordplus-live-stream' ) }
                             </MenuItem>
                             { canBan && <ModerateItems who={ message.from } close={ close } confirm={ confirm } /> }
                         </>
@@ -186,9 +186,9 @@ function Message( props : { message : ChatMessage, canModerate : boolean, self :
 }
 
 function muteFor( seconds : number ) : string {
-    if( seconds === 3600 ) return __( 'Mute for an hour', 'wordplus-stream' );
-    if( seconds === 86400 ) return __( 'Mute for a day', 'wordplus-stream' );
-    return sprintf( _nx( 'Mute for %d minute', 'Mute for %d minutes', seconds / 60, 'kept from writing in the chat', 'wordplus-stream' ), seconds / 60 );
+    if( seconds === 3600 ) return __( 'Mute for an hour', 'wordplus-live-stream' );
+    if( seconds === 86400 ) return __( 'Mute for a day', 'wordplus-live-stream' );
+    return sprintf( _nx( 'Mute for %d minute', 'Mute for %d minutes', seconds / 60, 'kept from writing in the chat', 'wordplus-live-stream' ), seconds / 60 );
 }
 
 // What a moderator does to someone, from a message of theirs or the list of who is here: mute them in the chat for a
@@ -208,7 +208,7 @@ function ModerateItems( props : {
         <>
             { props.mutedUntil ? (
                 <MenuItem icon="chat" onSelect={ () => { close(); then( client.liftTimeout( who.id ) ); } }>
-                    { __( 'Unmute', 'wordplus-stream' ) }
+                    { __( 'Unmute', 'wordplus-live-stream' ) }
                 </MenuItem>
             ) : TIMEOUTS.map( ( seconds ) => (
                 <MenuItem key={ seconds } icon="clock" onSelect={ () => { close(); then( client.timeOut( who.id, seconds ) ); } }>
@@ -218,25 +218,25 @@ function ModerateItems( props : {
             <MenuItem icon="arrow-left" onSelect={ async () => {
                 close();
                 const yes = await props.confirm( {
-                    title: sprintf( _x( 'Remove %s from this stream?', 'a name in chat', 'wordplus-stream' ), who.name ),
-                    message: __( 'They leave the stream now. They can join it again.', 'wordplus-stream' ),
-                    confirm: __( 'Remove', 'wordplus-stream' )
+                    title: sprintf( _x( 'Remove %s from this stream?', 'a name in chat', 'wordplus-live-stream' ), who.name ),
+                    message: __( 'They leave the stream now. They can join it again.', 'wordplus-live-stream' ),
+                    confirm: __( 'Remove', 'wordplus-live-stream' )
                 } );
                 if( yes ) then( client.kick( who.id ) );
             } }>
-                { __( 'Remove from the stream', 'wordplus-stream' ) }
+                { __( 'Remove from the stream', 'wordplus-live-stream' ) }
             </MenuItem>
             <MenuItem icon="alert" danger onSelect={ async () => {
                 close();
                 const yes = await props.confirm( {
-                    title: sprintf( _x( 'Ban %s from this stream?', 'a name in chat', 'wordplus-stream' ), who.name ),
-                    message: __( 'They leave the stream and cannot come back to it or write in its chat, until a moderator lets them back.', 'wordplus-stream' ),
-                    confirm: __( 'Ban', 'wordplus-stream' ),
+                    title: sprintf( _x( 'Ban %s from this stream?', 'a name in chat', 'wordplus-live-stream' ), who.name ),
+                    message: __( 'They leave the stream and cannot come back to it or write in its chat, until a moderator lets them back.', 'wordplus-live-stream' ),
+                    confirm: __( 'Ban', 'wordplus-live-stream' ),
                     danger: true
                 } );
                 if( yes ) then( client.ban( who.id, { name: who.name, avatar: who.avatar } ) );
             } }>
-                { __( 'Ban from this stream', 'wordplus-stream' ) }
+                { __( 'Ban from this stream', 'wordplus-live-stream' ) }
             </MenuItem>
         </>
     );
@@ -277,19 +277,19 @@ function People(){
 
     return (
         <div className="estream-people">
-            <h4 className="estream-people__heading">{ __( 'Who is here', 'wordplus-stream' ) }</h4>
+            <h4 className="estream-people__heading">{ __( 'Who is here', 'wordplus-live-stream' ) }</h4>
             { people === null ? (
-                <p className="estream-chat__note">{ failed ? __( 'Who is here cannot be shown right now', 'wordplus-stream' ) : __( 'Loading…', 'wordplus-stream' ) }</p>
+                <p className="estream-chat__note">{ failed ? __( 'Who is here cannot be shown right now', 'wordplus-live-stream' ) : __( 'Loading…', 'wordplus-live-stream' ) }</p>
             ) : (
-                <ul className="estream-people__list" aria-label={ __( 'Who is here', 'wordplus-stream' ) }>
+                <ul className="estream-people__list" aria-label={ __( 'Who is here', 'wordplus-live-stream' ) }>
                     { people.map( ( person ) => (
                         <li key={ person.identity } className="estream-person">
                             <Avatar who={ { id: person.identity, name: person.name, avatar: person.avatar } } />
                             <span className="estream-person__name">{ person.name }</span>
                             <RoleBadge role={ person.role } />
-                            { person.timeoutUntil ? <span className="estream-person__muted" data-estream-tip={ __( 'Muted in the chat', 'wordplus-stream' ) }><Icon name="clock" /></span> : null }
+                            { person.timeoutUntil ? <span className="estream-person__muted" data-estream-tip={ __( 'Muted in the chat', 'wordplus-live-stream' ) }><Icon name="clock" /></span> : null }
                             { mod && person.identity !== you?.identity && person.role !== 'host' && (
-                                <MenuButton icon="more" label={ sprintf( _x( 'Moderate %s', 'a name in chat', 'wordplus-stream' ), person.name ) } className="estream-person__actions" placement="down" align="end">
+                                <MenuButton icon="more" label={ sprintf( _x( 'Moderate %s', 'a name in chat', 'wordplus-live-stream' ), person.name ) } className="estream-person__actions" placement="down" align="end">
                                     { ( close ) => (
                                         <ModerateItems who={ { id: person.identity, name: person.name, avatar: person.avatar } } mutedUntil={ person.timeoutUntil ?? null } close={ close } confirm={ confirm } done={ () => void load() } />
                                     ) }
@@ -302,20 +302,20 @@ function People(){
             { people !== null && visitors > 0 && (
                 <p className="estream-people__more">
                     { people.length > 0
-                        ? sprintf( _n( 'and %d visitor', 'and %d visitors', visitors, 'wordplus-stream' ), visitors )
-                        : sprintf( _n( '%d visitor', '%d visitors', visitors, 'wordplus-stream' ), visitors ) }
+                        ? sprintf( _n( 'and %d visitor', 'and %d visitors', visitors, 'wordplus-live-stream' ), visitors )
+                        : sprintf( _n( '%d visitor', '%d visitors', visitors, 'wordplus-live-stream' ), visitors ) }
                 </p>
             ) }
             { mod && banned.length > 0 && (
                 <>
-                    <h4 className="estream-people__heading">{ __( 'Banned', 'wordplus-stream' ) }</h4>
-                    <ul className="estream-people__list" aria-label={ __( 'Banned', 'wordplus-stream' ) }>
+                    <h4 className="estream-people__heading">{ __( 'Banned', 'wordplus-live-stream' ) }</h4>
+                    <ul className="estream-people__list" aria-label={ __( 'Banned', 'wordplus-live-stream' ) }>
                         { banned.map( ( b ) => (
                             <li key={ b.identity } className="estream-person estream-person--banned">
                                 <Avatar who={ { id: b.identity, name: b.name || '?', avatar: b.avatar } } />
-                                <span className="estream-person__name">{ b.name || __( 'Someone', 'wordplus-stream' ) }</span>
+                                <span className="estream-person__name">{ b.name || __( 'Someone', 'wordplus-live-stream' ) }</span>
                                 <button type="button" className="estream-button estream-button--small" onClick={ () => void client.unban( b.identity ).then( () => load() ) }>
-                                    { __( 'Let back', 'wordplus-stream' ) }
+                                    { __( 'Let back', 'wordplus-live-stream' ) }
                                 </button>
                             </li>
                         ) ) }
@@ -330,21 +330,21 @@ function People(){
 function sendError( code : string ) : string {
     switch( code ){
         case 'slow':
-            return __( 'Wait a moment before sending again', 'wordplus-stream' );
+            return __( 'Wait a moment before sending again', 'wordplus-live-stream' );
         case 'too_long':
-            return __( 'That message is too long', 'wordplus-stream' );
+            return __( 'That message is too long', 'wordplus-live-stream' );
         case 'ended':
-            return __( 'The stream has ended', 'wordplus-stream' );
+            return __( 'The stream has ended', 'wordplus-live-stream' );
         case 'not_live':
-            return __( 'The chat opens when the stream goes live', 'wordplus-stream' );
+            return __( 'The chat opens when the stream goes live', 'wordplus-live-stream' );
         case 'links':
-            return __( 'Only moderators can post links here', 'wordplus-stream' );
+            return __( 'Only moderators can post links here', 'wordplus-live-stream' );
         case 'banned':
-            return __( 'You cannot write in this chat', 'wordplus-stream' );
+            return __( 'You cannot write in this chat', 'wordplus-live-stream' );
         case 'timeout':
-            return __( 'A moderator timed you out for a while', 'wordplus-stream' );
+            return __( 'A moderator timed you out for a while', 'wordplus-live-stream' );
         default:
-            return __( 'Something went wrong', 'wordplus-stream' );
+            return __( 'Something went wrong', 'wordplus-live-stream' );
     }
 }
 
@@ -422,7 +422,7 @@ function SharedEmojiPicker( props : { pickers : SharedPickers, onPick : ( emoji 
         } );
     };
 
-    const label = __( 'Emoji', 'wordplus-stream' );
+    const label = __( 'Emoji', 'wordplus-live-stream' );
 
     return (
         <span className="estream-emoji">
@@ -444,7 +444,7 @@ function SharedEmojiPicker( props : { pickers : SharedPickers, onPick : ( emoji 
 
 function OwnEmojiPicker( props : { onPick : ( emoji : string ) => void } ){
     return (
-        <MenuButton icon="smile" label={ __( 'Emoji', 'wordplus-stream' ) } className="estream-emoji" placement="up" align="end">
+        <MenuButton icon="smile" label={ __( 'Emoji', 'wordplus-live-stream' ) } className="estream-emoji" placement="up" align="end">
             { ( close ) => (
                 <div className="estream-emoji__grid">
                     { EMOJI.map( ( e ) => (
@@ -463,26 +463,26 @@ function ChatSettings(){
     const { slow } = useStream();
 
     return (
-        <MenuButton icon="sliders" label={ __( 'Chat settings', 'wordplus-stream' ) } placement="down" align="end">
+        <MenuButton icon="sliders" label={ __( 'Chat settings', 'wordplus-live-stream' ) } placement="down" align="end">
             { ( close ) => (
                 <>
-                    <MenuHeading>{ __( 'Slow mode', 'wordplus-stream' ) }</MenuHeading>
+                    <MenuHeading>{ __( 'Slow mode', 'wordplus-live-stream' ) }</MenuHeading>
                     { SLOW_CHOICES.map( ( s ) => (
                         <MenuChoice key={ s } checked={ slow === s } onSelect={ () => { void client.setSlow( s ); close(); } }>
-                            { s === 0 ? _x( 'Off', 'slow mode', 'wordplus-stream' ) : sprintf( _nx( 'One message every %d second', 'One message every %d seconds', s, 'slow mode: the wait between messages', 'wordplus-stream' ), s ) }
+                            { s === 0 ? _x( 'Off', 'slow mode', 'wordplus-live-stream' ) : sprintf( _nx( 'One message every %d second', 'One message every %d seconds', s, 'slow mode: the wait between messages', 'wordplus-live-stream' ), s ) }
                         </MenuChoice>
                     ) ) }
                     <MenuItem icon="close" danger onSelect={ async () => {
                         close();
                         const yes = await confirm( {
-                            title: __( 'Clear the chat for everyone?', 'wordplus-stream' ),
-                            message: __( 'Every message goes, the pinned one too. This cannot be undone.', 'wordplus-stream' ),
-                            confirm: __( 'Clear', 'wordplus-stream' ),
+                            title: __( 'Clear the chat for everyone?', 'wordplus-live-stream' ),
+                            message: __( 'Every message goes, the pinned one too. This cannot be undone.', 'wordplus-live-stream' ),
+                            confirm: __( 'Clear', 'wordplus-live-stream' ),
                             danger: true
                         } );
                         if( yes ) void client.clearChat();
                     } }>
-                        { __( 'Clear the chat', 'wordplus-stream' ) }
+                        { __( 'Clear the chat', 'wordplus-live-stream' ) }
                     </MenuItem>
                 </>
             ) }
@@ -490,27 +490,95 @@ function ChatSettings(){
     );
 }
 
-// The stream's chat: its Better Messages chat room where that is its chat, the light chat otherwise.
-export function Chat( props : { loginUrl? : string } ){
+// The stream's chat: its Better Messages chat room where that is its chat, the light chat otherwise. `home`: the room
+// the page keeps (the chat part's), which the player's full screen borrows.
+export function Chat( props : { loginUrl? : string, home? : boolean } ){
     const player = usePlayer();
 
-    return player.room ? <BetterMessagesRoom markup={ player.room } /> : <LightChat loginUrl={ props.loginUrl } />;
+    return player.room ? <BetterMessagesRoom markup={ player.room } home={ props.home } /> : <LightChat loginUrl={ props.loginUrl } />;
 }
+
+// Where a stream in parts keeps its Better Messages room on the page, for the player's full screen to take it in while
+// it shows and give it back as it ends: one room, with what was typed in it and where it was read to.
+export interface RoomHome {
+    current : HTMLElement | null;
+}
+
+export const RoomHomeContext = createContext<RoomHome | null>( null );
+
+// Better Messages draws its rooms light or dark by a class of the page's body alone (bm-messages-dark, and
+// bm-messages-light against the system's choice): dark while a room is in the player's full screen, which is dark, and
+// the page's own classes back by the function returned.
+function darkRooms( body : HTMLElement ) : () => void {
+    const had = { dark: body.classList.contains( 'bm-messages-dark' ), light: body.classList.contains( 'bm-messages-light' ) };
+    body.classList.add( 'bm-messages-dark' );
+    body.classList.remove( 'bm-messages-light' );
+    return () => {
+        body.classList.toggle( 'bm-messages-dark', had.dark );
+        body.classList.toggle( 'bm-messages-light', had.light );
+    };
+}
+
+// What the stream's own Better Messages room carries wherever Better Messages takes it, a phone's room opened over the
+// whole page outside the stream's parts too, so that the stream draws nothing of its own into it there either.
+export const ROOM_ATTRIBUTE = 'data-estream-room';
 
 // A Better Messages chat room in the chat's place: Better Messages' own placeholder for it, put in an element React
 // leaves alone. Better Messages' script mounts the room into any placeholder that lands on the page, and takes it down
 // a second after it leaves; one moved in that second keeps its room.
-export function BetterMessagesRoom( props : { markup : string } ){
+export function BetterMessagesRoom( props : { markup : string, home? : boolean } ){
     const box = useRef<HTMLDivElement>( null );
+    const { fullscreen } = usePlayer();
+    const home = useContext( RoomHomeContext );
 
     useEffect( () => {
         const element = box.current;
         if( ! element ) return;
         element.innerHTML = props.markup;
+        for( const child of element.children ) child.setAttribute( ROOM_ATTRIBUTE, '' );
         return () => { element.innerHTML = ''; };
     }, [ props.markup ] );
 
+    useEffect( () => {
+        const element = box.current;
+        if( ! props.home || ! home || ! element ) return;
+        home.current = element;
+        return () => {
+            if( home.current === element ) home.current = null;
+        };
+    }, [ home, props.home ] );
+
+    useEffect( () => {
+        const body = box.current?.ownerDocument.body;
+        if( ! fullscreen || ! body || ! box.current?.closest( '.estream-theme--full' ) ) return;
+        return darkRooms( body );
+    }, [ fullscreen ] );
+
     return <div className="estream-bm-room" ref={ box } />;
+}
+
+// The room in the player's full screen, for a stream in parts: the page's own room, moved in as the full screen opens
+// and back as it closes, or, where the page has none, a room of its own while it shows.
+export function FullScreenRoom( props : { markup : string } ){
+    const home = useContext( RoomHomeContext );
+    const box = useRef<HTMLDivElement>( null );
+    // The page's room as the full screen opened, if it has one.
+    const [ page ] = useState( () => home?.current ?? null );
+
+    useLayoutEffect( () => {
+        const here = box.current;
+        if( ! page || ! here ) return;
+        const moved = [ ...page.childNodes ];
+        here.append( ...moved );
+        const light = darkRooms( here.ownerDocument.body );
+        return () => {
+            light();
+            const back = moved.filter( ( node ) => node.parentNode === here );
+            if( page.isConnected ) page.append( ...back );
+        };
+    }, [ page ] );
+
+    return page ? <div className="estream-bm-room" ref={ box } /> : <BetterMessagesRoom markup={ props.markup } />;
 }
 
 // The cloud's own chat, kept light: for the moment, never saved.
@@ -541,7 +609,7 @@ function LightChat( props : { loginUrl? : string } ){
     const [ showPeople, setShowPeople ] = useState( false );
     const anonymous = Boolean( you?.identity.startsWith( 'a:' ) );
     const loginUrl = backTo( props.loginUrl ?? player.loginUrl, pageUrl( player.url ) );
-    const placeholder = __( 'Say something…', 'wordplus-stream' );
+    const placeholder = __( 'Say something…', 'wordplus-live-stream' );
     const emoji = useEmojiImages( state.pinned ? [ state.pinned.text, ...state.chat.map( ( m ) => m.text ) ] : state.chat.map( ( m ) => m.text ) );
 
     // The cloud takes one message a second from everyone but moderators, or one per slow mode's wait: Send
@@ -634,16 +702,16 @@ function LightChat( props : { loginUrl? : string } ){
     // A moderator's timeout: no writing until it ends, counted down.
     const clockNow = useNow( 1000, state.timeoutUntil !== null );
     const timedOut = state.timeoutUntil !== null && clockNow < state.timeoutUntil;
-    const slowly = sprintf( _nx( 'Slow mode: one message every %d second', 'Slow mode: one message every %d seconds', state.slow, 'how long each waits between messages', 'wordplus-stream' ), state.slow );
+    const slowly = sprintf( _nx( 'Slow mode: one message every %d second', 'Slow mode: one message every %d seconds', state.slow, 'how long each waits between messages', 'wordplus-live-stream' ), state.slow );
 
     return (
-        <section className="estream-chat" aria-label={ __( 'Chat', 'wordplus-stream' ) }>
+        <section className="estream-chat" aria-label={ __( 'Chat', 'wordplus-live-stream' ) }>
             <header className="estream-chat__header">
-                <h3 className="estream-chat__title">{ __( 'Chat', 'wordplus-stream' ) }</h3>
+                <h3 className="estream-chat__title">{ __( 'Chat', 'wordplus-live-stream' ) }</h3>
                 { state.slow > 0 && (
                     <span className="estream-chat__slow" tabIndex={ 0 } data-estream-tip={ slowly } aria-description={ slowly }>
                         <Icon name="clock" />
-                        { sprintf( _x( '%ds', 'slow mode\'s wait, in seconds', 'wordplus-stream' ), state.slow ) }
+                        { sprintf( _x( '%ds', 'slow mode\'s wait, in seconds', 'wordplus-live-stream' ), state.slow ) }
                     </span>
                 ) }
                 <span className="estream-chat__spacer" />
@@ -652,8 +720,8 @@ function LightChat( props : { loginUrl? : string } ){
                         type="button"
                         className="estream-icon-button estream-chat__people"
                         aria-pressed={ showPeople }
-                        aria-label={ __( 'Who is here', 'wordplus-stream' ) }
-                        data-estream-tip={ showPeople ? __( 'Back to the chat', 'wordplus-stream' ) : __( 'Who is here', 'wordplus-stream' ) }
+                        aria-label={ __( 'Who is here', 'wordplus-live-stream' ) }
+                        data-estream-tip={ showPeople ? __( 'Back to the chat', 'wordplus-live-stream' ) : __( 'Who is here', 'wordplus-live-stream' ) }
                         onClick={ () => setShowPeople( ! showPeople ) }
                     >
                         <Icon name="people" />
@@ -663,14 +731,14 @@ function LightChat( props : { loginUrl? : string } ){
             </header>
 
             { state.pinned && (
-                <div className="estream-chat__pinned" role="note" aria-label={ __( 'Pinned message', 'wordplus-stream' ) }>
+                <div className="estream-chat__pinned" role="note" aria-label={ __( 'Pinned message', 'wordplus-live-stream' ) }>
                     <Icon name="pin" />
                     <div className="estream-chat__pinned-body">
                         <span className="estream-message__name">{ state.pinned.from.name }</span>
                         <span>{ linkify( state.pinned.text, emoji ) }</span>
                     </div>
                     { canModerate && (
-                        <button type="button" className="estream-icon-button" aria-label={ __( 'Unpin message', 'wordplus-stream' ) } data-estream-tip={ __( 'Unpin message', 'wordplus-stream' ) } onClick={ () => void client.unpin() }>
+                        <button type="button" className="estream-icon-button" aria-label={ __( 'Unpin message', 'wordplus-live-stream' ) } data-estream-tip={ __( 'Unpin message', 'wordplus-live-stream' ) } onClick={ () => void client.unpin() }>
                             <Icon name="close" />
                         </button>
                     ) }
@@ -690,8 +758,8 @@ function LightChat( props : { loginUrl? : string } ){
                     { state.chat.length === 0 && (
                         <li className="estream-chat__empty">
                             <Icon name="chat" />
-                            <span>{ __( 'No messages yet', 'wordplus-stream' ) }</span>
-                            { canWrite && <span className="estream-chat__empty-sub">{ __( 'Say hello to get things going', 'wordplus-stream' ) }</span> }
+                            <span>{ __( 'No messages yet', 'wordplus-live-stream' ) }</span>
+                            { canWrite && <span className="estream-chat__empty-sub">{ __( 'Say hello to get things going', 'wordplus-live-stream' ) }</span> }
                         </li>
                     ) }
                     { state.chat.map( ( m ) => (
@@ -710,19 +778,19 @@ function LightChat( props : { loginUrl? : string } ){
                 { unseen > 0 && (
                     <button type="button" className="estream-chat__unseen" onClick={ toBottom }>
                         <Icon name="arrow-down" />
-                        { sprintf( _nx( '%d new message', '%d new messages', unseen, 'messages that came while scrolled up', 'wordplus-stream' ), unseen ) }
+                        { sprintf( _nx( '%d new message', '%d new messages', unseen, 'messages that came while scrolled up', 'wordplus-live-stream' ), unseen ) }
                     </button>
                 ) }
             </div> }
 
             { ! state.chatConnected && state.status === 'ready' && ! ended && (
-                <p className="estream-chat__note">{ __( 'Reconnecting to the chat…', 'wordplus-stream' ) }</p>
+                <p className="estream-chat__note">{ __( 'Reconnecting to the chat…', 'wordplus-live-stream' ) }</p>
             ) }
             { error && <p className="estream-chat__note estream-chat__note--error" role="alert">{ error }</p> }
 
             { canWrite && timedOut ? (
                 <p className="estream-chat__note estream-chat__note--error" role="status">
-                    { sprintf( _x( 'A moderator timed you out. You can write again in %s', 'a time left, as 4:32', 'wordplus-stream' ), clock( state.timeoutUntil! - clockNow ) ) }
+                    { sprintf( _x( 'A moderator timed you out. You can write again in %s', 'a time left, as 4:32', 'wordplus-live-stream' ), clock( state.timeoutUntil! - clockNow ) ) }
                 </p>
             ) : canWrite ? (
                 <form className="estream-chat__form" onSubmit={ submit }>
@@ -747,8 +815,8 @@ function LightChat( props : { loginUrl? : string } ){
                         type="submit"
                         className="estream-button estream-button--primary estream-chat__send"
                         disabled={ ! text.trim() || ! state.chatConnected || waitMs > 0 }
-                        aria-label={ __( 'Send', 'wordplus-stream' ) }
-                        data-estream-tip={ wait > 0 ? sprintf( _nx( 'You can send again in %d second', 'You can send again in %d seconds', wait, 'slow mode\'s wait', 'wordplus-stream' ), wait ) : __( 'Send', 'wordplus-stream' ) }
+                        aria-label={ __( 'Send', 'wordplus-live-stream' ) }
+                        data-estream-tip={ wait > 0 ? sprintf( _nx( 'You can send again in %d second', 'You can send again in %d seconds', wait, 'slow mode\'s wait', 'wordplus-live-stream' ), wait ) : __( 'Send', 'wordplus-live-stream' ) }
                     >
                         { wait > 0 ? <span className="estream-chat__wait">{ wait }</span> : <Icon name="send" /> }
                     </button>
@@ -756,16 +824,16 @@ function LightChat( props : { loginUrl? : string } ){
             ) : closed && you?.chat === 'write' ? (
                 <p className="estream-chat__note">
                     { ended
-                        ? player.texts?.chat_after || __( 'The chat closed when the stream ended', 'wordplus-stream' )
-                        : player.texts?.chat_before || __( 'The chat opens when the stream goes live', 'wordplus-stream' ) }
+                        ? player.texts?.chat_after || __( 'The chat closed when the stream ended', 'wordplus-live-stream' )
+                        : player.texts?.chat_before || __( 'The chat opens when the stream goes live', 'wordplus-live-stream' ) }
                 </p>
             ) : you && ! ended ? (
                 anonymous && loginUrl ? (
                     <p className="estream-chat__note estream-chat__note--action">
-                        <a className="estream-button estream-button--primary" href={ loginUrl }>{ __( 'Log in to chat', 'wordplus-stream' ) }</a>
+                        <a className="estream-button estream-button--primary" href={ loginUrl }>{ __( 'Log in to chat', 'wordplus-live-stream' ) }</a>
                     </p>
                 ) : (
-                    <p className="estream-chat__note">{ __( 'Chat is read-only for you', 'wordplus-stream' ) }</p>
+                    <p className="estream-chat__note">{ __( 'Chat is read-only for you', 'wordplus-live-stream' ) }</p>
                 )
             ) : null }
         </section>

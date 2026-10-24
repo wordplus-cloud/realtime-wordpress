@@ -1,3 +1,139 @@
+diff --git a/.bundle-modules/rtc-client.e2ee.worker.json b/.bundle-modules/rtc-client.e2ee.worker.json
+new file mode 100644
+index 0000000..fb91c9a
+--- /dev/null
++++ b/.bundle-modules/rtc-client.e2ee.worker.json
+@@ -0,0 +1,31 @@
++[
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/binary-encoding.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/extension-accessor.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/google/varint.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/is-message.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/message.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/assert.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/binary-format.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/enum.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/extensions.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-list.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-normalize.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-wrapper.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/json-format.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/message-type.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/names.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/proto-runtime.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/reflect.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/scalars.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/util-common.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto-base64.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto-int64.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto3.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/scalar.js",
++ ".pnpm/@livekit+mutex@1.1.1/node_modules/@livekit/mutex/dist/index.mjs",
++ ".pnpm/@livekit+protocol@1.50.4/node_modules/@livekit/protocol/dist/index.mjs",
++ ".pnpm/events@3.3.0/node_modules/events/events.js",
++ ".pnpm/loglevel@1.9.2/node_modules/loglevel/lib/loglevel.js",
++ "@babel/helpers/"
++]
+\ No newline at end of file
+diff --git a/.bundle-modules/rtc-client.fm.worker.json b/.bundle-modules/rtc-client.fm.worker.json
+new file mode 100644
+index 0000000..061c2b9
+--- /dev/null
++++ b/.bundle-modules/rtc-client.fm.worker.json
+@@ -0,0 +1,30 @@
++[
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/binary-encoding.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/extension-accessor.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/google/varint.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/is-message.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/message.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/assert.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/binary-format.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/enum.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/extensions.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-list.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-normalize.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-wrapper.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/json-format.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/message-type.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/names.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/proto-runtime.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/reflect.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/scalars.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/util-common.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto-base64.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto-int64.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto3.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/scalar.js",
++ ".pnpm/@livekit+protocol@1.50.4/node_modules/@livekit/protocol/dist/index.mjs",
++ ".pnpm/events@3.3.0/node_modules/events/events.js",
++ ".pnpm/loglevel@1.9.2/node_modules/loglevel/lib/loglevel.js",
++ "@babel/helpers/"
++]
+\ No newline at end of file
+diff --git a/.bundle-modules/rtc-client.json b/.bundle-modules/rtc-client.json
+new file mode 100644
+index 0000000..7400383
+--- /dev/null
++++ b/.bundle-modules/rtc-client.json
+@@ -0,0 +1,54 @@
++[
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/binary-encoding.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/extension-accessor.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/google/protobuf/timestamp_pb.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/google/varint.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/is-message.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/message.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/assert.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/binary-format.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/enum.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/extensions.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-list.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-normalize.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field-wrapper.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/field.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/json-format.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/message-type.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/names.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/proto-runtime.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/reflect.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/scalars.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/private/util-common.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto-base64.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto-int64.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/proto3.js",
++ ".pnpm/@bufbuild+protobuf@1.10.1/node_modules/@bufbuild/protobuf/dist/esm/scalar.js",
++ ".pnpm/@livekit+mutex@1.1.1/node_modules/@livekit/mutex/dist/index.mjs",
++ ".pnpm/@livekit+protocol@1.50.4/node_modules/@livekit/protocol/dist/index.mjs",
++ ".pnpm/events@3.3.0/node_modules/events/events.js",
++ ".pnpm/jose@6.2.3/node_modules/jose/dist/webapi/lib/base64.js",
++ ".pnpm/jose@6.2.3/node_modules/jose/dist/webapi/lib/buffer_utils.js",
++ ".pnpm/jose@6.2.3/node_modules/jose/dist/webapi/lib/type_checks.js",
++ ".pnpm/jose@6.2.3/node_modules/jose/dist/webapi/util/base64url.js",
++ ".pnpm/jose@6.2.3/node_modules/jose/dist/webapi/util/decode_jwt.js",
++ ".pnpm/jose@6.2.3/node_modules/jose/dist/webapi/util/errors.js",
++ ".pnpm/loglevel@1.9.2/node_modules/loglevel/lib/loglevel.js",
++ ".pnpm/machina@7.0.1/node_modules/machina/dist/index.mjs",
++ ".pnpm/sdp-transform@2.15.0/node_modules/sdp-transform/lib/grammar.js",
++ ".pnpm/sdp-transform@2.15.0/node_modules/sdp-transform/lib/index.js",
++ ".pnpm/sdp-transform@2.15.0/node_modules/sdp-transform/lib/parser.js",
++ ".pnpm/sdp-transform@2.15.0/node_modules/sdp-transform/lib/writer.js",
++ ".pnpm/sdp@3.2.2/node_modules/sdp/sdp.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/adapter_core.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/adapter_factory.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/chrome/chrome_shim.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/chrome/getusermedia.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/common_shim.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/firefox/firefox_shim.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/firefox/getdisplaymedia.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/firefox/getusermedia.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/safari/safari_shim.js",
++ ".pnpm/webrtc-adapter@9.0.6/node_modules/webrtc-adapter/src/js/utils.js",
++ "@babel/helpers/"
++]
+\ No newline at end of file
 diff --git a/NOTICE b/NOTICE
 index 31a7991..2d110a2 100644
 --- a/NOTICE
@@ -16,14 +152,14 @@ index 31a7991..2d110a2 100644
 +free place, and a leave that says whether the client will join again. The
 +files it changed are listed in the patch it is built with.
 diff --git a/package.json b/package.json
-index b9c8f3a..c068f27 100644
+index 2523a26..f8036c1 100644
 --- a/package.json
 +++ b/package.json
 @@ -1,35 +1,37 @@
  {
 -  "name": "livekit-client",
 +  "name": "@wordplus/rtc-client",
-   "version": "2.22.2",
+   "version": "2.23.0",
 -  "description": "JavaScript/TypeScript client SDK for LiveKit",
 -  "main": "./dist/livekit-client.umd.js",
 -  "unpkg": "./dist/livekit-client.umd.js",
@@ -235,10 +371,10 @@ index 14115d7..1e29886 100644
 +  plugins: [typescript({ tsconfig: './src/e2ee/worker/tsconfig.json' }), ...commonPlugins, listModules(bundleName + '.e2ee.worker')],
  };
 diff --git a/src/api/SignalClient.test.ts b/src/api/SignalClient.test.ts
-index 8a4c71e..79730df 100644
+index bcdb238..4a22098 100644
 --- a/src/api/SignalClient.test.ts
 +++ b/src/api/SignalClient.test.ts
-@@ -4,15 +4,19 @@ import {
+@@ -4,17 +4,21 @@ import {
    JoinRequest,
    JoinResponse,
    LeaveRequest,
@@ -253,14 +389,16 @@ index 8a4c71e..79730df 100644
  } from '@livekit/protocol';
 -import { beforeEach, describe, expect, it, vi } from 'vitest';
 +import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+ import type { Mutex } from '@livekit/mutex';
  import { ConnectionError, ConnectionErrorReason } from '../room/errors';
  import CriticalTimers from '../room/timers';
+ import { Future } from '../room/utils';
 +import { forgetHardwareDecoders } from '../utils/hardwareDecoders';
  import { SignalClient, SignalConnectionState } from './SignalClient';
  import type { WebSocketCloseInfo, WebSocketConnection } from './WebSocketStream';
  import { WebSocketStream } from './WebSocketStream';
-@@ -162,6 +166,109 @@ describe('SignalClient.connect', () => {
-       expect(signalClient.currentState).toBe(SignalConnectionState.CONNECTED);
+@@ -336,6 +340,109 @@ describe('SignalClient.connect', () => {
+       expect(result).toEqual(joinResponse);
      });
  
 +    it('WordPlus Mesh: says on every join that it walks and waits (mesh_client)', async () => {
@@ -369,7 +507,7 @@ index 8a4c71e..79730df 100644
      it('does not advertise packet trailer capability by default', async () => {
        const joinResponse = createJoinResponse();
        const signalResponse = createSignalResponse('join', joinResponse);
-@@ -862,6 +969,70 @@ describe('SignalClient utility functions', () => {
+@@ -1247,6 +1354,70 @@ describe('SignalClient utility functions', () => {
        expect(protoDesc.sdp).toBe('v=0\r\n');
      });
    });
@@ -440,7 +578,7 @@ index 8a4c71e..79730df 100644
  });
  
  describe('SignalClient.handleSignalConnected', () => {
-@@ -1106,6 +1277,59 @@ describe('SignalClient.handleConnectionError', () => {
+@@ -1490,6 +1661,59 @@ describe('SignalClient.handleConnectionError', () => {
      }
    });
  
@@ -500,7 +638,7 @@ index 8a4c71e..79730df 100644
    it('should return ConnectionError as-is if it is already a ConnectionError', async () => {
      const connectionError = ConnectionError.internal('Custom error');
  
-@@ -1169,3 +1393,84 @@ describe('SignalClient.handleConnectionError', () => {
+@@ -1553,3 +1777,84 @@ describe('SignalClient.handleConnectionError', () => {
      }
    });
  });
@@ -586,7 +724,7 @@ index 8a4c71e..79730df 100644
 +  });
 +});
 diff --git a/src/api/SignalClient.ts b/src/api/SignalClient.ts
-index 72f58d6..f1ce53b 100644
+index 905bd0f..6c89700 100644
 --- a/src/api/SignalClient.ts
 +++ b/src/api/SignalClient.ts
 @@ -21,6 +21,7 @@ import {
@@ -605,7 +743,7 @@ index 72f58d6..f1ce53b 100644
    SubscribedQualityUpdate,
    SubscriptionPermission,
    SubscriptionPermissionUpdate,
-@@ -60,10 +62,23 @@ import { type DataTrackSid } from '../room/data-track/types';
+@@ -60,11 +62,24 @@ import { type DataTrackSid } from '../room/data-track/types';
  import { ConnectionError, ConnectionErrorReason } from '../room/errors';
  import CriticalTimers from '../room/timers';
  import type { LoggerOptions } from '../room/types';
@@ -624,27 +762,33 @@ index 72f58d6..f1ce53b 100644
 +} from '../room/utils';
  import type { NonSharedUint8Array } from '../type-polyfills/non-shared-typed-arrays';
  import { AsyncQueue } from '../utils/AsyncQueue';
+ import { abortSignalTimeout } from '../utils/abort-signal-polyfill';
 +import { hardwareDecoders, hardwareEncoders } from '../utils/hardwareDecoders';
  import { announceMachine } from '../utils/machineInspector';
 +import { rtcClientVersion } from '../version';
  import {
    type SignalLifecycleState,
    type SignalMachine,
-@@ -72,9 +87,13 @@ import {
+@@ -73,9 +88,18 @@ import {
  } from './SignalClientStateMachine';
  import { type WebSocketConnection, WebSocketStream } from './WebSocketStream';
  import {
 +  MESH_ENCODERS_FIELD,
++  MESH_HEALTH_FIELD,
++  MESH_RECEIVERS_FIELD,
 +  type MeshEncoderTrack,
++  type MeshHealth,
++  type MeshReceiverTrack,
    createRtcUrl,
    createValidateUrl,
    getAbortReasonAsString,
 +  lengthDelimited,
 +  meshRegions,
++  meshReportsEvery,
    parseSignalResponse,
  } from './utils';
  
-@@ -86,6 +105,8 @@ interface ConnectOpts extends SignalOptions {
+@@ -87,6 +111,8 @@ interface ConnectOpts extends SignalOptions {
    reconnectReason?: number;
    /** internal */
    sid?: string;
@@ -653,7 +797,7 @@ index 72f58d6..f1ce53b 100644
  }
  
  // public options
-@@ -96,6 +117,8 @@ export interface SignalOptions {
+@@ -99,6 +125,8 @@ export interface SignalOptions {
    maxRetries: number;
    e2eeEnabled: boolean;
    websocketTimeout: number;
@@ -662,7 +806,7 @@ index 72f58d6..f1ce53b 100644
  }
  
  type SignalMessage = SignalRequest['message'];
-@@ -166,6 +189,37 @@ const MAX_WS_CLOSE_TIME = 250;
+@@ -169,6 +197,34 @@ const MAX_WS_CLOSE_TIME = 250;
   */
  const JOIN_RESPONSE_TIMEOUT = 5_000;
  
@@ -678,9 +822,6 @@ index 72f58d6..f1ce53b 100644
 +export function resumeWaitMs(rttMs: number, capMs: number): number {
 +  return Math.min(capMs, Math.max(resumeTimeoutMs, 4 * (rttMs > 0 ? rttMs : 0)));
 +}
-+
-+/** WordPlus Mesh: how long (in ms) the validate request after a failed connect may take. */
-+const validateTimeoutMs = 3_000;
 +
 +/**
 + * WordPlus Mesh (rtc-client 1.0.2): how long (in ms) a ping timeout due on a page that was hidden waits for any message
@@ -700,7 +841,7 @@ index 72f58d6..f1ce53b 100644
  /** @internal */
  export class SignalClient {
    requestQueue: AsyncQueue;
-@@ -215,6 +269,9 @@ export class SignalClient {
+@@ -218,6 +274,9 @@ export class SignalClient {
  
    onSubscribedQualityUpdate?: (update: SubscribedQualityUpdate) => void;
  
@@ -710,17 +851,20 @@ index 72f58d6..f1ce53b 100644
    onSubscriptionPermissionUpdate?: (update: SubscriptionPermissionUpdate) => void;
  
    onSubscriptionError?: (update: SubscriptionResponse) => void;
-@@ -225,6 +282,9 @@ export class SignalClient {
+@@ -228,6 +287,12 @@ export class SignalClient {
  
    onLeave?: (leave: LeaveRequest) => void;
  
 +  /** WordPlus Mesh: the region list the node sent over this connection (meshRegions). */
 +  onMeshRegions?: (regions: RegionSettings) => void;
 +
++  /** WordPlus Mesh (1.0.16): how often the node asks for this client's reports, ms (meshReportsEvery). */
++  onMeshReports?: (every: number) => void;
++
    onRequestResponse?: (response: RequestResponse) => void;
  
    onLocalTrackSubscribed?: (trackSid: string) => void;
-@@ -304,6 +364,14 @@ export class SignalClient {
+@@ -307,6 +372,14 @@ export class SignalClient {
  
    private pingInterval: ReturnType<typeof setInterval> | undefined;
  
@@ -735,7 +879,7 @@ index 72f58d6..f1ce53b 100644
    private closingLock: Mutex;
  
    private machine: SignalMachine;
-@@ -337,6 +405,13 @@ export class SignalClient {
+@@ -340,6 +413,13 @@ export class SignalClient {
          `ignoring signal lifecycle input ${inputName} in state ${this.lifecycleState}`,
        );
      });
@@ -749,7 +893,7 @@ index 72f58d6..f1ce53b 100644
      // no-op unless a development tool asked for it; see utils/machineInspector
      announceMachine('signal', this.machine);
    }
-@@ -403,6 +478,14 @@ export class SignalClient {
+@@ -406,6 +486,14 @@ export class SignalClient {
          token,
          {
            ...this.options,
@@ -764,31 +908,31 @@ index 72f58d6..f1ce53b 100644
            reconnect: true,
            sid,
            reconnectReason: reason,
-@@ -436,9 +519,21 @@ export class SignalClient {
-     this.useV0SignalPath = useV0Path;
+@@ -442,9 +530,21 @@ export class SignalClient {
+       this.useV0SignalPath = useV0Path;
  
-     const clientInfo = getClientInfo(opts.clientInfoCapabilities);
-+    // WordPlus Mesh: the codecs this browser decodes in hardware, which a mesh node gives it first, and
-+    // (1.0.8) those it encodes in hardware, for its live view; nothing asked or said to any other server
-+    const [decoders, encoders] = isMeshServer(url)
-+      ? await Promise.all([hardwareDecoders(), hardwareEncoders()])
-+      : [undefined, undefined];
-+    const meshOpts: ConnectOpts = encoders ? { ...opts, meshHwEncoders: encoders } : opts;
-     const params = useV0Path
--      ? createConnectionParams(token, clientInfo, opts)
--      : await createJoinRequestConnectionParams(token, clientInfo, opts, publisherOffer);
-+      ? createConnectionParams(token, clientInfo, meshOpts, decoders)
-+      : await createJoinRequestConnectionParams(
-+          token,
-+          clientInfo,
-+          meshOpts,
-+          publisherOffer,
-+          decoders,
-+        );
-     const rtcUrl = createRtcUrl(url, params, useV0Path).toString();
-     const validateUrl = createValidateUrl(rtcUrl).toString();
- 
-@@ -697,6 +792,7 @@ export class SignalClient {
+       const clientInfo = getClientInfo(opts.clientInfoCapabilities);
++      // WordPlus Mesh: the codecs this browser decodes in hardware, which a mesh node gives it first, and
++      // (1.0.8) those it encodes in hardware, for its live view; nothing asked or said to any other server
++      const [decoders, encoders] = isMeshServer(url)
++        ? await Promise.all([hardwareDecoders(), hardwareEncoders()])
++        : [undefined, undefined];
++      const meshOpts: ConnectOpts = encoders ? { ...opts, meshHwEncoders: encoders } : opts;
+       const params = useV0Path
+-        ? createConnectionParams(token, clientInfo, opts)
+-        : await createJoinRequestConnectionParams(token, clientInfo, opts, publisherOffer);
++        ? createConnectionParams(token, clientInfo, meshOpts, decoders)
++        : await createJoinRequestConnectionParams(
++            token,
++            clientInfo,
++            meshOpts,
++            publisherOffer,
++            decoders,
++          );
+       rtcUrl = createRtcUrl(url, params, useV0Path).toString();
+       validateUrl = createValidateUrl(rtcUrl).toString();
+     } catch (e) {
+@@ -744,6 +844,7 @@ export class SignalClient {
      this.onOffer = undefined;
      this.onRemoteMuteChanged = undefined;
      this.onSubscribedQualityUpdate = undefined;
@@ -796,17 +940,39 @@ index 72f58d6..f1ce53b 100644
      this.onTokenRefresh = undefined;
      this.onTrickle = undefined;
      this.onClose = undefined;
-@@ -876,13 +972,45 @@ export class SignalClient {
+@@ -924,13 +1025,69 @@ export class SignalClient {
      });
    }
  
 -  sendLeave() {
 +  /**
-+   * WordPlus Mesh (1.0.10): the published videos' encoders (room/meshEncoders.ts), in a request with no message of
-+   * LiveKit's and the JSON in MESH_ENCODERS_FIELD. Answers whether it went: never over JSON, which has no place for
-+   * it, nor while reconnecting (the room tells again once connected).
++   * WordPlus Mesh: a reading's reports in one request with no message of LiveKit's, each its JSON in a field of its
++   * own: the published videos' encoders when they changed (1.0.10, room/meshEncoders.ts, MESH_ENCODERS_FIELD), what
++   * this client receives as it plays it (1.0.15, room/meshReceivers.ts, MESH_RECEIVERS_FIELD), and its machine and
++   * page (1.0.16, room/meshHealth.ts, MESH_HEALTH_FIELD). Until 1.0.16 the first two went in a request each; one is a
++   * message less for the node every round. A node reads every field it knows of a request; one before 1.0.53 skips
++   * the health. Answers whether it went: never over JSON, which has no place for them, nor while reconnecting (the
++   * room tells again once connected).
 +   */
-+  async sendMeshEncoders(tracks: MeshEncoderTrack[]): Promise<boolean> {
++  async sendMeshReports(reports: {
++    encoders?: MeshEncoderTrack[];
++    receivers?: MeshReceiverTrack[];
++    health?: MeshHealth;
++  }): Promise<boolean> {
++    const fields: [number, object][] = [];
++    if (reports.encoders) {
++      fields.push([MESH_ENCODERS_FIELD, { tracks: reports.encoders }]);
++    }
++    if (reports.receivers) {
++      fields.push([MESH_RECEIVERS_FIELD, { tracks: reports.receivers }]);
++    }
++    if (reports.health) {
++      fields.push([MESH_HEALTH_FIELD, reports.health]);
++    }
++    return fields.length ? this.sendMeshFields(fields, 'reports') : true;
++  }
++
++  private async sendMeshFields(fields: [number, object][], what: string): Promise<boolean> {
 +    if (
 +      this.useJSON ||
 +      this.isDisconnected ||
@@ -816,14 +982,16 @@ index 72f58d6..f1ce53b 100644
 +      return false;
 +    }
 +    const req = new SignalRequest({});
-+    const data = lengthDelimited(new TextEncoder().encode(JSON.stringify({ tracks })));
-+    // wire type 2, length-delimited
-+    req.getType().runtime.bin.onUnknownField(req, MESH_ENCODERS_FIELD, 2, data);
++    for (const [field, body] of fields) {
++      const data = lengthDelimited(new TextEncoder().encode(JSON.stringify(body)));
++      // wire type 2, length-delimited
++      req.getType().runtime.bin.onUnknownField(req, field, 2, data);
++    }
 +    try {
 +      await this.streamWriter.write((req.toBinary() as NonSharedUint8Array).buffer);
 +      return true;
 +    } catch (e) {
-+      this.log.debug('could not send the encoders', { error: e });
++      this.log.debug(`could not send the ${what}`, { error: e });
 +      return false;
 +    }
 +  }
@@ -845,10 +1013,17 @@ index 72f58d6..f1ce53b 100644
        }),
      });
    }
-@@ -969,6 +1097,13 @@ export class SignalClient {
+@@ -1017,6 +1174,20 @@ export class SignalClient {
    private handleSignalResponse(res: SignalResponse) {
      const msg = res.message;
      if (msg == undefined) {
++      // WordPlus Mesh (1.0.16): how often the node asks for reports, in a response of its own
++      const every = meshReportsEvery(res);
++      if (every !== undefined) {
++        this.log.debug('report pace from the server', { every });
++        this.onMeshReports?.(every);
++        return;
++      }
 +      // WordPlus Mesh: the node's region list, which LiveKit's protocol has no message for
 +      const regions = meshRegions(res);
 +      if (regions) {
@@ -859,7 +1034,7 @@ index 72f58d6..f1ce53b 100644
        this.log.debug('received unsupported message');
        return;
      }
-@@ -1025,6 +1160,10 @@ export class SignalClient {
+@@ -1073,6 +1244,10 @@ export class SignalClient {
        if (this.onSubscribedQualityUpdate) {
          this.onSubscribedQualityUpdate(msg.value);
        }
@@ -870,7 +1045,7 @@ index 72f58d6..f1ce53b 100644
      } else if (msg.case === 'subscriptionPermissionUpdate') {
        if (this.onSubscriptionPermissionUpdate) {
          this.onSubscriptionPermissionUpdate(msg.value);
-@@ -1129,17 +1268,33 @@ export class SignalClient {
+@@ -1185,17 +1360,33 @@ export class SignalClient {
     */
    private resetPingTimeout() {
      this.clearPingTimeout();
@@ -905,24 +1080,7 @@ index 72f58d6..f1ce53b 100644
      }, this.pingTimeoutDuration * 1000);
    }
  
-@@ -1282,8 +1437,15 @@ export class SignalClient {
-     reason: unknown,
-     validateUrl: string,
-   ): Promise<ConnectionError> {
-+    // WordPlus Mesh: this asks the server that just failed. One that is gone never answers, and the
-+    // fetch held the connect's lock meanwhile, so the next attempt, to another server, never started.
-+    // Only where there is another server to try (isCloud): elsewhere as upstream.
-+    const timeout = new AbortController();
-+    const timer = isCloudUrl(validateUrl)
-+      ? setTimeout(() => timeout.abort(), validateTimeoutMs)
-+      : undefined;
-     try {
--      const resp = await fetch(validateUrl);
-+      const resp = await fetch(validateUrl, { signal: timeout.signal });
- 
-       switch (resp.status) {
-         case 404:
-@@ -1292,13 +1454,24 @@ export class SignalClient {
+@@ -1336,13 +1527,24 @@ export class SignalClient {
              return ConnectionError.notAllowed(errorMsg, resp.status);
            }
            return ConnectionError.serviceNotFound(
@@ -948,16 +1106,7 @@ index 72f58d6..f1ce53b 100644
          default:
            break;
        }
-@@ -1317,6 +1490,8 @@ export class SignalClient {
-         : ConnectionError.serverUnreachable(
-             e instanceof Error ? e.message : 'server was not reachable',
-           );
-+    } finally {
-+      clearTimeout(timer);
-     }
-   }
- }
-@@ -1351,13 +1526,61 @@ export function toProtoSessionDescription(
+@@ -1397,13 +1599,61 @@ export function toProtoSessionDescription(
    return sd;
  }
  
@@ -1019,7 +1168,7 @@ index 72f58d6..f1ce53b 100644
  
    // opts
    if (opts.reconnect) {
-@@ -1412,9 +1635,12 @@ async function createJoinRequestConnectionParams(
+@@ -1466,9 +1716,12 @@ async function createJoinRequestConnectionParams(
    info: ClientInfo,
    opts: ConnectOpts,
    publisherOffer?: SessionDescription,
@@ -1033,7 +1182,7 @@ index 72f58d6..f1ce53b 100644
    const joinRequest = new JoinRequest({
      clientInfo: info,
 diff --git a/src/api/utils.test.ts b/src/api/utils.test.ts
-index eba88b3..64e5e1b 100644
+index eba88b3..fb1604b 100644
 --- a/src/api/utils.test.ts
 +++ b/src/api/utils.test.ts
 @@ -1,5 +1,67 @@
@@ -1105,7 +1254,7 @@ index eba88b3..64e5e1b 100644
  
  describe('createRtcUrl', () => {
    it('should create a basic RTC URL', () => {
-@@ -144,3 +206,52 @@ describe('getAbortReasonAsString', () => {
+@@ -144,3 +206,89 @@ describe('getAbortReasonAsString', () => {
      expect(getAbortReasonAsString(undefined, 'fallback')).toBe('fallback');
    });
  });
@@ -1157,9 +1306,46 @@ index eba88b3..64e5e1b 100644
 +    expect(meshCodecPolicy(new JoinResponse({ serverVersion: '1.0.32' }))).toBeUndefined();
 +    expect(meshCodecPolicy(joinWith('not json'))).toBeUndefined();
 +  });
++
++  it('takes the server’s off switches for the camera check and the in-call switch, booleans only', () => {
++    expect(meshCodecPolicy(joinWith(JSON.stringify({ check: false, adapt: false })))).toEqual({
++      check: false,
++      adapt: false,
++    });
++    expect(meshCodecPolicy(joinWith(JSON.stringify({ check: 'no', adapt: 0 })))).toEqual({});
++  });
++
++  it('takes the server’s camera rules and numbers, bounded, without a client update', () => {
++    const got = meshCodecPolicy(
++      joinWith(
++        JSON.stringify({
++          rules: [
++            { os: 'windows', gpu: 'amd', camera: ['vp9', 'vp8'] },
++            { os: 'windows', camera: ['h264:hw', 'vp9', 'vp8'], extra: 1 },
++            { os: 'x'.repeat(40), camera: ['vp9'] },
++            { camera: [] },
++            'not a rule',
++          ],
++          tune: {
++            switchesMax: 1,
++            passSent: 0.85,
++            bad: 'x',
++            forgetBefore: 1792800000000,
++            inf: null,
++          },
++        }),
++      ),
++    );
++    // a rule with a field it can't read is left out whole: never widened to every machine
++    expect(got?.rules).toEqual([
++      { os: 'windows', gpu: 'amd', camera: ['vp9', 'vp8'] },
++      { os: 'windows', camera: ['h264:hw', 'vp9', 'vp8'] },
++    ]);
++    expect(got?.tune).toEqual({ switchesMax: 1, passSent: 0.85, forgetBefore: 1792800000000 });
++  });
 +});
 diff --git a/src/api/utils.ts b/src/api/utils.ts
-index 94d6662..7d9b047 100644
+index 9b74abe..0472acd 100644
 --- a/src/api/utils.ts
 +++ b/src/api/utils.ts
 @@ -1,4 +1,4 @@
@@ -1168,7 +1354,7 @@ index 94d6662..7d9b047 100644
  import { toHttpUrl, toWebsocketUrl } from '../room/utils';
  
  export function createRtcUrl(url: string, searchParams: URLSearchParams, useV0Path = false) {
-@@ -32,6 +32,142 @@ function appendUrlPath(urlObj: URL, path: string) {
+@@ -32,6 +32,381 @@ function appendUrlPath(urlObj: URL, path: string) {
    return urlObj;
  }
  
@@ -1194,6 +1380,28 @@ index 94d6662..7d9b047 100644
 +  camera?: string[];
 +  screen?: string[];
 +  backup?: string;
++  /**
++   * 1.0.16 (WordPlus Mesh 1.0.53): the product's camera check before the camera starts (check) and its switch to another
++   * codec during a call (adapt), as the node says them: a node of 1.0.53 or later says both in every join, true unless its
++   * config turns them off, and the product runs either only where it is true (absent: a node that can't turn it off).
++   */
++  check?: boolean;
++  adapt?: boolean;
++  /**
++   * 1.0.16: the camera's codec order by the kind of machine, first matching rule first (each field given must match;
++   * the product decides how a field reads its browser), and the camera check's and in-call switch's numbers by name
++   * (thresholds, windows, limits, how long a result is remembered): the server's to change without a client update.
++   */
++  rules?: MeshCodecRule[];
++  tune?: Record<string, number>;
++}
++
++export interface MeshCodecRule {
++  os?: string;
++  browser?: string;
++  gpu?: string;
++  device?: string;
++  camera: string[];
 +}
 +
 +/**
@@ -1215,15 +1423,183 @@ index 94d6662..7d9b047 100644
 +  encodeMs?: number;
 +  keyFrames?: number;
 +  plis?: number;
++  /**
++   * since the last reading (1.0.16): frames it encoded and sent (sent fewer than encoded: its sending queue held them),
++   * and the bitrate its encoder aims at now, kbit/s
++   */
++  encoded?: number;
++  sent?: number;
++  target?: number;
++}
++
++/**
++ * What one published video's sending did since the last reading (1.0.16), every layer of a codec together: the frames
++ * its source gave (captured less than the camera was opened at: the camera itself; encoded less than captured: the
++ * encoder dropped them), the ms its encoder spent held back by the CPU, the upload or anything else, the ms a packet
++ * waited in its sending queue on average, the share of its packets sent again (retransmissions, %), and its oversized
++ * frames (a key frame or a scene change several times a frame's share).
++ */
++export interface MeshSending {
++  frames?: number;
++  limitMs?: { cpu?: number; bandwidth?: number; other?: number };
++  queueMs?: number;
++  resent?: number;
++  huge?: number;
 +}
 +
 +/** One published video's encoders: a codec each sender runs (its own and a sending backup's), layer by layer. */
 +export interface MeshEncoderTrack {
 +  sid: string;
 +  /** captured: the frames a second its source gives the encoder (media-source stats); encoder "" when not named */
-+  codecs: { codec: string; encoder: string; layers: MeshEncoderLayer[]; captured?: number }[];
++  codecs: ({
++    codec: string;
++    encoder: string;
++    layers: MeshEncoderLayer[];
++    captured?: number;
++  } & MeshSending)[];
 +  /** the mode its capture was opened at (1.0.11): its size and the frames a second asked of the device */
 +  mode?: { width: number; height: number; fps?: number };
++  /**
++   * since the last reading (1.0.16): the times its source stopped giving frames by itself (the track's `mute` event:
++   * the camera, its driver or the system held it, not the person), and the ms it gave none
++   */
++  stalls?: number;
++  stallMs?: number;
++}
++
++/**
++ * WordPlus Mesh (1.0.15): the signal request field a client tells a mesh node what it receives in, as JSON, beside
++ * MESH_ENCODERS_FIELD (room/meshReceivers.ts). A node before 1.0.46 handles it as nothing.
++ */
++export const MESH_RECEIVERS_FIELD = 1002;
++
++/**
++ * One received track as the browser plays it, since the last reading: for a video the frames it decoded a second, the
++ * picture's height, its freezes and how long they lasted, and frames it dropped; for audio the share of the samples it
++ * played that it made up for lost or late packets (concealment, silence aside), in %; for both the packets lost, in %,
++ * and the jitter buffer's delay. Numbers only: nothing of the picture or the sound.
++ */
++export interface MeshReceiverTrack {
++  sid: string;
++  kind: 'audio' | 'video';
++  fps?: number;
++  height?: number;
++  freezes?: number;
++  freezeMs?: number;
++  dropped?: number;
++  concealed?: number;
++  lost?: number;
++  jbMs?: number;
++  /**
++   * since the last reading (1.0.16), a video's: ms of decoding a frame and whether its decoder is hardware (hwDec), how
++   * unevenly its frames were shown (the spread of the gaps between them, ms: a picture can stutter without a freeze),
++   * pauses of 5 s or more and their ms, the key frames (plis) and retransmissions (nacks) it asked for; a sound's: the
++   * share of what it played stretched or squeezed to keep in time (%); both: the network's jitter, ms
++   */
++  decodeMs?: number;
++  hwDec?: boolean;
++  unevenMs?: number;
++  pauses?: number;
++  pauseMs?: number;
++  plis?: number;
++  nacks?: number;
++  stretched?: number;
++  jitterMs?: number;
++  /**
++   * 1.0.17, a video's: the gaps this client made itself by turning it off (its tile hidden or off the screen, the page
++   * in the background) and their ms, told apart from pauses and freezes and left out of unevenMs
++   */
++  hiddenGaps?: number;
++  hiddenGapMs?: number;
++}
++
++/**
++ * WordPlus Mesh (1.0.16): the signal request field a client tells a mesh node how its machine and page are doing in,
++ * as JSON, beside MESH_RECEIVERS_FIELD (room/meshHealth.ts). A node before 1.0.53 handles it as nothing.
++ */
++export const MESH_HEALTH_FIELD = 1003;
++
++/** One connection's path as its browser sees it now, and since the last reading. */
++export interface MeshPathHealth {
++  /** round trip, ms, and the upload the browser estimates, kbit/s */
++  rtt?: number;
++  outKbps?: number;
++  /** packets the system failed to send (a network that went away: Wi-Fi dropping out) */
++  sendFailed?: number;
++  /** connectivity checks that got no answer, and the times it changed path */
++  unanswered?: number;
++  switched?: number;
++}
++
++/**
++ * How the machine and the page running a call are doing since the last reading: numbers and the device's names only.
++ * Every one is counted from events the browser raises anyway (no timer of its own), or read from the connections'
++ * shared reading (room/meshStats.ts).
++ */
++export interface MeshHealth {
++  /** the worst CPU pressure the system reported (Compute Pressure API, Chrome and Edge), and ms spent serious or worse */
++  cpu?: 'nominal' | 'fair' | 'serious' | 'critical';
++  cpuMs?: number;
++  /** the page's main thread busy 200 ms or more at a stretch (Long Tasks API), how often and the longest, ms */
++  hangs?: number;
++  hangMs?: number;
++  /** ms the page was hidden: in the background, behind another tab, minimized */
++  hiddenMs?: number;
++  /** on battery (false: charging), where the browser tells */
++  battery?: boolean;
++  /** cameras and microphones plugged in or out */
++  devices?: number;
++  pub?: MeshPathHealth;
++  sub?: MeshPathHealth;
++  /** the machine, once a connection (the first reading after a join or a reconnect): cores, memory (GB), graphics */
++  machine?: { cores?: number; memGb?: number; gpu?: string };
++  /** how the product chose its camera's codec, and each switch since (Room.reportMeshCamera), when it changed */
++  camera?: MeshCamera;
++}
++
++/**
++ * WordPlus Mesh (1.0.16): how a product chose its camera's codec, for the node and the panel, so the server can decide
++ * further from what every call reports: the codec, how it was decided (a check before the
++ * camera started, a result the browser remembered, the default, a switch during the call), how long the check took,
++ * each codec it tried or remembered, and the call's switches.
++ */
++export interface MeshCamera {
++  codec?: string;
++  source?: 'check' | 'memory' | 'default' | 'switch';
++  checkMs?: number;
++  tests?: {
++    codec: string;
++    hardware?: boolean;
++    result: 'pass' | 'drops' | 'cpu' | 'error';
++    msPerFrame?: number;
++    sentShare?: number;
++    cpuShare?: number;
++    cached?: boolean;
++    at?: number;
++  }[];
++  switches?: { from: string; to: string; why: 'drops' | 'cpu' | 'pressure'; at: number }[];
++}
++
++/** The most of a camera report a reading carries, JSON bytes: what's over is cut from its tests and switches first. */
++export const MESH_CAMERA_MAX = 2048;
++
++/**
++ * WordPlus Mesh (1.0.16): the signal response field a mesh node tells a client how often to send its reports in (JSON,
++ * `{ "every": ms }`, 0 for not at all): every 10 s in a small call, less often in a big room. A client keeps reading at
++ * its own pace and sends at once what can't wait (a freeze, its camera stalling, its CPU under pressure). Any other
++ * client skips it.
++ */
++export const MESH_REPORTS_FIELD = 101;
++
++/** WordPlus Mesh: how often a signal response asks for reports (MESH_REPORTS_FIELD), ms; undefined when it doesn't. */
++export function meshReportsEvery(res: SignalResponse): number | undefined {
++  for (const raw of unknownJson(res, MESH_REPORTS_FIELD)) {
++    const every = (raw as { every?: unknown } | null)?.every;
++    if (typeof every === 'number' && Number.isFinite(every) && every >= 0) {
++      return every;
++    }
++  }
++  return undefined;
 +}
 +
 +/** A length-delimited field's data as protobuf-es keeps an unknown field's: its length, a varint, then the bytes. */
@@ -1303,6 +1679,55 @@ index 94d6662..7d9b047 100644
 +    if (typeof r.backup === 'string' && r.backup.length <= 16) {
 +      policy.backup = r.backup;
 +    }
++    if (typeof r.check === 'boolean') {
++      policy.check = r.check;
++    }
++    if (typeof r.adapt === 'boolean') {
++      policy.adapt = r.adapt;
++    }
++    // rules: at most 16, each a codec list and short words to match by
++    if (Array.isArray(r.rules)) {
++      const word = (v: unknown) => (typeof v === 'string' && v.length <= 16 ? v : undefined);
++      const rules: MeshCodecRule[] = [];
++      for (const item of r.rules.slice(0, 16)) {
++        if (!item || typeof item !== 'object') {
++          continue;
++        }
++        const x = item as Record<string, unknown>;
++        const list = names(x.camera);
++        if (!list?.length) {
++          continue;
++        }
++        const rule: MeshCodecRule = { camera: list };
++        let whole = true;
++        for (const k of ['os', 'browser', 'gpu', 'device'] as const) {
++          if (x[k] === undefined) {
++            continue;
++          }
++          const w = word(x[k]);
++          if (w) {
++            rule[k] = w;
++          } else {
++            // a field it can't read: the rule left out whole, never widened to every machine
++            whole = false;
++          }
++        }
++        if (whole) {
++          rules.push(rule);
++        }
++      }
++      policy.rules = rules;
++    }
++    // tune: finite numbers by short names, at most 32 of them; the product clamps each to what it takes
++    if (r.tune && typeof r.tune === 'object' && !Array.isArray(r.tune)) {
++      const tune: Record<string, number> = {};
++      for (const [k, v] of Object.entries(r.tune as Record<string, unknown>).slice(0, 32)) {
++        if (k.length <= 24 && typeof v === 'number' && Number.isFinite(v)) {
++          tune[k] = v;
++        }
++      }
++      policy.tune = tune;
++    }
 +    return policy;
 +  }
 +  return undefined;
@@ -1325,7 +1750,7 @@ index 773fce1..5a7c3e6 100644
      } else {
        this.appendError(`Websocket connection could not be established`);
 diff --git a/src/index.ts b/src/index.ts
-index 4fa1329..33150ac 100644
+index 8a7972d..84b713f 100644
 --- a/src/index.ts
 +++ b/src/index.ts
 @@ -42,6 +42,7 @@ import { type PublicationEventCallbacks, TrackPublication } from './room/track/T
@@ -1344,7 +1769,7 @@ index 4fa1329..33150ac 100644
    isRemoteParticipant,
    isRemoteTrack,
    isSVCCodec,
-@@ -87,6 +89,8 @@ export * from './connectionHelper/ConnectionCheck';
+@@ -88,6 +90,8 @@ export * from './connectionHelper/ConnectionCheck';
  export * from './connectionHelper/checks/Checker';
  export * from './e2ee';
  export type { BaseE2EEManager } from './e2ee/E2eeManager';
@@ -1353,7 +1778,7 @@ index 4fa1329..33150ac 100644
  export * from './options';
  export * from './room/errors';
  export * from './room/events';
-@@ -153,6 +157,8 @@ export {
+@@ -155,6 +159,8 @@ export {
    supportsDynacast,
    supportsH265,
    supportsVP9,
@@ -1363,7 +1788,7 @@ index 4fa1329..33150ac 100644
    isAudioCodec,
    isAudioTrack,
 diff --git a/src/logger.ts b/src/logger.ts
-index 5a3de61..f5dd32c 100644
+index a472d65..ec5fe65 100644
 --- a/src/logger.ts
 +++ b/src/logger.ts
 @@ -10,21 +10,21 @@ export enum LogLevel {
@@ -1404,10 +1829,10 @@ index 5a3de61..f5dd32c 100644
  
  type LogLevelString = keyof typeof LogLevel;
 diff --git a/src/options.ts b/src/options.ts
-index 582a224..8228ca1 100644
+index b85799d..35c087a 100644
 --- a/src/options.ts
 +++ b/src/options.ts
-@@ -171,6 +171,28 @@ export interface InternalRoomConnectOptions {
+@@ -187,6 +187,28 @@ export interface InternalRoomConnectOptions {
  
    /** amount of time for Websocket connection to be established, defaults to 15s */
    websocketTimeout: number;
@@ -1437,18 +1862,18 @@ index 582a224..8228ca1 100644
  
  /**
 diff --git a/src/room/RTCEngine.test.ts b/src/room/RTCEngine.test.ts
-index 1dc28a2..15c88fa 100644
+index 825ad40..e94e9a8 100644
 --- a/src/room/RTCEngine.test.ts
 +++ b/src/room/RTCEngine.test.ts
-@@ -1,6 +1,7 @@
- import {
+@@ -2,6 +2,7 @@ import {
    DataPacket,
    DataPacket_Kind,
+   JoinResponse,
 +  LeaveRequest_Action,
    ConnectionQuality as ProtoConnectionQuality,
    UserPacket,
  } from '@livekit/protocol';
-@@ -920,3 +921,22 @@ describe('RTCEngine', () => {
+@@ -1236,3 +1237,22 @@ describe('RTCEngine', () => {
      });
    });
  });
@@ -1466,13 +1891,13 @@ index 1dc28a2..15c88fa 100644
 +    vi.spyOn(e, 'cleanupClient').mockResolvedValue(undefined);
 +
 +    // no signal options: the attempt stops right after its leave
-+    await e.restartConnection().catch(() => {});
++    await e.restartConnection(new AbortController().signal).catch(() => {});
 +
 +    expect(sendLeave).toHaveBeenCalledWith(LeaveRequest_Action.RECONNECT);
 +  });
 +});
 diff --git a/src/room/RTCEngine.ts b/src/room/RTCEngine.ts
-index e8bd78f..3b0ed6c 100644
+index e71dab0..d283855 100644
 --- a/src/room/RTCEngine.ts
 +++ b/src/room/RTCEngine.ts
 @@ -32,6 +32,7 @@ import {
@@ -1493,7 +1918,7 @@ index e8bd78f..3b0ed6c 100644
    sleep,
    supportsAddTrack,
    supportsTransceiver,
-@@ -404,7 +408,7 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+@@ -454,7 +458,7 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
          serverInfo = { version: joinResponse.serverVersion, region: joinResponse.serverRegion };
        }
        this.log.info(
@@ -1502,7 +1927,7 @@ index e8bd78f..3b0ed6c 100644
            .map(([key, value]) => `${key}: ${value}`)
            .join(', ')}`,
        );
-@@ -716,6 +720,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+@@ -784,6 +788,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
        this.emit(EngineEvent.SubscribedQualityUpdate, update);
      };
  
@@ -1514,7 +1939,7 @@ index e8bd78f..3b0ed6c 100644
      this.client.onRoomMoved = (res: RoomMovedResponse) => {
        this.participantSid = res.participant?.sid;
        if (this.latestJoinResponse) {
-@@ -745,6 +754,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+@@ -815,6 +824,16 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
        this.handleDisconnect('signal', ReconnectReason.RR_SIGNAL_DISCONNECTED);
      };
  
@@ -1523,10 +1948,15 @@ index e8bd78f..3b0ed6c 100644
 +      this.emit(EngineEvent.MeshRegionsReported, regions);
 +    };
 +
++    // WordPlus Mesh (1.0.16): how often the node asks for the room's reports
++    this.client.onMeshReports = (every) => {
++      this.emit(EngineEvent.MeshReportsAsked, every);
++    };
++
      this.client.onLeave = (leave: LeaveRequest) => {
        this.log.info(`client leave request received (action=${leave?.action})`, {
          reason: leave?.reason,
-@@ -1368,8 +1382,9 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+@@ -1478,8 +1497,9 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
        this.log.info(`reconnecting, attempt: ${this.reconnectAttempts}`);
        this.emit(EngineEvent.Restarting);
  
@@ -1537,7 +1967,7 @@ index e8bd78f..3b0ed6c 100644
        }
        await this.cleanupPeerConnections();
        await this.cleanupClient();
-@@ -1456,6 +1471,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+@@ -1588,6 +1608,11 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
        if (error instanceof ConnectionError && error.reason === ConnectionErrorReason.LeaveRequest) {
          throw error;
        }
@@ -1549,7 +1979,28 @@ index e8bd78f..3b0ed6c 100644
        throw new SignalReconnectError(message);
      }
      this.emit(EngineEvent.SignalResumed);
-@@ -1503,9 +1523,63 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+@@ -1621,7 +1646,19 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
+     // recreate publish datachannel if it's id is null
+     // (for safari https://bugs.webkit.org/show_bug.cgi?id=184688)
+     const reliableDC = this.dataChannelForKind(DataChannelKind.RELIABLE);
+-    if (reliableDC?.readyState === 'open' && reliableDC.id === null) {
++    // WordPlus Mesh: a session that moved to another node restarted DTLS on that node's certificate. Its channels mostly
++    // stay open on the new association, which the node takes from the session's sync state; but when the old node's
++    // teardown reached the browser first, they closed for good, and a send throws. Those are opened again, which the
++    // node takes as it took the first ones (msengine/data.go), so data, RPC and text streams go on after a move
++    // (TestFullMeshDataAfterMove; the review after the move to the mesh, 2026-10-21).
++    const lossyDC = this.dataChannelForKind(DataChannelKind.LOSSY);
++    const gone = (dc?: RTCDataChannel) =>
++      dc?.readyState === 'closed' || dc?.readyState === 'closing';
++    if (
++      (reliableDC?.readyState === 'open' && reliableDC.id === null) ||
++      gone(reliableDC) ||
++      gone(lossyDC)
++    ) {
+       this.createDataChannels();
+     }
+ 
+@@ -1635,9 +1672,63 @@ export default class RTCEngine extends (EventEmitter as new () => TypedEventEmit
      }
  
      // resume success
@@ -1613,7 +2064,7 @@ index e8bd78f..3b0ed6c 100644
    async waitForPCInitialConnection(timeout?: number, abortController?: AbortController) {
      if (!this.pcManager) {
        throw new UnexpectedConnectionState('PC manager is closed');
-@@ -2061,6 +2135,7 @@ export type EngineEventCallbacks = {
+@@ -2195,6 +2286,7 @@ export type EngineEventCallbacks = {
    subscriptionError: (resp: SubscriptionResponse) => void;
    subscriptionPermissionUpdate: (update: SubscriptionPermissionUpdate) => void;
    subscribedQualityUpdate: (update: SubscribedQualityUpdate) => void;
@@ -1621,11 +2072,12 @@ index e8bd78f..3b0ed6c 100644
    localTrackUnpublished: (unpublishedResponse: TrackUnpublishedResponse) => void;
    localTrackSubscribed: (trackSid: string) => void;
    remoteMute: (trackSid: string, muted: boolean) => void;
-@@ -2074,10 +2149,20 @@ export type EngineEventCallbacks = {
-   joined: (joinResponse: JoinResponse) => void;
+@@ -2209,10 +2301,21 @@ export type EngineEventCallbacks = {
    tokenRefreshed: (token: string) => void;
    serverRegionsReported: (regions: RegionSettings) => void;
+   requestSubscribedCodecRefresh: () => void;
 +  meshRegionsReported: (regions: RegionSettings) => void;
++  meshReportsAsked: (every: number) => void;
  };
  
  export interface RegionStrategy {
@@ -1644,7 +2096,7 @@ index e8bd78f..3b0ed6c 100644
  }
  
 diff --git a/src/room/RegionUrlProvider.test.ts b/src/room/RegionUrlProvider.test.ts
-index ae5cc0a..a287dd2 100644
+index ae5cc0a..4155591 100644
 --- a/src/room/RegionUrlProvider.test.ts
 +++ b/src/room/RegionUrlProvider.test.ts
 @@ -1,6 +1,6 @@
@@ -1773,7 +2225,7 @@ index ae5cc0a..a287dd2 100644
        });
      });
  
-@@ -1002,4 +1027,157 @@ describe('RegionUrlProvider', () => {
+@@ -1002,4 +1027,177 @@ describe('RegionUrlProvider', () => {
        expect(secondCleanupTimeout).not.toBe(firstCleanupTimeout);
      });
    });
@@ -1869,20 +2321,40 @@ index ae5cc0a..a287dd2 100644
 +      provider.resetAttempts();
 +      // the failed address left out, the session's node first though it comes last in the list
 +      await expect(
-+        provider.getNextBestRegionUrl(undefined, undefined, 'wss://n-burst.de.rtc.wordplus.cloud', 'ND_lim'),
++        provider.getNextBestRegionUrl(
++          undefined,
++          undefined,
++          'wss://n-burst.de.rtc.wordplus.cloud',
++          'ND_lim',
++        ),
 +      ).resolves.toBe('wss://n-lim.de.rtc.wordplus.cloud');
 +      // tried once: the next call goes on down the list, still without the failed address
 +      await expect(
-+        provider.getNextBestRegionUrl(undefined, undefined, 'wss://n-burst.de.rtc.wordplus.cloud', 'ND_lim'),
++        provider.getNextBestRegionUrl(
++          undefined,
++          undefined,
++          'wss://n-burst.de.rtc.wordplus.cloud',
++          'ND_lim',
++        ),
 +      ).resolves.toBe('wss://n-fr.gra.rtc.wordplus.cloud');
 +      await expect(
-+        provider.getNextBestRegionUrl(undefined, undefined, 'wss://n-burst.de.rtc.wordplus.cloud', 'ND_lim'),
++        provider.getNextBestRegionUrl(
++          undefined,
++          undefined,
++          'wss://n-burst.de.rtc.wordplus.cloud',
++          'ND_lim',
++        ),
 +      ).resolves.toBeNull();
 +      // the address matched by its server alone, whatever path the signal URL carries
-+      expect(sameServer('wss://n-burst.de.rtc.wordplus.cloud/rtc?x=1', 'wss://n-burst.de.rtc.wordplus.cloud')).toBe(
-+        true,
-+      );
-+      expect(sameServer('wss://n-lim.de.rtc.wordplus.cloud', 'wss://n-burst.de.rtc.wordplus.cloud')).toBe(false);
++      expect(
++        sameServer(
++          'wss://n-burst.de.rtc.wordplus.cloud/rtc?x=1',
++          'wss://n-burst.de.rtc.wordplus.cloud',
++        ),
++      ).toBe(true);
++      expect(
++        sameServer('wss://n-lim.de.rtc.wordplus.cloud', 'wss://n-burst.de.rtc.wordplus.cloud'),
++      ).toBe(false);
 +    });
 +
 +    it('takes the list a node sends over the signal connection, and fetches nothing while it does', async () => {
@@ -2173,7 +2645,7 @@ index fc63ee9..14fff56 100644
 +}
 diff --git a/src/room/Room.mesh.test.ts b/src/room/Room.mesh.test.ts
 new file mode 100644
-index 0000000..c7644aa
+index 0000000..832bf6e
 --- /dev/null
 +++ b/src/room/Room.mesh.test.ts
 @@ -0,0 +1,250 @@
@@ -2363,14 +2835,14 @@ index 0000000..c7644aa
 +    const r = room as unknown as {
 +      connectSignal: (url: string) => Promise<never>;
 +      recreateEngine: () => void;
-+      acquireAudioContext: () => void;
++      acquireAudioContext: () => Promise<void>;
 +    };
 +    r.connectSignal = async (url: string) => {
 +      tried.push(url);
 +      throw refused('full', 'ND_de1', 3_000);
 +    };
 +    r.recreateEngine = () => {};
-+    r.acquireAudioContext = () => {};
++    r.acquireAudioContext = async () => {};
 +    const waits: string[] = [];
 +    const done = room
 +      .connect(`wss://rtc.${domain}`, 'token', { onMeshWait: (w) => waits.push(w.reason) })
@@ -2428,35 +2900,45 @@ index 0000000..c7644aa
 +  });
 +});
 diff --git a/src/room/Room.ts b/src/room/Room.ts
-index 75488f4..e66febe 100644
+index 0b11fb4..de4e558 100644
 --- a/src/room/Room.ts
 +++ b/src/room/Room.ts
-@@ -34,7 +34,12 @@ import {
+@@ -34,7 +34,14 @@ import {
  import { EventEmitter } from 'events';
  import 'webrtc-adapter';
  import type TypedEmitter from 'typed-emitter';
 -import { ensureTrailingSlash } from '../api/utils';
 +import {
++  type MeshCamera,
 +  type MeshCodecPolicy,
 +  type MeshEncoderTrack,
++  type MeshReceiverTrack,
 +  ensureTrailingSlash,
 +  meshCodecPolicy,
 +} from '../api/utils';
  import { EncryptionEvent } from '../e2ee';
  import { type BaseE2EEManager, E2EEManager } from '../e2ee/E2eeManager';
  import { FrameMetadataManager } from '../frameMetadata/FrameMetadataManager';
-@@ -79,6 +84,7 @@ import {
-   UnsupportedServer,
+@@ -80,6 +87,15 @@ import {
+   canFailOverToAnotherRegion,
  } from './errors';
  import { EngineEvent, ParticipantEvent, RoomEvent, TrackEvent } from './events';
-+import { REPORT_EVERY_MS, readTrackEncoders } from './meshEncoders';
++import { REPORT_EVERY_MS, readTrackEncoders, sourceStalled } from './meshEncoders';
++import { MeshHealthWatch } from './meshHealth';
++import {
++  type ReceiverTotals,
++  receiverHeight,
++  receiverReading,
++  receiverTotals,
++} from './meshReceivers';
++import { MeshStatsHub, type StatsConnection, sharedReceiverStats } from './meshStats';
  import LocalParticipant from './participant/LocalParticipant';
  import Participant from './participant/Participant';
  import { type ConnectionQuality, ParticipantKind } from './participant/Participant';
-@@ -123,16 +129,25 @@ import {
-   isCompressionStreamSupported,
+@@ -125,10 +141,18 @@ import {
    isLocalAudioTrack,
    isLocalParticipant,
+   isLocalVideoTrack,
 +  isMeshServer,
 +  isMeshWait,
    isReactNative,
@@ -2470,8 +2952,9 @@ index 75488f4..e66febe 100644
 +  meshRefusal,
 +  meshWaitOn,
    numberToBigInt,
+   releaseEmptyAudioStreamTrack,
    sleep,
-   supportsSetSinkId,
+@@ -136,6 +160,7 @@ import {
    toHttpUrl,
    unpackStreamId,
    unwrapConstraint,
@@ -2479,16 +2962,19 @@ index 75488f4..e66febe 100644
  } from './utils';
  
  export enum ConnectionState {
-@@ -145,6 +160,8 @@ export enum ConnectionState {
+@@ -148,8 +173,10 @@ export enum ConnectionState {
  
  const CONNECTION_RECONCILE_FREQUENCY_MS = 4 * 1000;
  const STATS_LOG_FREQUENCY_MS = 30 * 1000;
 +/** WordPlus Mesh: how long after a join a mesh node has to send its region list (fetchMeshRegionsLate) */
 +const MESH_REGIONS_WAIT_MS = 3 * 1000;
  
+-const DUMMY_AUDIO_ELEMENT_ID = 'livekit-dummy-audio-el';
++const DUMMY_AUDIO_ELEMENT_ID = 'rtc-dummy-audio-el';
+ 
  /**
-  * In LiveKit, a room is the logical grouping for a list of participants.
-@@ -174,6 +191,21 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+  * One silent audio element serves every room on the page, so it is reference counted: a room
+@@ -201,6 +228,49 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
    /** the current participant */
    localParticipant: LocalParticipant;
  
@@ -2507,20 +2993,52 @@ index 75488f4..e66febe 100644
 +  /** What the node was last told of the encoders, so a reading that changed nothing isn't sent. */
 +  private meshEncodersSent = '';
 +
++  /** WordPlus Mesh (1.0.15): each received track's totals at the last reading, by its receiver (meshReceivers.ts). */
++  private meshReceiverTotals = new WeakMap<RTCRtpReceiver, ReceiverTotals>();
++
++  /** WordPlus Mesh (1.0.17): the turn-on (RemoteTrackPublication.meshOnAt) whose gap a reading told, by receiver. */
++  private meshReceiverResumes = new WeakMap<RTCRtpReceiver, number>();
++
++  /** WordPlus Mesh (1.0.16): the connections' stats, read once and shared while on the mesh (meshStats.ts). */
++  meshStats = new MeshStatsHub();
++
++  /** WordPlus Mesh (1.0.16): the machine and the page, counted from their own events (meshHealth.ts). */
++  private meshHealth = new MeshHealthWatch();
++
++  /**
++   * WordPlus Mesh (1.0.16): how the product chose its camera's codec and each switch since (MeshCamera), told to the
++   * node with the next reading, at once for a switch it hasn't heard of. Off the mesh it goes nowhere.
++   */
++  reportMeshCamera(info: MeshCamera) {
++    this.meshHealth.setCamera(info);
++  }
++
++  /** WordPlus Mesh (1.0.16): how often the node asks for the reports (meshReportsEvery), ms; 10 s until it says. */
++  private meshReportEvery = REPORT_EVERY_MS;
++
++  /** When the reports last went, and the freezes in what it plays at the last look (meshReportTick). */
++  private meshReportedAt = 0;
++
++  private meshFreezesSeen?: number;
++
    /** options of room */
    options: InternalRoomOptions;
  
-@@ -755,6 +787,9 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
-           updatedAtInMs: Date.now(),
-           maxAgeInMs: DEFAULT_MAX_AGE_MS,
-         });
+@@ -814,6 +884,13 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+             videoPub.track.refreshSubscribedCodecs();
+           }
+         }
 +      })
 +      .on(EngineEvent.MeshRegionsReported, (regions) => {
 +        this.regionUrlProvider?.setSignalRegions(regions);
++      })
++      .on(EngineEvent.MeshReportsAsked, (every) => {
++        // 1.0.16: the node's pace for the reports (meshReportTick)
++        this.meshReportEvery = every;
        });
  
      if (this.localParticipant) {
-@@ -770,8 +805,15 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -829,8 +906,15 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
  
    private createRegionStrategy(): RegionStrategy {
      return {
@@ -2538,7 +3056,7 @@ index 75488f4..e66febe 100644
        resetAttempts: () => this.regionUrlProvider?.resetAttempts(),
      };
    }
-@@ -836,7 +878,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -895,7 +979,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
          throw Error("WebRTC isn't detected, have you called registerGlobals?");
        } else {
          throw Error(
@@ -2547,7 +3065,7 @@ index 75488f4..e66febe 100644
          );
        }
      }
-@@ -857,6 +899,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -916,6 +1000,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
      }
  
      this.setAndEmitConnectionState(ConnectionState.Connecting);
@@ -2555,7 +3073,7 @@ index 75488f4..e66febe 100644
      if (this.regionUrlProvider?.getServerUrl().toString() !== ensureTrailingSlash(url)) {
        this.regionUrl = undefined;
        this.regionUrlProvider = undefined;
-@@ -870,16 +913,18 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -929,16 +1014,18 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
        // trigger the first fetch without waiting for a response
        // if initial connection fails, this will speed up picking regional url
        // on subsequent runs
@@ -2582,9 +3100,9 @@ index 75488f4..e66febe 100644
      const connectFn = async (
        resolve: () => void,
        reject: (reason: any) => void,
-@@ -911,12 +956,64 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
-           error.reason !== ConnectionErrorReason.Cancelled &&
-           error.reason !== ConnectionErrorReason.NotAllowed
+@@ -969,12 +1056,64 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+           error instanceof ConnectionError &&
+           canFailOverToAnotherRegion(error)
          ) {
 +          const tried = regionUrl ?? url;
 +          const refusal = meshRefusal(error);
@@ -2650,7 +3168,7 @@ index 75488f4..e66febe 100644
            } catch (regionFetchError) {
              if (
                regionFetchError instanceof ConnectionError &&
-@@ -930,6 +1027,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -988,6 +1127,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
            }
            if (
              // making sure we only register failed attempts on things we actually care about
@@ -2658,7 +3176,7 @@ index 75488f4..e66febe 100644
              [
                ConnectionErrorReason.InternalError,
                ConnectionErrorReason.ServerUnreachable,
-@@ -939,12 +1037,49 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -997,12 +1137,49 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
              this.log.debug('Adding failed connection attempt to back off');
              BackOffStrategy.getInstance().addFailedConnectionAttempt(url);
            }
@@ -2708,7 +3226,7 @@ index 75488f4..e66febe 100644
            } else {
              this.handleDisconnect(
                this.options.stopLocalTrackOnUnpublish,
-@@ -996,6 +1131,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -1056,6 +1233,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
          maxRetries: connectOptions.maxRetries,
          e2eeEnabled: !!this.e2eeManager,
          websocketTimeout: connectOptions.websocketTimeout,
@@ -2716,7 +3234,7 @@ index 75488f4..e66febe 100644
        },
        abortController.signal,
        !roomOptions.singlePeerConnection,
-@@ -1022,6 +1158,8 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -1082,6 +1260,8 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
      this.localParticipant.sid = pi.sid;
      this.localParticipant.identity = pi.identity;
      this.localParticipant.setEnabledPublishCodecs(joinResponse.enabledPublishCodecs);
@@ -2725,7 +3243,7 @@ index 75488f4..e66febe 100644
  
      if (this.e2eeManager) {
        try {
-@@ -1102,6 +1240,10 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -1164,6 +1344,10 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
        if (err instanceof ConnectionError) {
          resultingError.reason = err.reason;
          resultingError.status = err.status;
@@ -2736,7 +3254,7 @@ index 75488f4..e66febe 100644
        }
        this.log.debug(`error trying to establish signal connection`, {
          error: err,
-@@ -1143,9 +1285,44 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -1205,9 +1389,44 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
      // Notify region provider about successful connection
      if (this.regionUrlProvider) {
        this.regionUrlProvider.notifyConnected();
@@ -2781,16 +3299,7 @@ index 75488f4..e66febe 100644
    /**
     * disconnects the room, emits [[RoomEvent.Disconnected]]
     */
-@@ -1353,7 +1530,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
-        * as a workaround, we create an audio element with an empty track, so that
-        * silent audio is always playing
-        */
--      const audioId = 'livekit-dummy-audio-el';
-+      const audioId = 'rtc-dummy-audio-el';
-       let dummyAudioEl = document.getElementById(audioId) as HTMLAudioElement | null;
-       if (!dummyAudioEl) {
-         dummyAudioEl = document.createElement('audio');
-@@ -1575,8 +1752,9 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -1689,8 +1908,9 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
    private recreateEngine(sendLeave?: boolean) {
      const oldEngine = this.engine;
  
@@ -2801,7 +3310,7 @@ index 75488f4..e66febe 100644
      } else {
        oldEngine?.close();
      }
-@@ -2603,6 +2781,53 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -2834,6 +3054,182 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
      );
    }
  
@@ -2810,18 +3319,85 @@ index 75488f4..e66febe 100644
 +   * connected, once a reading changed, and all of it again after a reconnect, to a node that may hold no session of it.
 +   */
 +  private setMeshEncoderReports(enabled: boolean) {
++    // 1.0.16: one reading of each connection, shared by the tracks' monitors and these reports (meshStats.ts); the
++    // connections as the engine has them at each reading, so a full reconnect's new ones count
++    if (enabled && this.onMesh) {
++      this.meshStats.open(() => [
++        this.engine?.pcManager?.publisher,
++        this.engine?.pcManager?.subscriber,
++      ]);
++      // 1.0.16: the machine and the page, from their own events (meshHealth.ts), told again to a node that may hold
++      // no session of it
++      this.meshHealth.start();
++      this.meshHealth.tellMachineAgain();
++    } else {
++      this.meshStats.close();
++      this.meshHealth.stop();
++    }
 +    if (enabled && this.onMesh) {
 +      this.meshEncodersSent = '';
 +      if (!this.meshEncodersInterval) {
 +        this.meshEncodersInterval = CriticalTimers.setInterval(() => {
-+          // reportMeshEncoders handles its own errors, nothing to await here
-+          this.reportMeshEncoders();
++          // meshReportTick handles its own errors, nothing to await here
++          this.meshReportTick();
 +        }, REPORT_EVERY_MS);
 +      }
 +    } else if (this.meshEncodersInterval) {
 +      CriticalTimers.clearInterval(this.meshEncodersInterval);
 +      this.meshEncodersInterval = undefined;
 +    }
++  }
++
++  /**
++   * WordPlus Mesh (1.0.16): every REPORT_EVERY_MS, the reports go when the node's pace says (meshReportEvery: 10 s in a
++   * small call, less often in a big room, never at 0), or at once when what happened can't wait: CPU under serious
++   * pressure or a hang (meshHealth.ts), its own camera stopping by itself, a freeze in what it plays. A reading between
++   * two that isn't sent costs nothing: the next one says everything since the last that was.
++   */
++  private meshReportTick = async () => {
++    const every = this.meshReportEvery;
++    if (every <= 0 || !this.onMesh || this.state !== ConnectionState.Connected || !this.engine) {
++      return;
++    }
++    try {
++      if (
++        Date.now() - this.meshReportedAt < every - REPORT_EVERY_MS / 2 &&
++        !(await this.meshTroubled())
++      ) {
++        return;
++      }
++      this.meshReportedAt = Date.now();
++      await this.reportMeshEncoders();
++    } catch (e) {
++      this.log.debug('mesh report failed', { ...this.logContext, error: e });
++    }
++  };
++
++  /** Whether something since the last report can't wait for the next one (meshReportTick). */
++  private async meshTroubled(): Promise<boolean> {
++    if (this.meshHealth.troubled()) {
++      return true;
++    }
++    for (const pub of this.localParticipant.videoTrackPublications.values()) {
++      if (sourceStalled(pub.videoTrack?.mediaStreamTrack)) {
++        return true;
++      }
++    }
++    // a freeze in what it plays, from the subscriber's shared reading (a read at most once a round)
++    const sub = this.engine?.pcManager?.subscriber ?? this.engine?.pcManager?.publisher;
++    const reading = sub ? this.meshStats.read(sub) : undefined;
++    if (!reading) {
++      return false;
++    }
++    let freezes = 0;
++    (await reading).forEach((s: any) => {
++      if (s?.type === 'inbound-rtp' && typeof s.freezeCount === 'number') {
++        freezes += s.freezeCount;
++      }
++    });
++    const before = this.meshFreezesSeen;
++    this.meshFreezesSeen = freezes;
++    return before !== undefined && freezes > before;
 +  }
 +
 +  private reportMeshEncoders = async () => {
@@ -2844,18 +3420,80 @@ index 75488f4..e66febe 100644
 +      }
 +    }
 +    const json = JSON.stringify(tracks);
-+    if (json === this.meshEncodersSent || (!tracks.length && !this.meshEncodersSent)) {
-+      return;
-+    }
-+    if (await this.engine.client.sendMeshEncoders(tracks)) {
++    const encoders =
++      json !== this.meshEncodersSent && (tracks.length || this.meshEncodersSent)
++        ? tracks
++        : undefined;
++    const receivers = await this.readMeshReceivers();
++    // 1.0.16: the machine and the page, with each connection's path from its shared reading
++    const pcs = this.engine.pcManager;
++    const pathOf = (pc: StatsConnection | undefined) =>
++      pc ? this.meshStats.read(pc)?.catch(() => undefined) : undefined;
++    const health = await this.meshHealth.reading({
++      pub: await pathOf(pcs?.publisher),
++      sub: await pathOf(pcs?.subscriber),
++    });
++    // 1.0.16: one message for the node, every report of the reading in a field of its own
++    const sent = await this.engine.client.sendMeshReports({
++      encoders,
++      receivers: receivers.length ? receivers : undefined,
++      health: Object.keys(health).length ? health : undefined,
++    });
++    if (sent && encoders) {
 +      this.meshEncodersSent = json;
 +    }
++  };
++
++  /**
++   * WordPlus Mesh (1.0.15): what each received track is like where it plays (room/meshReceivers.ts), at the encoders'
++   * readings: every one that received anything since the last, numbers only.
++   */
++  private readMeshReceivers = async (): Promise<MeshReceiverTrack[]> => {
++    const tracks: MeshReceiverTrack[] = [];
++    for (const participant of this.remoteParticipants.values()) {
++      for (const pub of participant.trackPublications.values()) {
++        const track = pub.track;
++        const receiver = track?.receiver;
++        if (!track || !receiver || !pub.trackSid) {
++          continue;
++        }
++        try {
++          // 1.0.16: its part of the connection's shared reading (meshStats.ts)
++          const report = await sharedReceiverStats(receiver);
++          const now = receiverTotals(report);
++          if (!now) {
++            continue;
++          }
++          const kind = track.kind === Track.Kind.Video ? 'video' : 'audio';
++          // 1.0.17: when this client last turned it back on itself, unless a reading told that gap already
++          const onAt = pub.meshOnAt;
++          const read = receiverReading(
++            pub.trackSid,
++            kind,
++            this.meshReceiverTotals.get(receiver),
++            now,
++            kind === 'video' ? receiverHeight(report) : undefined,
++            onAt !== this.meshReceiverResumes.get(receiver) ? onAt : undefined,
++          );
++          this.meshReceiverTotals.set(receiver, now);
++          if (read?.hiddenGaps && onAt !== undefined) {
++            this.meshReceiverResumes.set(receiver, onAt);
++          }
++          if (read) {
++            tracks.push(read);
++          }
++        } catch {
++          // a receiver gone while it was read
++        }
++      }
++    }
++    return tracks;
 +  };
 +
    private setStatsLogging(enabled: boolean) {
      if (enabled) {
        if (!this.statsLogInterval) {
-@@ -2702,6 +2927,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -2933,6 +3329,7 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
      this.state = state;
      this.incomingDataStreamManager.setConnected(state === ConnectionState.Connected);
      this.setStatsLogging(state === ConnectionState.Connected);
@@ -2863,7 +3501,7 @@ index 75488f4..e66febe 100644
  
      this.emit(RoomEvent.ConnectionStateChanged, this.state);
  
-@@ -2764,6 +2990,14 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
+@@ -2995,6 +3392,14 @@ class Room extends (EventEmitter as new () => TypedEmitter<RoomEventCallbacks>)
  
      this.emit(RoomEvent.LocalTrackPublished, pub, this.localParticipant);
  
@@ -2892,7 +3530,7 @@ index 568dd0b..cba98c9 100644
      );
    }
 diff --git a/src/room/errors.ts b/src/room/errors.ts
-index 2a84880..3143e66 100644
+index 799fb04..6b73b4a 100644
 --- a/src/room/errors.ts
 +++ b/src/room/errors.ts
 @@ -9,7 +9,7 @@ export class LivekitError extends Error {
@@ -2934,7 +3572,7 @@ index 2a84880..3143e66 100644
        message,
        ConnectionErrorReason.InternalError,
 diff --git a/src/room/events.ts b/src/room/events.ts
-index 65bde87..f3cd1d4 100644
+index 73e235f..9144ca8 100644
 --- a/src/room/events.ts
 +++ b/src/room/events.ts
 @@ -620,6 +620,8 @@ export enum EngineEvent {
@@ -2946,25 +3584,35 @@ index 65bde87..f3cd1d4 100644
    LocalTrackUnpublished = 'localTrackUnpublished',
    LocalTrackSubscribed = 'localTrackSubscribed',
    Offline = 'offline',
-@@ -633,6 +635,8 @@ export enum EngineEvent {
-   Joined = 'joined',
+@@ -634,6 +636,10 @@ export enum EngineEvent {
    TokenRefreshed = 'tokenRefreshed',
    ServerRegionsReported = 'serverRegionsReported',
+   RequestSubscribedCodecRefresh = 'requestSubscribedCodecRefresh',
 +  /** WordPlus Mesh: the region list a mesh node sent over the signal connection */
 +  MeshRegionsReported = 'meshRegionsReported',
++  /** WordPlus Mesh (1.0.16): how often a mesh node asks for the client's reports, ms (0: none) */
++  MeshReportsAsked = 'meshReportsAsked',
  }
  
  export enum TrackEvent {
 diff --git a/src/room/meshEncoders.test.ts b/src/room/meshEncoders.test.ts
 new file mode 100644
-index 0000000..a7db09c
+index 0000000..924faa2
 --- /dev/null
 +++ b/src/room/meshEncoders.test.ts
-@@ -0,0 +1,167 @@
+@@ -0,0 +1,257 @@
 +import { SignalRequest } from '@livekit/protocol';
-+import { describe, expect, it } from 'vitest';
++import { describe, expect, it, vi } from 'vitest';
 +import { MESH_ENCODERS_FIELD, lengthDelimited } from '../api/utils';
-+import { adapterEncoders, captureMode, encoderHardware, layersOf, sinceLast } from './meshEncoders';
++import {
++  adapterEncoders,
++  captureMode,
++  encoderHardware,
++  layersOf,
++  sendingOf,
++  sinceLast,
++  sourceStalls,
++} from './meshEncoders';
 +
 +const layer = (rid: string, height: number, encoder?: string, extra: object = {}) => ({
 +  rid,
@@ -3044,7 +3692,10 @@ index 0000000..a7db09c
 +  });
 +
 +  it("tells a sender's layers whose browser names no encoder (Firefox, Safari), its encoder unnamed", () => {
-+    const read = layersOf([layer('q', 180, undefined, { fps: 15 }), layer('h', 360, undefined, { fps: 15 })]);
++    const read = layersOf([
++      layer('q', 180, undefined, { fps: 15 }),
++      layer('h', 360, undefined, { fps: 15 }),
++    ]);
 +    expect(read?.encoder).toBe('');
 +    expect(read?.layers).toEqual([
 +      { rid: 'q', fps: 15, height: 180 },
@@ -3061,17 +3712,96 @@ index 0000000..a7db09c
 +        { encodeTime: 10, frames: 1000, keyFrames: 20, plis: 30 },
 +        { encodeTime: 13.64, frames: 1070, keyFrames: 26, plis: 39 },
 +      ),
-+    ).toEqual({ encodeMs: 52, keyFrames: 6, plis: 9 });
++    ).toEqual({ encodeMs: 52, keyFrames: 6, plis: 9, encoded: 70 });
 +    // a total the browser doesn't keep, or one that went back (a sender started over), says nothing
 +    expect(sinceLast({ frames: 100, keyFrames: 5 }, { frames: 40, keyFrames: 6 })).toEqual({
 +      keyFrames: 1,
 +    });
 +    // no frame encoded: no time a frame
-+    expect(sinceLast({ encodeTime: 2, frames: 10 }, { encodeTime: 2, frames: 10 })).toEqual({});
++    expect(sinceLast({ encodeTime: 2, frames: 10 }, { encodeTime: 2, frames: 10 })).toEqual({
++      encoded: 0,
++    });
++  });
++
++  // A call on 2026-10-23: one sender's camera arrived at 0 kbit/s 11 times in two hours on a clean
++  // line while every viewer froze; the node couldn't tell its camera, its encoder and its sending queue apart
++  it('takes what a layer sent between two readings and what its codec sending did (1.0.16)', () => {
++    const before = {
++      frames: 1000,
++      sent: 1000,
++      packets: 5000,
++      sendDelay: 10,
++      resent: 10,
++      huge: 1,
++      limits: { none: 100, cpu: 2, bandwidth: 0, other: 0 },
++      sourceFrames: 1500,
++    };
++    // 10 s: the camera gave 140 frames, the encoder made 70 and 60 went, 1.5 s held back by the CPU
++    const now = {
++      frames: 1070,
++      sent: 1060,
++      packets: 5500,
++      sendDelay: 12.5,
++      resent: 15,
++      huge: 3,
++      limits: { none: 108.5, cpu: 3.5, bandwidth: 0, other: 0 },
++      sourceFrames: 1640,
++    };
++    const q = sinceLast(before, now);
++    expect(q).toMatchObject({
++      encoded: 70,
++      sent: 60,
++      packets: 500,
++      resent: 5,
++      huge: 2,
++      sourceFrames: 140,
++      limits: { cpu: 1.5 },
++    });
++    // the two layers of one codec: the frames its source gave once, the CPU's hold the longest, the queue averaged
++    const h = sinceLast(
++      { ...before, packets: 9000, sendDelay: 40 },
++      { ...now, packets: 10500, sendDelay: 41.5, limits: { ...now.limits, cpu: 2.5 } },
++    );
++    expect(sendingOf([q, h])).toEqual({
++      frames: 140,
++      limitMs: { cpu: 1500 },
++      queueMs: 2,
++      resent: 0.5,
++      huge: 4,
++    });
++    expect(sendingOf([{}])).toEqual({});
++  });
++
++  it('counts a source stopping by itself, and the time it gave nothing (1.0.16)', () => {
++    vi.useFakeTimers();
++    try {
++      const listeners: Record<string, () => void> = {};
++      const track = {
++        muted: false,
++        addEventListener: (e: string, f: () => void) => {
++          listeners[e] = f;
++        },
++      } as unknown as MediaStreamTrack;
++      expect(sourceStalls(track)).toEqual({ stalls: 0, ms: 0 });
++      listeners.mute();
++      vi.advanceTimersByTime(3000);
++      listeners.unmute();
++      listeners.mute();
++      vi.advanceTimersByTime(500);
++      // asked while the second is still on: its time so far, and the rest next time
++      expect(sourceStalls(track)).toEqual({ stalls: 2, ms: 3500 });
++      vi.advanceTimersByTime(1000);
++      listeners.unmute();
++      expect(sourceStalls(track)).toEqual({ stalls: 0, ms: 1000 });
++      expect(sourceStalls(track)).toEqual({ stalls: 0, ms: 0 });
++    } finally {
++      vi.useRealTimers();
++    }
 +  });
 +
 +  it('puts the readings on a layer that encodes, not on one that does not', () => {
-+    const name = 'SimulcastEncoderAdapter (OpenH264, MediaFoundationVideoEncodeAccelerator (AMDh264Encoder))';
++    const name =
++      'SimulcastEncoderAdapter (OpenH264, MediaFoundationVideoEncodeAccelerator (AMDh264Encoder))';
 +    const read = layersOf([
 +      layer('q', 180, name, { fps: 3, encodeMs: 4.1, keyFrames: 0, plis: 0 }),
 +      layer('h', 360, name, { fps: 3, encodeMs: 61.5, keyFrames: 6, plis: 9 }),
@@ -3130,10 +3860,10 @@ index 0000000..a7db09c
 +});
 diff --git a/src/room/meshEncoders.ts b/src/room/meshEncoders.ts
 new file mode 100644
-index 0000000..171ed1e
+index 0000000..b9418f3
 --- /dev/null
 +++ b/src/room/meshEncoders.ts
-@@ -0,0 +1,281 @@
+@@ -0,0 +1,461 @@
 +/**
 + * WordPlus Mesh (rtc-client 1.0.10): which encoder each published video runs on, hardware or software, told to the
 + * node for its live view (2026-10-18), so a call's people show whether each browser publishes in hardware or in
@@ -3153,7 +3883,8 @@ index 0000000..171ed1e
 + * request with no message of LiveKit's and the JSON in MESH_ENCODERS_FIELD: a node before 1.0.35 handles it as
 + * nothing. Only to the mesh's servers.
 + */
-+import type { MeshEncoderLayer, MeshEncoderTrack } from '../api/utils';
++import type { MeshEncoderLayer, MeshEncoderTrack, MeshSending } from '../api/utils';
++import { sharedSenderStats } from './meshStats';
 +import type LocalVideoTrack from './track/LocalVideoTrack';
 +
 +export const REPORT_EVERY_MS = 10_000;
@@ -3202,21 +3933,54 @@ index 0000000..171ed1e
 +  encodeMs?: number;
 +  keyFrames?: number;
 +  plis?: number;
++  /** the bitrate its encoder aims at now, bit/s (1.0.16) */
++  target?: number;
++} & Sent;
++
++/** What a layer sent between two readings (1.0.16, sinceLast), which its codec's sending sums (sendingOf). */
++type Sent = {
++  encoded?: number;
++  sent?: number;
++  packets?: number;
++  /** s its packets waited in the sending queue, summed */
++  sendDelay?: number;
++  resent?: number;
++  huge?: number;
++  /** s its encoder was held back, by what */
++  limits?: { cpu?: number; bandwidth?: number; other?: number };
++  /** frames its source gave (the media-source's own total) */
++  sourceFrames?: number;
 +};
 +
 +/** A layer's running totals in its stats, from which sinceLast takes what changed between two readings. */
-+export type Totals = { encodeTime?: number; frames?: number; keyFrames?: number; plis?: number };
++export type Totals = {
++  encodeTime?: number;
++  frames?: number;
++  keyFrames?: number;
++  plis?: number;
++  /** 1.0.16: framesSent, packetsSent, totalPacketSendDelay, retransmittedPacketsSent, hugeFramesSent,
++   * qualityLimitationDurations, and its media source's frames */
++  sent?: number;
++  packets?: number;
++  sendDelay?: number;
++  resent?: number;
++  huge?: number;
++  limits?: Record<string, number>;
++  sourceFrames?: number;
++};
 +
 +/**
 + * What a layer did between two readings of its totals: the time it took to encode a frame, in ms, and the key frames
-+ * it made and was asked for (PLI and FIR). Nothing from a first reading, nor from a total the browser doesn't keep or
-+ * that went back (a sender started over).
++ * it made and was asked for (PLI and FIR); and (1.0.16) the frames it encoded and sent, its packets, how long they
++ * waited to go, those sent again, its oversized frames, how long its encoder was held back and by what, and the frames
++ * its source gave. Nothing from a first reading, nor from a total the browser doesn't keep or that went back (a sender
++ * started over).
 + */
 +export function sinceLast(
 +  prev: Totals | undefined,
 +  now: Totals,
-+): { encodeMs?: number; keyFrames?: number; plis?: number } {
-+  const out: { encodeMs?: number; keyFrames?: number; plis?: number } = {};
++): { encodeMs?: number; keyFrames?: number; plis?: number } & Sent {
++  const out: { encodeMs?: number; keyFrames?: number; plis?: number } & Sent = {};
 +  if (!prev) {
 +    return out;
 +  }
@@ -3234,6 +3998,74 @@ index 0000000..171ed1e
 +  const plis = delta(prev.plis, now.plis);
 +  if (plis !== undefined) {
 +    out.plis = plis;
++  }
++  const put = <K extends keyof Sent>(k: K, v: Sent[K] | undefined) => {
++    if (v !== undefined) {
++      out[k] = v;
++    }
++  };
++  put('encoded', frames);
++  put('sent', delta(prev.sent, now.sent));
++  put('packets', delta(prev.packets, now.packets));
++  put('sendDelay', delta(prev.sendDelay, now.sendDelay));
++  put('resent', delta(prev.resent, now.resent));
++  put('huge', delta(prev.huge, now.huge));
++  put('sourceFrames', delta(prev.sourceFrames, now.sourceFrames));
++  if (prev.limits && now.limits) {
++    const limits: NonNullable<Sent['limits']> = {};
++    for (const k of ['cpu', 'bandwidth', 'other'] as const) {
++      const d = delta(prev.limits[k], now.limits[k]);
++      if (d) {
++        limits[k] = d;
++      }
++    }
++    out.limits = limits;
++  }
++  return out;
++}
++
++/**
++ * What a codec's sending did since the last reading, its layers summed (1.0.16): the frames its source gave, the ms
++ * its encoder was held back by each cause (the layer held back most: they share one encoder's adapter), the ms a packet
++ * waited to go on average, the share sent again (%) and its oversized frames. Each only where there is something.
++ */
++export function sendingOf(outbound: Sent[]): MeshSending {
++  const out: MeshSending = {};
++  let packets = 0;
++  let delay = 0;
++  let resent = 0;
++  let huge = 0;
++  let frames: number | undefined;
++  const held: NonNullable<MeshSending['limitMs']> = {};
++  for (const o of outbound) {
++    packets += o.packets ?? 0;
++    delay += o.sendDelay ?? 0;
++    resent += o.resent ?? 0;
++    huge += o.huge ?? 0;
++    if (o.sourceFrames !== undefined) {
++      frames = Math.max(frames ?? 0, o.sourceFrames);
++    }
++    for (const k of ['cpu', 'bandwidth', 'other'] as const) {
++      const ms = Math.round((o.limits?.[k] ?? 0) * 1000);
++      if (ms > (held[k] ?? 0)) {
++        held[k] = ms;
++      }
++    }
++  }
++  if (frames !== undefined) {
++    out.frames = frames;
++  }
++  if (Object.keys(held).length) {
++    out.limitMs = held;
++  }
++  if (packets > 0) {
++    out.queueMs = Math.round((delay * 10_000) / packets) / 10;
++    if (resent > 0) {
++      out.resent = Math.round((resent * 1000) / packets) / 10;
++    }
++  }
++  if (huge > 0) {
++    out.huge = huge;
 +  }
 +  return out;
 +}
@@ -3305,6 +4137,16 @@ index 0000000..171ed1e
 +      if (o.plis !== undefined) {
 +        layer.plis = o.plis;
 +      }
++      // 1.0.16: frames encoded and sent since the last reading (fewer sent: its queue held them) and what it aims at
++      if (o.encoded !== undefined) {
++        layer.encoded = o.encoded;
++      }
++      if (o.sent !== undefined) {
++        layer.sent = o.sent;
++      }
++      if (o.target) {
++        layer.target = Math.round(o.target / 1000);
++      }
 +    }
 +    return layer;
 +  });
@@ -3316,7 +4158,8 @@ index 0000000..171ed1e
 +    return [];
 +  }
 +  const out: Outbound[] = [];
-+  const stats = await sender.getStats();
++  // 1.0.16: its part of the connection's shared reading (meshStats.ts)
++  const stats = await sharedSenderStats(sender);
 +  const before = lastTotals.get(sender);
 +  const totals = new Map<string, Totals>();
 +  const num = (v: unknown) => (typeof v === 'number' ? v : undefined);
@@ -3335,10 +4178,21 @@ index 0000000..171ed1e
 +        num(s.pliCount) !== undefined || num(s.firCount) !== undefined
 +          ? (num(s.pliCount) ?? 0) + (num(s.firCount) ?? 0)
 +          : undefined,
++      sent: num(s.framesSent),
++      packets: num(s.packetsSent),
++      sendDelay: num(s.totalPacketSendDelay),
++      resent: num(s.retransmittedPacketsSent),
++      huge: num(s.hugeFramesSent),
++      limits:
++        s.qualityLimitationDurations && typeof s.qualityLimitationDurations === 'object'
++          ? { ...s.qualityLimitationDurations }
++          : undefined,
++      sourceFrames: num(source?.frames),
 +    };
 +    totals.set(rid, now);
 +    out.push({
 +      ...sinceLast(before?.get(rid), now),
++      target: num(s.targetBitrate),
 +      captured: typeof source?.framesPerSecond === 'number' ? source.framesPerSecond : undefined,
 +      rid,
 +      height: s.frameHeight ?? 0,
@@ -3407,16 +4261,1669 @@ index 0000000..171ed1e
 +      encoder: read.encoder,
 +      layers: read.layers,
 +      ...(captured >= 0 ? { captured: Math.round(captured) } : {}),
++      // 1.0.16: what its sending did since the last reading (sendingOf)
++      ...sendingOf(outbound),
 +    });
 +  }
 +  if (!codecs.length) {
 +    return undefined;
 +  }
 +  const mode = captureMode(track.mediaStreamTrack);
-+  return mode ? { sid, codecs, mode } : { sid, codecs };
++  const out: MeshEncoderTrack = mode ? { sid, codecs, mode } : { sid, codecs };
++  // 1.0.16: its source stopping by itself since the last reading (watchSource)
++  const stalled = sourceStalls(track.mediaStreamTrack);
++  if (stalled.stalls || stalled.ms) {
++    out.stalls = stalled.stalls;
++    out.stallMs = stalled.ms;
++  }
++  return out;
++}
++
++/** A source's own stops: its track's mute and unmute events, counted as they come (no timer). */
++type SourceWatch = { stalls: number; ms: number; mutedAt?: number };
++const sources = new WeakMap<MediaStreamTrack, SourceWatch>();
++
++/** Whether a published track's source stopped by itself since its last reading, or is stopped now (no reading taken). */
++export function sourceStalled(track: MediaStreamTrack | undefined): boolean {
++  const w = track ? sources.get(track) : undefined;
++  return !!w && (w.stalls > 0 || w.mutedAt !== undefined);
++}
++
++/**
++ * The times a published track's source stopped giving frames by itself since the last time asked, and the ms it gave
++ * none (1.0.16). A MediaStreamTrack is muted when its source delivers nothing: the camera, its driver or the system
++ * holding it, as a PC that hangs does, never the person (that is `enabled`). The first ask starts the watch.
++ */
++export function sourceStalls(track: MediaStreamTrack | undefined): { stalls: number; ms: number } {
++  if (!track || typeof track.addEventListener !== 'function') {
++    return { stalls: 0, ms: 0 };
++  }
++  let w = sources.get(track);
++  if (!w) {
++    const watch: SourceWatch = { stalls: 0, ms: 0, mutedAt: track.muted ? Date.now() : undefined };
++    track.addEventListener('mute', () => {
++      watch.stalls++;
++      watch.mutedAt = Date.now();
++    });
++    track.addEventListener('unmute', () => {
++      if (watch.mutedAt !== undefined) {
++        watch.ms += Date.now() - watch.mutedAt;
++        watch.mutedAt = undefined;
++      }
++    });
++    sources.set(track, watch);
++    w = watch;
++  }
++  // one still muted counts its time so far, the rest in the next
++  const now = Date.now();
++  const ms = w.ms + (w.mutedAt !== undefined ? now - w.mutedAt : 0);
++  const out = { stalls: w.stalls, ms };
++  w.stalls = 0;
++  w.ms = 0;
++  if (w.mutedAt !== undefined) {
++    w.mutedAt = now;
++  }
++  return out;
++}
+diff --git a/src/room/meshHealth.test.ts b/src/room/meshHealth.test.ts
+new file mode 100644
+index 0000000..1116777
+--- /dev/null
++++ b/src/room/meshHealth.test.ts
+@@ -0,0 +1,189 @@
++import { SignalRequest, SignalResponse } from '@livekit/protocol';
++import { describe, expect, it } from 'vitest';
++import {
++  MESH_ENCODERS_FIELD,
++  MESH_HEALTH_FIELD,
++  MESH_RECEIVERS_FIELD,
++  MESH_REPORTS_FIELD,
++  lengthDelimited,
++  meshReportsEvery,
++} from '../api/utils';
++import { MeshHealthWatch } from './meshHealth';
++
++/** A connection's reading with its selected path, as Chrome gives it. */
++const path = (values: Record<string, number>) =>
++  new Map<string, any>([
++    [
++      'T',
++      {
++        id: 'T',
++        type: 'transport',
++        selectedCandidatePairId: 'P',
++        selectedCandidatePairChanges: values.switched ?? 1,
++      },
++    ],
++    ['P', { id: 'P', type: 'candidate-pair', ...values }],
++  ]);
++
++describe('meshHealth (WordPlus Mesh)', () => {
++  it('says the worst CPU pressure and how long it was serious, then starts over from the state it is in', async () => {
++    const w = new MeshHealthWatch();
++    const t0 = 1_000_000;
++    // started without a running page: no observers here, the events given by hand
++    w.pressureChanged('fair', t0);
++    w.pressureChanged('serious', t0 + 2000);
++    w.pressureChanged('critical', t0 + 5000);
++    w.pressureChanged('fair', t0 + 6000);
++    expect(w.troubled()).toBe(true);
++    const r = await w.reading({}, t0 + 10_000);
++    expect(r.cpu).toBe('critical');
++    expect(r.cpuMs).toBe(4000);
++    // the next reading: still fair, nothing serious, nothing to say of the CPU
++    w.tellMachineAgain();
++    const next = await w.reading({}, t0 + 20_000);
++    expect(next.cpu).toBe('fair');
++    expect(next.cpuMs).toBeUndefined();
++    expect(w.troubled()).toBe(false);
++  });
++
++  it('counts the time the page was hidden, across a reading too', async () => {
++    const w = new MeshHealthWatch();
++    w.visibilityChanged(true, 1000);
++    w.visibilityChanged(false, 4000);
++    w.visibilityChanged(true, 8000);
++    expect((await w.reading({}, 10_000)).hiddenMs).toBe(5000);
++    w.visibilityChanged(false, 12_000);
++    expect((await w.reading({}, 20_000)).hiddenMs).toBe(2000);
++  });
++
++  it('reads each connection’s path: round trip, upload, and what changed since the last reading', async () => {
++    const w = new MeshHealthWatch();
++    const first = await w.reading(
++      {
++        pub: path({
++          currentRoundTripTime: 0.02,
++          availableOutgoingBitrate: 2_500_000,
++          packetsDiscardedOnSend: 0,
++          consentRequestsSent: 10,
++          responsesReceived: 10,
++        }),
++      },
++      1000,
++    );
++    expect(first.pub).toEqual({ rtt: 20, outKbps: 2500 });
++    // Wi-Fi dropping out: 40 packets the system couldn't send, 3 checks unanswered, the path changed once
++    const second = await w.reading(
++      {
++        pub: path({
++          currentRoundTripTime: 0.25,
++          availableOutgoingBitrate: 300_000,
++          packetsDiscardedOnSend: 40,
++          consentRequestsSent: 14,
++          responsesReceived: 11,
++          switched: 2,
++        }),
++        sub: undefined,
++      },
++      11_000,
++    );
++    expect(second.pub).toEqual({
++      rtt: 250,
++      outKbps: 300,
++      sendFailed: 40,
++      unanswered: 3,
++      switched: 1,
++    });
++    expect(second.sub).toBeUndefined();
++  });
++
++  it('tells the machine once a connection', async () => {
++    const w = new MeshHealthWatch();
++    const first = await w.reading({}, 1000);
++    // vitest's environment may name cores or not; either way only the first reading says it
++    const said = first.machine !== undefined;
++    expect((await w.reading({}, 2000)).machine).toBeUndefined();
++    w.tellMachineAgain();
++    expect((await w.reading({}, 3000)).machine !== undefined).toBe(said);
++  });
++
++  it('tells the camera report once, at once for a switch, again after a reconnect, cut to its limit', async () => {
++    const w = new MeshHealthWatch();
++    expect((await w.reading({}, 1000)).camera).toBeUndefined();
++    const checked = {
++      codec: 'vp9',
++      source: 'check' as const,
++      checkMs: 2400,
++      tests: [{ codec: 'vp9', result: 'pass' as const, msPerFrame: 12.8, sentShare: 0.98 }],
++    };
++    w.setCamera(checked);
++    expect(w.troubled()).toBe(false); // a check's result waits for the next reading
++    expect((await w.reading({}, 2000)).camera).toEqual(checked);
++    expect((await w.reading({}, 3000)).camera).toBeUndefined();
++    w.setCamera({
++      ...checked,
++      codec: 'h264',
++      source: 'switch',
++      switches: [{ from: 'vp9', to: 'h264', why: 'cpu', at: 3500 }],
++    });
++    expect(w.troubled()).toBe(true); // a switch goes at once
++    expect((await w.reading({}, 4000)).camera?.switches).toHaveLength(1);
++    expect(w.troubled()).toBe(false);
++    w.tellMachineAgain();
++    expect((await w.reading({}, 5000)).camera?.codec).toBe('h264');
++    // over the limit: the oldest tests go first, and what's left fits
++    w.setCamera({
++      codec: 'vp8',
++      tests: Array.from({ length: 40 }, (_, i) => ({
++        codec: `codec-${i}-${'x'.repeat(60)}`,
++        result: 'error' as const,
++      })),
++    });
++    const cut = (await w.reading({}, 6000)).camera!;
++    expect(JSON.stringify(cut).length).toBeLessThanOrEqual(2048);
++    expect(cut.tests!.length).toBeGreaterThan(0);
++    expect(cut.tests!.at(-1)!.codec).toMatch(/^codec-39-/);
++  });
++
++  it('takes the node’s pace from a signal response of its own', () => {
++    const res = new SignalResponse({});
++    res
++      .getType()
++      .runtime.bin.onUnknownField(
++        res,
++        MESH_REPORTS_FIELD,
++        2,
++        lengthDelimited(new TextEncoder().encode('{"every":30000}')),
++      );
++    expect(meshReportsEvery(SignalResponse.fromBinary(res.toBinary()))).toBe(30_000);
++    expect(meshReportsEvery(new SignalResponse({}))).toBeUndefined();
++  });
++
++  it('puts a reading’s reports in one request, a field each, as the node reads them', () => {
++    const req = new SignalRequest({});
++    const fields: [number, object][] = [
++      [MESH_ENCODERS_FIELD, { tracks: [{ sid: 'TR_c' }] }],
++      [MESH_RECEIVERS_FIELD, { tracks: [{ sid: 'TR_v', kind: 'video', fps: 30 }] }],
++      [MESH_HEALTH_FIELD, { cpu: 'serious', hangs: 2 }],
++    ];
++    for (const [no, body] of fields) {
++      req
++        .getType()
++        .runtime.bin.onUnknownField(
++          req,
++          no,
++          2,
++          lengthDelimited(new TextEncoder().encode(JSON.stringify(body))),
++        );
++    }
++    const back = SignalRequest.fromBinary(req.toBinary());
++    const got = back.getType().runtime.bin.listUnknownFields(back);
++    expect(got.map((f) => f.no)).toEqual([
++      MESH_ENCODERS_FIELD,
++      MESH_RECEIVERS_FIELD,
++      MESH_HEALTH_FIELD,
++    ]);
++    // an unknown field's data keeps its length in front
++    const json = new TextDecoder().decode(got[2].data);
++    expect(JSON.parse(json.slice(json.indexOf('{')))).toEqual({ cpu: 'serious', hangs: 2 });
++  });
++});
+diff --git a/src/room/meshHealth.ts b/src/room/meshHealth.ts
+new file mode 100644
+index 0000000..4a9ef66
+--- /dev/null
++++ b/src/room/meshHealth.ts
+@@ -0,0 +1,387 @@
++/**
++ * WordPlus Mesh (rtc-client 1.0.16): how the machine and the page running a call are doing, told to the node with the
++ * other reports (MESH_HEALTH_FIELD), numbers and the device's names only. A call where a viewer's playback froze on
++ * every camera at once and its own camera stopped arriving, on a clean line (2026-10-23), was a PC that hung; nothing the node saw could say so.
++ *
++ * Nothing here runs a timer of its own, so collecting it adds no load to the client: the CPU pressure the system
++ * reports (Compute Pressure API), the main thread's long tasks (Long Tasks API), the page going hidden and shown, the
++ * battery charging or not, devices plugged in or out: each an event the browser raises anyway, which adds to a
++ * counter. The path each connection runs on comes from the connections' shared reading (meshStats.ts). A browser that
++ * has none of an API gives none of its numbers.
++ */
++import { MESH_CAMERA_MAX } from '../api/utils';
++import type { MeshCamera, MeshHealth, MeshPathHealth } from '../api/utils';
++
++type Pressure = NonNullable<MeshHealth['cpu']>;
++const PRESSURE_RANK: Record<Pressure, number> = { nominal: 0, fair: 1, serious: 2, critical: 3 };
++
++/** A main-thread task this long or longer is a hang worth telling (the Long Tasks API reports from 50 ms). */
++export const HANG_MS = 200;
++
++/** The PressureObserver's sample interval: it raises an event only when the state changes. */
++const PRESSURE_SAMPLE_MS = 2000;
++
++/** What has happened since the last reading, kept by the page's events. */
++type Counters = {
++  cpu?: Pressure;
++  cpuMs: number;
++  pressure?: Pressure;
++  pressureAt: number;
++  hangs: number;
++  hangMs: number;
++  hiddenMs: number;
++  hiddenAt?: number;
++  devices: number;
++};
++
++const fresh = (): Counters => ({
++  cpuMs: 0,
++  pressureAt: Date.now(),
++  hangs: 0,
++  hangMs: 0,
++  hiddenMs: 0,
++  devices: 0,
++});
++
++/** Each connection's path totals at the last reading, for what changed since. */
++type PathTotals = { sendFailed?: number; asked?: number; answered?: number; switched?: number };
++
++export class MeshHealthWatch {
++  private c: Counters = fresh();
++
++  private battery?: boolean;
++
++  private stops: (() => void)[] = [];
++
++  private paths = new Map<string, PathTotals>();
++
++  private machineSaid = false;
++
++  /** the product's latest camera report (setCamera), and whether a reading has told it since */
++  private camera?: MeshCamera;
++
++  private cameraSaid = true;
++
++  private static gpu?: Promise<string | undefined>;
++
++  /** Starts counting: every listener and observer the browser has, none it hasn't. */
++  start() {
++    if (this.stops.length) {
++      return;
++    }
++    this.c = fresh();
++    const g = globalThis as any;
++    // CPU pressure (Chrome and Edge 125 and later): the state the system is in, raised when it changes
++    if (typeof g.PressureObserver === 'function') {
++      try {
++        const observer = new g.PressureObserver((records: { state: Pressure }[]) => {
++          for (const r of records) {
++            this.pressureChanged(r.state);
++          }
++        });
++        Promise.resolve(observer.observe('cpu', { sampleInterval: PRESSURE_SAMPLE_MS })).catch(
++          () => {},
++        );
++        this.stops.push(() => observer.disconnect());
++      } catch {
++        // not allowed here (a frame without the permission policy)
++      }
++    }
++    // the main thread busy at a stretch: the page itself hangs (its timers, the call's own handling of the network)
++    if (
++      typeof g.PerformanceObserver === 'function' &&
++      g.PerformanceObserver.supportedEntryTypes?.includes('longtask')
++    ) {
++      try {
++        const observer = new g.PerformanceObserver(
++          (list: { getEntries(): { duration: number }[] }) => {
++            for (const e of list.getEntries()) {
++              if (e.duration >= HANG_MS) {
++                this.c.hangs++;
++                this.c.hangMs = Math.max(this.c.hangMs, Math.round(e.duration));
++              }
++            }
++          },
++        );
++        observer.observe({ type: 'longtask' });
++        this.stops.push(() => observer.disconnect());
++      } catch {
++        // no long tasks here
++      }
++    }
++    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
++      const visibility = () => this.visibilityChanged(document.visibilityState === 'hidden');
++      visibility();
++      document.addEventListener('visibilitychange', visibility);
++      this.stops.push(() => document.removeEventListener('visibilitychange', visibility));
++    }
++    const devices = g.navigator?.mediaDevices;
++    if (devices && typeof devices.addEventListener === 'function') {
++      const changed = () => {
++        this.c.devices++;
++      };
++      devices.addEventListener('devicechange', changed);
++      this.stops.push(() => devices.removeEventListener('devicechange', changed));
++    }
++    if (typeof g.navigator?.getBattery === 'function') {
++      g.navigator
++        .getBattery()
++        .then((b: any) => {
++          const charging = () => {
++            this.battery = !b.charging;
++          };
++          charging();
++          b.addEventListener?.('chargingchange', charging);
++          this.stops.push(() => b.removeEventListener?.('chargingchange', charging));
++        })
++        .catch(() => {});
++    }
++  }
++
++  stop() {
++    this.stops.forEach((s) => s());
++    this.stops = [];
++  }
++
++  /** The next reading tells the machine again: after a join or a reconnect, to a node that may know nothing of it. */
++  tellMachineAgain() {
++    this.machineSaid = false;
++    if (this.camera) {
++      this.cameraSaid = false;
++    }
++  }
++
++  /**
++   * The product's camera report (Room.reportMeshCamera): kept as it is now, told with the next reading, and at once when
++   * it says a switch the node hasn't heard of (troubled). Trimmed to MESH_CAMERA_MAX: its oldest tests and switches go
++   * first.
++   */
++  setCamera(info: MeshCamera) {
++    const c: MeshCamera = {
++      ...info,
++      tests: info.tests?.slice(-8),
++      switches: info.switches?.slice(-4),
++    };
++    while (
++      JSON.stringify(c).length > MESH_CAMERA_MAX &&
++      ((c.tests?.length ?? 0) > 0 || (c.switches?.length ?? 0) > 0)
++    ) {
++      if ((c.tests?.length ?? 0) > 0) {
++        c.tests = c.tests!.slice(1);
++      } else {
++        c.switches = c.switches!.slice(1);
++      }
++    }
++    if (JSON.stringify(c).length > MESH_CAMERA_MAX) {
++      return;
++    }
++    const switched = (c.switches?.length ?? 0) > (this.camera?.switches?.length ?? 0);
++    this.camera = c;
++    this.cameraSaid = false;
++    this.cameraUrgent = this.cameraUrgent || switched;
++  }
++
++  private cameraUrgent = false;
++
++  pressureChanged(state: Pressure, now = Date.now()) {
++    if (!(state in PRESSURE_RANK)) {
++      return;
++    }
++    this.accountPressure(now);
++    this.c.pressure = state;
++    if (!this.c.cpu || PRESSURE_RANK[state] > PRESSURE_RANK[this.c.cpu]) {
++      this.c.cpu = state;
++    }
++  }
++
++  private accountPressure(now: number) {
++    if (this.c.pressure && PRESSURE_RANK[this.c.pressure] >= PRESSURE_RANK.serious) {
++      this.c.cpuMs += now - this.c.pressureAt;
++    }
++    this.c.pressureAt = now;
++  }
++
++  visibilityChanged(hidden: boolean, now = Date.now()) {
++    if (hidden && this.c.hiddenAt === undefined) {
++      this.c.hiddenAt = now;
++    } else if (!hidden && this.c.hiddenAt !== undefined) {
++      this.c.hiddenMs += now - this.c.hiddenAt;
++      this.c.hiddenAt = undefined;
++    }
++  }
++
++  /**
++   * Whether something since the last reading can't wait for the next: CPU under serious pressure, a hang of a second, a
++   * camera switch the node hasn't heard of.
++   */
++  troubled(): boolean {
++    return (
++      (this.c.cpu !== undefined && PRESSURE_RANK[this.c.cpu] >= PRESSURE_RANK.serious) ||
++      this.c.hangMs >= 1000 ||
++      this.c.devices > 0 ||
++      this.cameraUrgent
++    );
++  }
++
++  /**
++   * What happened since the last reading, and the counters started over; paths: each connection's shared reading by
++   * name (pub, sub). Only what there is to say: a quiet page on a fine machine says almost nothing.
++   */
++  async reading(
++    paths: Record<
++      string,
++      { forEach(fn: (s: any) => void): void; get(id: string): any } | undefined
++    >,
++    now = Date.now(),
++  ): Promise<MeshHealth> {
++    this.accountPressure(now);
++    const c = this.c;
++    const out: MeshHealth = {};
++    if (c.cpu && c.cpu !== 'nominal') {
++      out.cpu = c.cpu;
++    }
++    if (c.cpuMs > 0) {
++      out.cpuMs = c.cpuMs;
++    }
++    if (c.hangs > 0) {
++      out.hangs = c.hangs;
++      out.hangMs = c.hangMs;
++    }
++    const hiddenMs = c.hiddenMs + (c.hiddenAt !== undefined ? now - c.hiddenAt : 0);
++    if (hiddenMs > 0) {
++      out.hiddenMs = hiddenMs;
++    }
++    if (this.battery !== undefined) {
++      out.battery = this.battery;
++    }
++    if (c.devices > 0) {
++      out.devices = c.devices;
++    }
++    for (const [name, report] of Object.entries(paths)) {
++      const path = report ? this.pathOf(name, report) : undefined;
++      if (path && (name === 'pub' || name === 'sub')) {
++        out[name] = path;
++      }
++    }
++    if (!this.machineSaid) {
++      const machine = await this.machine();
++      if (machine) {
++        out.machine = machine;
++      }
++      this.machineSaid = true;
++    }
++    if (!this.cameraSaid && this.camera) {
++      out.camera = this.camera;
++    }
++    this.cameraSaid = true;
++    this.cameraUrgent = false;
++    // what carries on (a pressure state, a hidden page) starts the next reading as it is now: the state it is in is the
++    // worst of the next until another comes
++    this.c = {
++      ...fresh(),
++      cpu: c.pressure,
++      pressure: c.pressure,
++      pressureAt: now,
++      hiddenAt: c.hiddenAt !== undefined ? now : undefined,
++    };
++    return out;
++  }
++
++  /** A connection's path from its reading: the selected pair's round trip and upload estimate, and what changed. */
++  private pathOf(
++    name: string,
++    report: { forEach(fn: (s: any) => void): void; get(id: string): any },
++  ): MeshPathHealth | undefined {
++    let transport: any;
++    report.forEach((s) => {
++      if (s?.type === 'transport' && s.selectedCandidatePairId && !transport) {
++        transport = s;
++      }
++    });
++    const pair = transport ? report.get(transport.selectedCandidatePairId) : undefined;
++    if (!pair) {
++      return undefined;
++    }
++    const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
++    const now: PathTotals = {
++      sendFailed: num(pair.packetsDiscardedOnSend),
++      asked: num(pair.consentRequestsSent) ?? num(pair.requestsSent),
++      answered: num(pair.responsesReceived),
++      switched: num(transport.selectedCandidatePairChanges),
++    };
++    const prev = this.paths.get(name);
++    this.paths.set(name, now);
++    const delta = (a?: number, b?: number) =>
++      a !== undefined && b !== undefined && b >= a ? b - a : undefined;
++    const out: MeshPathHealth = {};
++    const rtt = num(pair.currentRoundTripTime);
++    if (rtt !== undefined) {
++      out.rtt = Math.round(rtt * 1000);
++    }
++    const outBps = num(pair.availableOutgoingBitrate);
++    if (outBps !== undefined) {
++      out.outKbps = Math.round(outBps / 1000);
++    }
++    if (prev) {
++      const failed = delta(prev.sendFailed, now.sendFailed);
++      if (failed) {
++        out.sendFailed = failed;
++      }
++      const asked = delta(prev.asked, now.asked);
++      const answered = delta(prev.answered, now.answered);
++      if (asked !== undefined && answered !== undefined && asked > answered) {
++        out.unanswered = asked - answered;
++      }
++      const switched = delta(prev.switched, now.switched);
++      if (switched) {
++        out.switched = switched;
++      }
++    }
++    return out;
++  }
++
++  /** The machine: its cores and memory as the browser rounds them, and its graphics adapter where WebGPU names it. */
++  private async machine(): Promise<MeshHealth['machine'] | undefined> {
++    const nav = (globalThis as any).navigator;
++    if (!nav) {
++      return undefined;
++    }
++    const out: NonNullable<MeshHealth['machine']> = {};
++    if (typeof nav.hardwareConcurrency === 'number') {
++      out.cores = nav.hardwareConcurrency;
++    }
++    if (typeof nav.deviceMemory === 'number') {
++      out.memGb = nav.deviceMemory;
++    }
++    const gpu = await MeshHealthWatch.gpuName(nav);
++    if (gpu) {
++      out.gpu = gpu;
++    }
++    return Object.keys(out).length ? out : undefined;
++  }
++
++  /**
++   * The graphics adapter's vendor and architecture (WebGPU's adapter info), once a page and at most 300 ms: a low-power
++   * adapter asked for, so a laptop's second GPU isn't woken for it.
++   */
++  private static gpuName(nav: any): Promise<string | undefined> {
++    if (!MeshHealthWatch.gpu) {
++      const ask = async (): Promise<string | undefined> => {
++        if (!nav.gpu || typeof nav.gpu.requestAdapter !== 'function') {
++          return undefined;
++        }
++        const adapter = await nav.gpu.requestAdapter({ powerPreference: 'low-power' });
++        const info = adapter?.info;
++        const name = [info?.vendor, info?.architecture]
++          .filter((s: unknown) => typeof s === 'string' && s)
++          .join(' ');
++        return name ? name.slice(0, 60) : undefined;
++      };
++      MeshHealthWatch.gpu = Promise.race([
++        ask().catch(() => undefined),
++        new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 300)),
++      ]);
++    }
++    return MeshHealthWatch.gpu;
++  }
++}
+diff --git a/src/room/meshReceivers.test.ts b/src/room/meshReceivers.test.ts
+new file mode 100644
+index 0000000..a6f50dd
+--- /dev/null
++++ b/src/room/meshReceivers.test.ts
+@@ -0,0 +1,358 @@
++import { SignalRequest, TrackInfo, TrackType } from '@livekit/protocol';
++import { describe, expect, it } from 'vitest';
++import { MESH_RECEIVERS_FIELD, lengthDelimited } from '../api/utils';
++import { receiverHeight, receiverReading, receiverTotals } from './meshReceivers';
++import RemoteTrackPublication from './track/RemoteTrackPublication';
++import { Track } from './track/Track';
++
++// a receiver's own stats, as Chrome gives them: one inbound-rtp
++const stats = (values: Record<string, number>) => {
++  const map = new Map<string, any>([['in', { type: 'inbound-rtp', ...values }]]);
++  map.set('cp', { type: 'candidate-pair', currentRoundTripTime: 0.05 });
++  return map;
++};
++
++describe('meshReceivers (WordPlus Mesh)', () => {
++  it('reads a video as it plays between two readings: frames, freezes, size, drops, loss and jitter buffer', () => {
++    const before = receiverTotals(
++      stats({
++        timestamp: 10_000,
++        packetsReceived: 1000,
++        packetsLost: 10,
++        framesDecoded: 300,
++        freezeCount: 1,
++        totalFreezesDuration: 0.4,
++        framesDropped: 2,
++        jitterBufferDelay: 30,
++        jitterBufferEmittedCount: 300,
++        frameHeight: 360,
++      }),
++    )!;
++    const now = stats({
++      timestamp: 20_000,
++      packetsReceived: 1990,
++      packetsLost: 20,
++      framesDecoded: 450,
++      freezeCount: 3,
++      totalFreezesDuration: 1.6,
++      framesDropped: 5,
++      jitterBufferDelay: 45,
++      jitterBufferEmittedCount: 450,
++      frameHeight: 720,
++    });
++    expect(
++      receiverReading('TR_v', 'video', before, receiverTotals(now)!, receiverHeight(now)),
++    ).toEqual({
++      sid: 'TR_v',
++      kind: 'video',
++      fps: 15,
++      height: 720,
++      freezes: 2,
++      freezeMs: 1200,
++      dropped: 3,
++      lost: 1,
++      jbMs: 100,
++    });
++  });
++
++  it('reads audio as heard: concealment while someone spoke, not while they were silent', () => {
++    const before = receiverTotals(
++      stats({
++        timestamp: 0,
++        packetsReceived: 500,
++        packetsLost: 0,
++        totalSamplesReceived: 480_000,
++        concealedSamples: 4_800,
++        silentConcealedSamples: 4_000,
++        // audio's delay adds up per sample emitted: 60 ms each
++        jitterBufferDelay: 28_800,
++        jitterBufferEmittedCount: 480_000,
++      }),
++    )!;
++    const now = receiverTotals(
++      stats({
++        timestamp: 10_000,
++        packetsReceived: 1000,
++        packetsLost: 0,
++        totalSamplesReceived: 960_000,
++        concealedSamples: 33_600,
++        // of the 28,800 more made up, 4,800 while silent: 24,000 heard, 5 % of 480,000
++        silentConcealedSamples: 8_800,
++        jitterBufferDelay: 57_600,
++        jitterBufferEmittedCount: 960_000,
++      }),
++    )!;
++    expect(receiverReading('TR_a', 'audio', before, now)).toEqual({
++      sid: 'TR_a',
++      kind: 'audio',
++      concealed: 5,
++      lost: 0,
++      jbMs: 60,
++    });
++  });
++
++  // A call on 2026-10-23: one viewer's playback froze 3 s on all four cameras at once; how it decodes
++  // and how evenly it shows tell its own machine from the others' senders
++  it('reads how a video decodes, how evenly it shows and what it asked for, and how a sound was stretched (1.0.16)', () => {
++    const before = receiverTotals(
++      stats({
++        timestamp: 0,
++        packetsReceived: 1000,
++        packetsLost: 0,
++        framesDecoded: 100,
++        totalDecodeTime: 1,
++        totalInterFrameDelay: 3.3,
++        totalSquaredInterFrameDelay: 0.11,
++        pauseCount: 0,
++        totalPausesDuration: 0,
++        pliCount: 1,
++        nackCount: 10,
++        jitter: 0.004,
++      }),
++    )!;
++    // 10 s, 150 frames: 6 ms each to decode; 140 gaps of 66 ms and 10 of 200 ms (sum 11.24 s, squares 1.0098)
++    const after = stats({
++      timestamp: 10_000,
++      packetsReceived: 2000,
++      packetsLost: 0,
++      framesDecoded: 250,
++      totalDecodeTime: 1.9,
++      totalInterFrameDelay: 3.3 + 11.24,
++      totalSquaredInterFrameDelay: 0.11 + 1.0098,
++      pauseCount: 1,
++      totalPausesDuration: 5.5,
++      pliCount: 3,
++      nackCount: 10,
++      jitter: 0.012,
++    });
++    (after.get('in') as any).powerEfficientDecoder = true;
++    const read = receiverReading('TR_v', 'video', before, receiverTotals(after)!);
++    expect(read).toMatchObject({
++      decodeMs: 6,
++      hwDec: true,
++      pauses: 1,
++      pauseMs: 5500,
++      plis: 2,
++      jitterMs: 12,
++    });
++    expect(read!.nacks).toBeUndefined();
++    expect(read!.unevenMs).toBeGreaterThan(30);
++    expect(read!.unevenMs).toBeLessThan(40);
++
++    const a0 = receiverTotals(
++      stats({
++        timestamp: 0,
++        packetsReceived: 500,
++        packetsLost: 0,
++        totalSamplesReceived: 480_000,
++        insertedSamplesForDeceleration: 1000,
++        removedSamplesForAcceleration: 0,
++      }),
++    )!;
++    const a1 = receiverTotals(
++      stats({
++        timestamp: 10_000,
++        packetsReceived: 1000,
++        packetsLost: 0,
++        totalSamplesReceived: 960_000,
++        insertedSamplesForDeceleration: 5800,
++        removedSamplesForAcceleration: 4800,
++      }),
++    )!;
++    expect(receiverReading('TR_a', 'audio', a0, a1)).toMatchObject({ stretched: 2 });
++  });
++
++  it('says nothing from a first reading or a receiver that started over, and leaves out what a browser keeps not', () => {
++    const now = receiverTotals(stats({ timestamp: 5_000, packetsReceived: 100, packetsLost: 0 }))!;
++    expect(receiverReading('TR', 'video', undefined, now)).toBeUndefined();
++    const later = receiverTotals(
++      stats({ timestamp: 15_000, packetsReceived: 50, packetsLost: 0 }),
++    )!;
++    expect(receiverReading('TR', 'video', now, later)).toBeUndefined();
++    // Firefox and Safari keep no freezes: none said
++    const ff = receiverTotals(
++      stats({ timestamp: 15_000, packetsReceived: 400, packetsLost: 0, framesDecoded: 150 }),
++    )!;
++    const first = receiverTotals(
++      stats({ timestamp: 5_000, packetsReceived: 100, packetsLost: 0, framesDecoded: 0 }),
++    )!;
++    expect(receiverReading('TR', 'video', first, ff)).toEqual({
++      sid: 'TR',
++      kind: 'video',
++      fps: 15,
++      lost: 0,
++    });
++  });
++
++  // 2026-10-24: a tab in the background for 16 s, its videos turned off by the page, showed in the live view as
++  // "paused 1× 16.1 s" and "stutters ±870 ms" on every video it watched. Chrome adds a gap to the sum of the gaps and to
++  // their squares whatever it was, a pause's and a freeze's too, as its very length (VideoQualityObserver2).
++  describe('gaps this client made itself by turning a video off (1.0.17)', () => {
++    // a reading 10 s after the last at 10 s: frames shown after the gap at 30 and 50 ms in turn (spread 10 ms)
++    const totals = (at: number, extra: Record<string, number>) => ({
++      ...receiverTotals(
++        stats({ timestamp: at, packetsReceived: at / 10, packetsLost: 0, ...extra }),
++      )!,
++      readAt: at,
++    });
++    const before = totals(10_000, {
++      framesDecoded: 300,
++      totalInterFrameDelay: 10,
++      totalSquaredInterFrameDelay: 0.5,
++      pauseCount: 0,
++      totalPausesDuration: 0,
++      freezeCount: 0,
++      totalFreezesDuration: 0,
++    });
++    // turned off at 2 s, back on at 18 s, its first frame at 18.1 s: one gap of 16.1 s, then 50 gaps (2 s, 0.085 s²)
++    const backAfterAPause = totals(20_000, {
++      framesDecoded: 351,
++      totalInterFrameDelay: 10 + 16.1 + 2,
++      totalSquaredInterFrameDelay: 0.5 + 16.1 * 16.1 + 0.085,
++      pauseCount: 1,
++      totalPausesDuration: 16.1,
++      freezeCount: 0,
++      totalFreezesDuration: 0,
++    });
++
++    it('tells the pause apart and leaves its gap out of the spread', () => {
++      const read = receiverReading('TR_v', 'video', before, backAfterAPause, 720, 18_000)!;
++      expect(read).toMatchObject({ hiddenGaps: 1, hiddenGapMs: 16_100, freezes: 0, freezeMs: 0 });
++      expect(read.pauses).toBeUndefined();
++      expect(read.pauseMs).toBeUndefined();
++      expect(read.unevenMs).toBeGreaterThanOrEqual(9);
++      expect(read.unevenMs).toBeLessThanOrEqual(11);
++    });
++
++    it("tells a pause of a video the client didn't turn off as the call's", () => {
++      const read = receiverReading('TR_v', 'video', before, backAfterAPause, 720)!;
++      expect(read).toMatchObject({ pauses: 1, pauseMs: 16_100 });
++      expect(read.hiddenGaps).toBeUndefined();
++      expect(read.unevenMs).toBeGreaterThan(2000);
++      // turned back on long before the last reading: that gap was the last reading's
++      expect(receiverReading('TR_v', 'video', before, backAfterAPause, 720, 5_000)).toMatchObject({
++        pauses: 1,
++      });
++    });
++
++    it('owns a pause whose first frame came just after the last reading, as a turn-on just before it', () => {
++      expect(receiverReading('TR_v', 'video', before, backAfterAPause, 720, 9_000)).toMatchObject({
++        hiddenGaps: 1,
++      });
++    });
++
++    it('tells a gap too short for a pause apart from the freezes it came out as', () => {
++      // off at 16.2 s, on at 18 s: one gap of 1.8 s Chrome counts as a freeze, then 205 gaps of 40 ms
++      const read = receiverReading(
++        'TR_v',
++        'video',
++        before,
++        totals(20_000, {
++          framesDecoded: 300 + 206,
++          totalInterFrameDelay: 10 + 1.8 + 205 * 0.04,
++          totalSquaredInterFrameDelay: 0.5 + 1.8 * 1.8 + 205 * 0.0016,
++          pauseCount: 0,
++          totalPausesDuration: 0,
++          freezeCount: 1,
++          totalFreezesDuration: 1.8,
++        }),
++        720,
++        18_000,
++      )!;
++      expect(read).toMatchObject({
++        hiddenGaps: 1,
++        hiddenGapMs: 1800,
++        freezes: 0,
++        freezeMs: 0,
++        unevenMs: 0,
++      });
++    });
++
++    it("leaves the spread unsaid when the gap's length isn't known", () => {
++      // two pauses: which gaps they were the totals can't say
++      const two = receiverReading(
++        'TR_v',
++        'video',
++        before,
++        totals(20_000, {
++          framesDecoded: 320,
++          totalInterFrameDelay: 10 + 9.5,
++          totalSquaredInterFrameDelay: 0.5 + 4 * 4 + 5 * 5 + 0.1,
++          pauseCount: 2,
++          totalPausesDuration: 9,
++          freezeCount: 0,
++          totalFreezesDuration: 0,
++        }),
++        720,
++        18_000,
++      )!;
++      expect(two).toMatchObject({ hiddenGaps: 2, hiddenGapMs: 9000 });
++      expect(two.pauses).toBeUndefined();
++      expect(two.unevenMs).toBeUndefined();
++      // a browser that counts no pauses or freezes (Firefox, Safari)
++      const ff = receiverReading(
++        'TR_v',
++        'video',
++        totals(10_000, {
++          framesDecoded: 300,
++          totalInterFrameDelay: 10,
++          totalSquaredInterFrameDelay: 0.5,
++        }),
++        totals(20_000, {
++          framesDecoded: 351,
++          totalInterFrameDelay: 28.1,
++          totalSquaredInterFrameDelay: 0.5 + 16.1 * 16.1 + 0.085,
++        }),
++        720,
++        18_000,
++      )!;
++      expect(ff.unevenMs).toBeUndefined();
++      expect(ff.hiddenGaps).toBeUndefined();
++      expect(ff.fps).toBe(5.1);
++    });
++
++    it('keeps when the client turned a video off and back on', () => {
++      const pub = new RemoteTrackPublication(
++        Track.Kind.Video,
++        new TrackInfo({ sid: 'TR_v', type: TrackType.VIDEO, name: 'camera' }),
++        true,
++      );
++      const turn = (off: boolean) => {
++        (pub as unknown as { requestedDisabled: boolean }).requestedDisabled = off;
++        pub.emitTrackUpdate();
++      };
++      turn(false);
++      expect(pub.meshOffAt).toBeUndefined();
++      expect(pub.meshOnAt).toBeUndefined();
++      turn(true);
++      const off = pub.meshOffAt!;
++      expect(off).toBeGreaterThan(0);
++      // a dimension change while off isn't a new turn-off
++      turn(true);
++      expect(pub.meshOffAt).toBe(off);
++      turn(false);
++      expect(pub.meshOffAt).toBeUndefined();
++      expect(pub.meshOnAt).toBeGreaterThanOrEqual(off);
++    });
++  });
++
++  it("goes in a signal request field of its own, beside LiveKit's", () => {
++    const req = new SignalRequest({});
++    const body = JSON.stringify({ tracks: [{ sid: 'TR_v', kind: 'video', fps: 30 }] });
++    req
++      .getType()
++      .runtime.bin.onUnknownField(
++        req,
++        MESH_RECEIVERS_FIELD,
++        2,
++        lengthDelimited(new TextEncoder().encode(body)),
++      );
++    const back = SignalRequest.fromBinary(req.toBinary());
++    const field = back
++      .getType()
++      .runtime.bin.listUnknownFields(back)
++      .find((f) => f.no === MESH_RECEIVERS_FIELD);
++    expect(field).toBeDefined();
++    expect(new TextDecoder().decode(field!.data)).toContain('"fps":30');
++  });
++});
+diff --git a/src/room/meshReceivers.ts b/src/room/meshReceivers.ts
+new file mode 100644
+index 0000000..76bebea
+--- /dev/null
++++ b/src/room/meshReceivers.ts
+@@ -0,0 +1,244 @@
++/**
++ * WordPlus Mesh (rtc-client 1.0.15): what each received track is like where it plays, told to the node for its live
++ * view, so a call's quality can be followed without anyone watching it. The node knows what it sends a viewer; only
++ * the browser knows whether the picture freezes, how many frames it shows and whether the sound breaks up, in its
++ * receivers' stats: framesDecoded, frameHeight, freezeCount and totalFreezesDuration (Chrome), framesDropped,
++ * concealedSamples less silentConcealedSamples over totalSamplesReceived, packetsLost, and jitterBufferDelay over
++ * jitterBufferEmittedCount. Numbers only.
++ *
++ * Read every REPORT_EVERY_MS with the encoders (room/meshEncoders.ts), each reading what changed since the one before,
++ * and sent in a signal request with no message of LiveKit's and the JSON in MESH_RECEIVERS_FIELD: a node before
++ * 1.0.46 handles it as nothing. Only to the mesh's servers.
++ */
++import type { MeshReceiverTrack } from '../api/utils';
++
++/** A received track's running totals in its inbound-rtp stats, from which receiverReading takes what changed. */
++export type ReceiverTotals = {
++  at: number;
++  packets: number;
++  lost: number;
++  frames?: number;
++  freezes?: number;
++  freezeSeconds?: number;
++  dropped?: number;
++  samples?: number;
++  concealed?: number;
++  jitterDelay?: number;
++  jitterEmitted?: number;
++  /** 1.0.16: totalDecodeTime, the gaps between frames shown (their sum and sum of squares, s), pauses (5 s or more),
++   * key frames and retransmissions asked for, samples stretched and squeezed; and two that aren't totals: the
++   * network's jitter now (s) and whether the decoder is the device's (powerEfficientDecoder) */
++  decodeTime?: number;
++  gaps?: number;
++  gapsSquared?: number;
++  pauses?: number;
++  pauseSeconds?: number;
++  plis?: number;
++  nacks?: number;
++  stretched?: number;
++  jitter?: number;
++  hwDec?: boolean;
++  /** 1.0.17: this client's clock at the reading (Date.now()), the one it turns tracks off and on by */
++  readAt?: number;
++};
++
++/**
++ * 1.0.17: how long after this client turns a video back on its first frame may still come, ending the gap it made:
++ * the node resumes it and its sender sends a key frame. A frame landing after a reading is the next reading's.
++ */
++export const RESUME_MS = 3000;
++
++type StatsLike = { forEach(fn: (s: any) => void): void };
++
++const num = (v: unknown): number | undefined =>
++  typeof v === 'number' && Number.isFinite(v) ? v : undefined;
++const round1 = (v: number) => Math.round(v * 10) / 10;
++
++/** A receiver's totals from its stats (its own getStats(): one inbound-rtp), undefined where it has none yet. */
++export function receiverTotals(report: StatsLike): ReceiverTotals | undefined {
++  let out: ReceiverTotals | undefined;
++  report.forEach((s) => {
++    if (s?.type !== 'inbound-rtp' || out) {
++      return;
++    }
++    const concealed = num(s.concealedSamples);
++    out = {
++      at: num(s.timestamp) ?? Date.now(),
++      packets: num(s.packetsReceived) ?? 0,
++      lost: Math.max(0, num(s.packetsLost) ?? 0),
++      frames: num(s.framesDecoded),
++      freezes: num(s.freezeCount),
++      freezeSeconds: num(s.totalFreezesDuration),
++      dropped: num(s.framesDropped),
++      samples: num(s.totalSamplesReceived),
++      // concealment while the other side was silent costs nothing anyone hears
++      concealed:
++        concealed === undefined ? undefined : concealed - (num(s.silentConcealedSamples) ?? 0),
++      jitterDelay: num(s.jitterBufferDelay),
++      jitterEmitted: num(s.jitterBufferEmittedCount),
++      decodeTime: num(s.totalDecodeTime),
++      gaps: num(s.totalInterFrameDelay),
++      gapsSquared: num(s.totalSquaredInterFrameDelay),
++      pauses: num(s.pauseCount),
++      pauseSeconds: num(s.totalPausesDuration),
++      plis: num(s.pliCount),
++      nacks: num(s.nackCount),
++      stretched:
++        num(s.insertedSamplesForDeceleration) !== undefined ||
++        num(s.removedSamplesForAcceleration) !== undefined
++          ? (num(s.insertedSamplesForDeceleration) ?? 0) +
++            (num(s.removedSamplesForAcceleration) ?? 0)
++          : undefined,
++      jitter: num(s.jitter),
++      hwDec: typeof s.powerEfficientDecoder === 'boolean' ? s.powerEfficientDecoder : undefined,
++      readAt: Date.now(),
++    };
++  });
++  return out;
++}
++
++/**
++ * What a received track did between two readings of its totals; nothing from a first reading, or from totals that
++ * went back (a receiver started over). A total a browser doesn't keep is left out. resumedAt (1.0.17) is when this
++ * client last turned the video back on after turning it off itself (RemoteTrackPublication.meshOnAt), unless a
++ * reading told that gap already.
++ */
++export function receiverReading(
++  sid: string,
++  kind: 'audio' | 'video',
++  prev: ReceiverTotals | undefined,
++  now: ReceiverTotals,
++  height?: number,
++  resumedAt?: number,
++): MeshReceiverTrack | undefined {
++  if (!prev || now.at <= prev.at || now.packets < prev.packets) {
++    return undefined;
++  }
++  const seconds = (now.at - prev.at) / 1000;
++  const delta = (a?: number, b?: number) =>
++    a !== undefined && b !== undefined && b >= a ? b - a : undefined;
++  const out: MeshReceiverTrack = { sid, kind };
++  const received = now.packets - prev.packets;
++  const lost = Math.max(0, now.lost - prev.lost);
++  if (received + lost > 0) {
++    out.lost = round1((lost * 100) / (received + lost));
++  }
++  const delay = delta(prev.jitterDelay, now.jitterDelay);
++  const emitted = delta(prev.jitterEmitted, now.jitterEmitted);
++  if (delay !== undefined && emitted) {
++    out.jbMs = Math.round((delay * 1000) / emitted);
++  }
++  if (kind === 'video') {
++    const frames = delta(prev.frames, now.frames);
++    if (frames !== undefined) {
++      out.fps = round1(frames / seconds);
++    }
++    if (height) {
++      out.height = height;
++    }
++    let freezes = delta(prev.freezes, now.freezes);
++    let frozen = delta(prev.freezeSeconds, now.freezeSeconds);
++    const pauses = delta(prev.pauses, now.pauses);
++    const paused = delta(prev.pauseSeconds, now.pauseSeconds);
++    // 1.0.17: a gap this client made itself, turning the video off (its tile hidden or off the screen, the page in the
++    // background), isn't the call's (2026-10-24: the live view's "paused 1× 16.1 s" and "stutters ±870 ms" after a
++    // tab switch). A video turned back on since just before the last reading owns the pauses ending in this
++    // one, or the one freeze its gap came out as when it was too short for a pause; they're told apart as hiddenGaps.
++    const resumed = resumedAt !== undefined && resumedAt > (prev.readAt ?? prev.at) - RESUME_MS;
++    let hidden: { gaps: number; seconds?: number } | undefined;
++    if (resumed && pauses) {
++      hidden = { gaps: pauses, seconds: paused };
++    } else if (resumed && freezes === 1) {
++      hidden = { gaps: 1, seconds: frozen };
++      freezes = 0;
++      frozen = 0;
++    }
++    if (hidden) {
++      out.hiddenGaps = hidden.gaps;
++      if (hidden.seconds !== undefined) {
++        out.hiddenGapMs = Math.round(hidden.seconds * 1000);
++      }
++    }
++    if (freezes !== undefined) {
++      out.freezes = freezes;
++      if (frozen !== undefined) {
++        out.freezeMs = Math.round(frozen * 1000);
++      }
++    }
++    const dropped = delta(prev.dropped, now.dropped);
++    if (dropped !== undefined) {
++      out.dropped = dropped;
++    }
++    // 1.0.16: how it decodes, how evenly it shows, what it asked for (each only where there's something to say)
++    const decode = delta(prev.decodeTime, now.decodeTime);
++    if (frames && decode !== undefined) {
++      out.decodeMs = round1((decode * 1000) / frames);
++    }
++    if (now.hwDec !== undefined) {
++      out.hwDec = now.hwDec;
++    }
++    let gaps = delta(prev.gaps, now.gaps);
++    let squared = delta(prev.gapsSquared, now.gapsSquared);
++    let shown = frames;
++    if (resumed) {
++      // Chrome adds every gap to both sums, a pause's and a freeze's too, as its very length (VideoQualityObserver2),
++      // so one hidden gap comes out exactly; several, or one no total tells, leave the spread unsaid this reading
++      if (
++        hidden?.gaps === 1 &&
++        hidden.seconds !== undefined &&
++        frames &&
++        gaps !== undefined &&
++        squared !== undefined
++      ) {
++        gaps -= hidden.seconds;
++        squared -= hidden.seconds * hidden.seconds;
++        shown = frames - 1;
++      } else {
++        gaps = undefined;
++      }
++    }
++    if (shown && shown > 1 && gaps !== undefined && squared !== undefined) {
++      const mean = gaps / shown;
++      out.unevenMs = Math.round(Math.sqrt(Math.max(0, squared / shown - mean * mean)) * 1000);
++    }
++    if (pauses && !hidden) {
++      out.pauses = pauses;
++      if (paused !== undefined) {
++        out.pauseMs = Math.round(paused * 1000);
++      }
++    }
++    const plis = delta(prev.plis, now.plis);
++    if (plis) {
++      out.plis = plis;
++    }
++    const nacks = delta(prev.nacks, now.nacks);
++    if (nacks) {
++      out.nacks = nacks;
++    }
++  } else {
++    const samples = delta(prev.samples, now.samples);
++    const concealed = delta(prev.concealed, now.concealed);
++    if (samples && concealed !== undefined) {
++      out.concealed = round1((concealed * 100) / samples);
++    }
++    const stretched = delta(prev.stretched, now.stretched);
++    if (samples && stretched) {
++      out.stretched = round1((stretched * 100) / samples);
++    }
++  }
++  if (now.jitter !== undefined && now.jitter >= 0.001) {
++    out.jitterMs = Math.round(now.jitter * 1000);
++  }
++  return out;
++}
++
++/** The height of the picture a receiver decodes now, from its stats. */
++export function receiverHeight(report: StatsLike): number | undefined {
++  let height: number | undefined;
++  report.forEach((s) => {
++    if (s?.type === 'inbound-rtp' && height === undefined) {
++      height = num(s.frameHeight);
++    }
++  });
++  return height;
++}
+diff --git a/src/room/meshStats.test.ts b/src/room/meshStats.test.ts
+new file mode 100644
+index 0000000..01894aa
+--- /dev/null
++++ b/src/room/meshStats.test.ts
+@@ -0,0 +1,162 @@
++import { afterEach, describe, expect, it, vi } from 'vitest';
++import { MeshStatsHub, READ_EVERY_MS, withReferences } from './meshStats';
++
++/** A connection's reading: two received tracks (a camera and a microphone) and a camera sent in two layers. */
++function reading() {
++  const entries: any[] = [
++    {
++      id: 'IT01',
++      type: 'inbound-rtp',
++      kind: 'video',
++      trackIdentifier: 'cam-a',
++      codecId: 'C1',
++      transportId: 'T',
++      bytesReceived: 1000,
++      timestamp: 1,
++    },
++    {
++      id: 'IT02',
++      type: 'inbound-rtp',
++      kind: 'audio',
++      trackIdentifier: 'mic-a',
++      codecId: 'C2',
++      transportId: 'T',
++      bytesReceived: 50,
++      timestamp: 1,
++    },
++    {
++      id: 'OT01',
++      type: 'outbound-rtp',
++      kind: 'video',
++      mid: '0',
++      rid: 'q',
++      mediaSourceId: 'S1',
++      codecId: 'C1',
++      remoteId: 'RI1',
++    },
++    {
++      id: 'OT02',
++      type: 'outbound-rtp',
++      kind: 'video',
++      mid: '0',
++      rid: 'h',
++      mediaSourceId: 'S1',
++      codecId: 'C1',
++    },
++    {
++      id: 'OT03',
++      type: 'outbound-rtp',
++      kind: 'video',
++      mid: '2',
++      rid: 'q',
++      mediaSourceId: 'S1',
++      codecId: 'C3',
++    },
++    { id: 'S1', type: 'media-source', kind: 'video', trackIdentifier: 'my-cam' },
++    { id: 'RI1', type: 'remote-inbound-rtp', roundTripTime: 0.02 },
++    { id: 'C1', type: 'codec', mimeType: 'video/H264' },
++    { id: 'C2', type: 'codec', mimeType: 'audio/opus' },
++    { id: 'C3', type: 'codec', mimeType: 'video/VP8' },
++    { id: 'T', type: 'transport', selectedCandidatePairId: 'P' },
++    { id: 'P', type: 'candidate-pair', localCandidateId: 'L', remoteCandidateId: 'R' },
++    { id: 'L', type: 'local-candidate' },
++    { id: 'R', type: 'remote-candidate' },
++    { id: 'X', type: 'certificate' },
++  ];
++  return new Map(entries.map((e) => [e.id, e]));
++}
++
++function connection() {
++  const camReceiver = { track: { id: 'cam-a' } } as unknown as RTCRtpReceiver;
++  const micReceiver = { track: { id: 'mic-a' } } as unknown as RTCRtpReceiver;
++  const camSender = { track: { id: 'my-cam' } } as unknown as RTCRtpSender;
++  const backupSender = { track: { id: 'my-cam' } } as unknown as RTCRtpSender;
++  const getStats = vi.fn(async () => reading() as unknown as RTCStatsReport);
++  const pc = {
++    getStats,
++    getTransceivers: () =>
++      [
++        { mid: '0', sender: camSender, receiver: {} },
++        { mid: '1', sender: {}, receiver: camReceiver },
++        { mid: '2', sender: backupSender, receiver: {} },
++        { mid: '3', sender: {}, receiver: micReceiver },
++      ] as unknown as RTCRtpTransceiver[],
++    getSenders: () => [camSender, backupSender],
++  };
++  return { pc, getStats, camReceiver, micReceiver, camSender, backupSender };
++}
++
++describe('meshStats', () => {
++  afterEach(() => {
++    vi.useRealTimers();
++  });
++
++  it('gives each received track its own entries and what they refer to', async () => {
++    const c = connection();
++    const hub = new MeshStatsHub();
++    hub.open(() => [c.pc, undefined]);
++    const cam = await hub.forReceiver(c.camReceiver);
++    expect([...cam!.keys()].sort()).toEqual(['C1', 'IT01', 'L', 'P', 'R', 'T']);
++    const mic = await hub.forReceiver(c.micReceiver);
++    expect(mic!.get('IT02').bytesReceived).toBe(50);
++    expect(mic!.has('IT01')).toBe(false);
++    hub.close();
++  });
++
++  it('tells a sender from another sending the same track by its mid', async () => {
++    const c = connection();
++    const hub = new MeshStatsHub();
++    hub.open(() => [c.pc]);
++    const own = await hub.forSender(c.camSender);
++    const outbound = [...own!.values()].filter((s) => s.type === 'outbound-rtp').map((s) => s.id);
++    expect(outbound).toEqual(['OT01', 'OT02']);
++    // its media source and the far end's report come with it, as a sender's own reading has them
++    expect(own!.has('S1') && own!.has('RI1')).toBe(true);
++    const backup = await hub.forSender(c.backupSender);
++    expect([...backup!.values()].filter((s) => s.type === 'outbound-rtp').map((s) => s.id)).toEqual(
++      ['OT03'],
++    );
++    hub.close();
++  });
++
++  it('reads a connection once however many ask within a round, and again after it', async () => {
++    vi.useFakeTimers();
++    const c = connection();
++    const hub = new MeshStatsHub();
++    hub.open(() => [c.pc]);
++    await Promise.all([
++      hub.forReceiver(c.camReceiver),
++      hub.forReceiver(c.micReceiver),
++      hub.forSender(c.camSender),
++    ]);
++    expect(c.getStats).toHaveBeenCalledTimes(1);
++    vi.advanceTimersByTime(READ_EVERY_MS - 100);
++    await hub.forReceiver(c.camReceiver);
++    expect(c.getStats).toHaveBeenCalledTimes(1);
++    vi.advanceTimersByTime(200);
++    await hub.forReceiver(c.camReceiver);
++    expect(c.getStats).toHaveBeenCalledTimes(2);
++    expect(hub.reads).toBe(2);
++    hub.close();
++  });
++
++  it('holds nothing it was not given, nor anything once closed', async () => {
++    const c = connection();
++    const hub = new MeshStatsHub();
++    expect(await hub.forReceiver(c.camReceiver)).toBeUndefined();
++    hub.open(() => [c.pc]);
++    // a track the reading doesn't name
++    expect(
++      await hub.forReceiver({ track: { id: 'gone' } } as unknown as RTCRtpReceiver),
++    ).toBeUndefined();
++    hub.close();
++    expect(await hub.forReceiver(c.camReceiver)).toBeUndefined();
++  });
++
++  it('follows references transitively and skips what is missing', () => {
++    const full = reading();
++    const out = withReferences(full, [full.get('OT01')]);
++    expect([...out.keys()].sort()).toEqual(['C1', 'OT01', 'RI1', 'S1']);
++    expect(withReferences(full, [{ id: 'Z', type: 'inbound-rtp', codecId: 'none' }]).size).toBe(1);
++  });
++});
+diff --git a/src/room/meshStats.ts b/src/room/meshStats.ts
+new file mode 100644
+index 0000000..9f7957e
+--- /dev/null
++++ b/src/room/meshStats.ts
+@@ -0,0 +1,221 @@
++/**
++ * WordPlus Mesh (rtc-client 1.0.16): one reading of each connection's stats, shared, so telling the node more of what
++ * a client sends, plays and runs on adds no load to the client.
++ *
++ * Upstream reads every track's stats on its own, every 2 s (`monitorFrequency`): a receiver or a sender each time,
++ * and the browser gathers its connection's stats to answer each one. In a call of 8 that was 80 reads every 10 s a
++ * participant, and the reports to the node 15 more (test/msengine/statsload_test.go, 1.0.15): reads that grow with
++ * every person in the call. Here a connection is read at most once every READ_EVERY_MS, and each track's monitor and
++ * the reports take their own part of that one reading (`forReceiver`, `forSender`): what was read of the track, and
++ * what that refers to (its codec, its transport and the path it runs on, the far end's reports). Rates stay right:
++ * a monitor computes them between two readings by the stats' own timestamps.
++ *
++ * Only on the mesh's servers (a Room registers its connections while on one); anywhere else, and for a track whose
++ * part can't be told in the connection's reading (a browser that names no track on its inbound stats), each reads its
++ * own as upstream does. The library's public stats methods (getRTCStatsReport, getReceiverStats, getSenderStats) still
++ * read now: only its monitors and the mesh's reports share.
++ */
++
++/** A shared reading is reused this long: just under upstream's 2 s, so each connection is read about once a round. */
++export const READ_EVERY_MS = 1900;
++
++type Reading = { at: number; report: Promise<RTCStatsReport> };
++
++/** What the hub needs of a connection (PCTransport has it): its stats, its transceivers and senders. */
++export interface StatsConnection {
++  getStats(): Promise<RTCStatsReport> | undefined;
++  getTransceivers(): RTCRtpTransceiver[];
++  getSenders(): RTCRtpSender[];
++}
++
++/** Every room's connections while on the mesh: a page holds one call, but nothing here assumes it. */
++const hubs = new Set<MeshStatsHub>();
++
++export class MeshStatsHub {
++  /** the room's connections as they are now (a full reconnect makes new ones): its publisher's and subscriber's */
++  private connections: () => (StatsConnection | undefined)[] = () => [];
++
++  private readings = new WeakMap<StatsConnection, Reading>();
++
++  /** reads made, for tests and the lab */
++  reads = 0;
++
++  /** Shares the readings of the connections `connections` gives, until close(). */
++  open(connections: () => (StatsConnection | undefined)[]) {
++    this.connections = connections;
++    hubs.add(this);
++  }
++
++  close() {
++    this.connections = () => [];
++    hubs.delete(this);
++  }
++
++  private pcs(): StatsConnection[] {
++    return this.connections().filter((c): c is StatsConnection => !!c);
++  }
++
++  /** The connection's stats, read at most once every READ_EVERY_MS however many ask. */
++  read(pc: StatsConnection): Promise<RTCStatsReport> | undefined {
++    const now = Date.now();
++    const last = this.readings.get(pc);
++    if (last && now - last.at < READ_EVERY_MS) {
++      return last.report;
++    }
++    const report = pc.getStats();
++    if (!report) {
++      return undefined;
++    }
++    this.reads++;
++    this.readings.set(pc, { at: now, report });
++    // a failed reading isn't kept: the next one asks again
++    report.catch(() => {
++      if (this.readings.get(pc)?.report === report) {
++        this.readings.delete(pc);
++      }
++    });
++    return report;
++  }
++
++  /** The receiver's part of its connection's shared reading; undefined where this hub doesn't hold it. */
++  async forReceiver(receiver: RTCRtpReceiver): Promise<Map<string, any> | undefined> {
++    const pc = this.pcs().find((c) => c.getTransceivers().some((t) => t.receiver === receiver));
++    const id = receiver.track?.id;
++    const reading = pc && id ? this.read(pc) : undefined;
++    if (!reading) {
++      return undefined;
++    }
++    const full = await reading;
++    const picked: any[] = [];
++    full.forEach((s: any) => {
++      if (s.type === 'inbound-rtp' && s.trackIdentifier === id) {
++        picked.push(s);
++      }
++    });
++    return picked.length ? withReferences(full, picked) : undefined;
++  }
++
++  /**
++   * The sender's part of its connection's shared reading: its outbound streams, by its transceiver's mid, or where
++   * the browser names none on them, by its track through their media source (a backup codec's sender sends the same
++   * track, so the mid comes first); undefined where this hub doesn't hold it or can't tell its streams.
++   */
++  async forSender(sender: RTCRtpSender): Promise<Map<string, any> | undefined> {
++    const pc = this.pcs().find((c) => c.getSenders().includes(sender));
++    const reading = pc ? this.read(pc) : undefined;
++    if (!pc || !reading) {
++      return undefined;
++    }
++    const mid = pc.getTransceivers().find((t) => t.sender === sender)?.mid ?? undefined;
++    const full = await reading;
++    const picked: any[] = [];
++    let named = false;
++    full.forEach((s: any) => {
++      if (s.type !== 'outbound-rtp') {
++        return;
++      }
++      if (typeof s.mid === 'string') {
++        named = true;
++        if (mid && s.mid === mid) {
++          picked.push(s);
++        }
++      }
++    });
++    if (!named) {
++      const id = sender.track?.id;
++      const sources = new Set<string>();
++      full.forEach((s: any) => {
++        if (s.type === 'media-source' && id && s.trackIdentifier === id) {
++          sources.add(s.id);
++        }
++      });
++      // the same track in two senders can't be told apart without a mid
++      let senders = 0;
++      pc.getSenders().forEach((x) => {
++        if (x.track && x.track.id === id) {
++          senders++;
++        }
++      });
++      if (senders !== 1) {
++        return undefined;
++      }
++      full.forEach((s: any) => {
++        if (s.type === 'outbound-rtp' && sources.has(s.mediaSourceId)) {
++          picked.push(s);
++        }
++      });
++    }
++    return picked.length ? withReferences(full, picked) : undefined;
++  }
++}
++
++/** The fields of a stats entry that name another one. */
++const REFERENCES = [
++  'codecId',
++  'transportId',
++  'remoteId',
++  'mediaSourceId',
++  'selectedCandidatePairId',
++  'localCandidateId',
++  'remoteCandidateId',
++];
++
++/** Those entries with every one they refer to, and what those refer to, as a report of their own (a Map, as a report is maplike). */
++export function withReferences(full: { get(id: string): any }, picked: any[]): Map<string, any> {
++  const out = new Map<string, any>();
++  const queue = [...picked];
++  while (queue.length) {
++    const s = queue.shift();
++    if (!s || out.has(s.id)) {
++      continue;
++    }
++    out.set(s.id, s);
++    for (const k of REFERENCES) {
++      const ref = s[k];
++      if (typeof ref === 'string' && !out.has(ref)) {
++        const next = full.get(ref);
++        if (next) {
++          queue.push(next);
++        }
++      }
++    }
++  }
++  return out;
++}
++
++/**
++ * A receiver's or a sender's stats for the library's monitors and the mesh's reports: its part of its connection's
++ * shared reading on the mesh, or its own reading anywhere else.
++ */
++export async function sharedReceiverStats(
++  receiver: RTCRtpReceiver,
++): Promise<RTCStatsReport | Map<string, any>> {
++  for (const hub of hubs) {
++    try {
++      const part = await hub.forReceiver(receiver);
++      if (part) {
++        return part;
++      }
++    } catch {
++      // read its own below
++    }
++  }
++  return receiver.getStats();
++}
++
++/** The same for a sender. */
++export async function sharedSenderStats(
++  sender: RTCRtpSender,
++): Promise<RTCStatsReport | Map<string, any>> {
++  for (const hub of hubs) {
++    try {
++      const part = await hub.forSender(sender);
++      if (part) {
++        return part;
++      }
++    } catch {
++      // read its own below
++    }
++  }
++  return sender.getStats();
 +}
 diff --git a/src/room/participant/LocalParticipant.ts b/src/room/participant/LocalParticipant.ts
-index 1993a1d..d4814d9 100644
+index 3407d12..a6562c0 100644
 --- a/src/room/participant/LocalParticipant.ts
 +++ b/src/room/participant/LocalParticipant.ts
 @@ -15,6 +15,7 @@ import {
@@ -3427,7 +5934,16 @@ index 1993a1d..d4814d9 100644
    SubscribedQualityUpdate,
    TrackInfo,
    TrackUnpublishedResponse,
-@@ -270,6 +271,7 @@ export default class LocalParticipant extends Participant {
+@@ -112,6 +113,8 @@ import {
+   isVideoCodec,
+   isVideoTrack,
+   isWeb,
++  screenShareContentHint,
++  screenShareScalabilityMode,
+   sleep,
+   supportsAV1,
+   supportsVP9,
+@@ -279,6 +282,7 @@ export default class LocalParticipant extends Participant {
        .on(EngineEvent.Resuming, this.handleReconnecting)
        .on(EngineEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished)
        .on(EngineEvent.SubscribedQualityUpdate, this.handleSubscribedQualityUpdate)
@@ -3435,7 +5951,33 @@ index 1993a1d..d4814d9 100644
        .on(EngineEvent.Closing, this.handleClosing)
        .on(EngineEvent.SignalRequestResponse, this.handleSignalRequestResponse);
    }
-@@ -2068,6 +2070,19 @@ export default class LocalParticipant extends Participant {
+@@ -1162,16 +1166,22 @@ export default class LocalParticipant extends Participant {
+           if (track.source === Track.Source.ScreenShare) {
+             // vp9 svc with screenshare cannot encode multiple spatial layers
+             // doing so reduces publish resolution to minimal resolution
+-            opts.scalabilityMode = 'L1T3';
++            // WordPlus Mesh (1.0.18): but marked motion (below) it encodes two, and a share asking for them keeps them
++            opts.scalabilityMode = screenShareScalabilityMode(opts.scalabilityMode);
+             // Chrome does not allow more than 5 fps with L1T3, and it has encoding bugs with L3T3
+             // It has a different path for screenshare handling and it seems to be untested/buggy
+             // As a workaround, we are setting contentHint to force it to go through the same
+             // path as regular camera video. While this is not optimal, it delivers the performance
+             // that we need
++            // WordPlus Mesh (1.0.19): in one layer a share keeps the screen-content mode its product asked for
++            // (detail, text), which keeps scrolled text sharp at 18 frames where motion held it to 7
+             if ('contentHint' in track.mediaStreamTrack) {
+-              track.mediaStreamTrack.contentHint = 'motion';
++              track.mediaStreamTrack.contentHint = screenShareContentHint(
++                track.mediaStreamTrack.contentHint,
++                opts.scalabilityMode,
++              );
+               this.log.debug(
+-                'forcing contentHint to motion for screenshare with SVC codecs',
++                `contentHint for screenshare with SVC codecs: ${track.mediaStreamTrack.contentHint}`,
+                 getLogContextFromTrack(track),
+               );
+             }
+@@ -2106,6 +2116,19 @@ export default class LocalParticipant extends Participant {
      }
    };
  
@@ -3456,15 +5998,18 @@ index 1993a1d..d4814d9 100644
      const track = this.trackPublications.get(unpublished.trackSid);
      if (!track) {
 diff --git a/src/room/track/LocalAudioTrack.ts b/src/room/track/LocalAudioTrack.ts
-index 05c6db4..e1c9590 100644
+index 0b4bd5b..be96b3d 100644
 --- a/src/room/track/LocalAudioTrack.ts
 +++ b/src/room/track/LocalAudioTrack.ts
-@@ -1,3 +1,4 @@
+@@ -1,5 +1,7 @@
 +import { Mutex } from '@livekit/mutex';
  import { AudioTrackFeature } from '@livekit/protocol';
  import { TrackEvent } from '../events';
++import { sharedSenderStats } from '../meshStats';
  import { computeBitrate, monitorFrequency } from '../stats';
-@@ -45,6 +46,50 @@ export default class LocalAudioTrack extends LocalTrack<Track.Kind.Audio> {
+ import type { AudioSenderStats } from '../stats';
+ import type { LoggerOptions } from '../types';
+@@ -51,6 +53,50 @@ export default class LocalAudioTrack extends LocalTrack<Track.Kind.Audio> {
      this.checkForSilence();
    }
  
@@ -3515,21 +6060,221 @@ index 05c6db4..e1c9590 100644
    async mute(): Promise<typeof this> {
      const unlock = await this.muteLock.lock();
      try {
+@@ -155,7 +201,12 @@ export default class LocalAudioTrack extends LocalTrack<Track.Kind.Audio> {
+ 
+     let stats: AudioSenderStats | undefined;
+     try {
+-      stats = await this.getSenderStats();
++      // WordPlus Mesh (1.0.16): its part of the connection's shared reading on the mesh (meshStats.ts)
++      stats = await this.getSenderStats(
++        typeof this.sender.getStats === 'function'
++          ? await sharedSenderStats(this.sender)
++          : undefined,
++      );
+     } catch (e) {
+       this.log.error('could not get audio sender stats', { ...this.logContext, error: e });
+       return;
+@@ -323,12 +374,15 @@ export default class LocalAudioTrack extends LocalTrack<Track.Kind.Audio> {
+     }
+   }
+ 
+-  async getSenderStats(): Promise<AudioSenderStats | undefined> {
++  /** report: @internal, a reading already made (the monitor's, meshStats.ts); the sender's own read now otherwise */
++  async getSenderStats(
++    report?: RTCStatsReport | Map<string, any>,
++  ): Promise<AudioSenderStats | undefined> {
+     if (!this.sender?.getStats) {
+       return undefined;
+     }
+ 
+-    const stats = await this.sender.getStats();
++    const stats = report ?? (await this.sender.getStats());
+     let audioStats: AudioSenderStats | undefined;
+     stats.forEach((v) => {
+       if (v.type === 'outbound-rtp') {
+diff --git a/src/room/track/LocalVideoTrack.ts b/src/room/track/LocalVideoTrack.ts
+index 65f72f2..02c9465 100644
+--- a/src/room/track/LocalVideoTrack.ts
++++ b/src/room/track/LocalVideoTrack.ts
+@@ -8,6 +8,7 @@ import {
+ import type { SignalClient } from '../../api/SignalClient';
+ import type { StructuredLogger } from '../../logger';
+ import { TrackEvent } from '../events';
++import { sharedSenderStats } from '../meshStats';
+ import {
+   ScalabilityMode,
+   computeTrackBackupEncodings,
+@@ -195,14 +196,15 @@ export default class LocalVideoTrack extends LocalTrack<Track.Kind.Video> {
+     }
+   }
+ 
+-  async getSenderStats(): Promise<VideoSenderStats[]> {
++  /** report: @internal, a reading already made (the monitor's, meshStats.ts); the sender's own read now otherwise */
++  async getSenderStats(report?: RTCStatsReport | Map<string, any>): Promise<VideoSenderStats[]> {
+     if (!this.sender?.getStats) {
+       return [];
+     }
+ 
+     const items: VideoSenderStats[] = [];
+ 
+-    const stats = await this.sender.getStats();
++    const stats = report ?? (await this.sender.getStats());
+     stats.forEach((v) => {
+       if (v.type === 'outbound-rtp') {
+         const vs: VideoSenderStats = {
+@@ -635,7 +637,12 @@ export default class LocalVideoTrack extends LocalTrack<Track.Kind.Video> {
+ 
+     let stats: VideoSenderStats[] | undefined;
+     try {
+-      stats = await this.getSenderStats();
++      // WordPlus Mesh (1.0.16): its part of the connection's shared reading on the mesh (meshStats.ts)
++      stats = await this.getSenderStats(
++        typeof this.sender.getStats === 'function'
++          ? await sharedSenderStats(this.sender)
++          : undefined,
++      );
+     } catch (e) {
+       this.log.error('could not get video sender stats', { ...this.logContext, error: e });
+       return;
+diff --git a/src/room/track/RemoteAudioTrack.ts b/src/room/track/RemoteAudioTrack.ts
+index 0b43795..ac5949c 100644
+--- a/src/room/track/RemoteAudioTrack.ts
++++ b/src/room/track/RemoteAudioTrack.ts
+@@ -1,4 +1,5 @@
+ import { TrackEvent } from '../events';
++import { sharedReceiverStats } from '../meshStats';
+ import type { AudioReceiverStats } from '../stats';
+ import { computeBitrate } from '../stats';
+ import type { LoggerOptions } from '../types';
+@@ -270,7 +271,12 @@ export default class RemoteAudioTrack extends RemoteTrack<Track.Kind.Audio> {
+       this._currentBitrate = 0;
+       return;
+     }
+-    const stats = await this.getReceiverStats();
++    // WordPlus Mesh (1.0.16): its part of the connection's shared reading on the mesh (meshStats.ts)
++    const stats = await this.getReceiverStats(
++      typeof this.receiver.getStats === 'function'
++        ? await sharedReceiverStats(this.receiver)
++        : undefined,
++    );
+ 
+     if (stats && this.prevStats && this.receiver) {
+       this._currentBitrate = computeBitrate(stats, this.prevStats);
+@@ -279,12 +285,15 @@ export default class RemoteAudioTrack extends RemoteTrack<Track.Kind.Audio> {
+     this.prevStats = stats;
+   };
+ 
+-  async getReceiverStats(): Promise<AudioReceiverStats | undefined> {
++  /** report: @internal, a reading already made (the monitor's, meshStats.ts); the receiver's own read now otherwise */
++  async getReceiverStats(
++    report?: RTCStatsReport | Map<string, any>,
++  ): Promise<AudioReceiverStats | undefined> {
+     if (!this.receiver || !this.receiver.getStats) {
+       return;
+     }
+ 
+-    const stats = await this.receiver.getStats();
++    const stats = report ?? (await this.receiver.getStats());
+     let receiverStats: AudioReceiverStats | undefined;
+     stats.forEach((v) => {
+       if (v.type === 'inbound-rtp') {
+diff --git a/src/room/track/RemoteTrackPublication.ts b/src/room/track/RemoteTrackPublication.ts
+index 1004593..97fe76a 100644
+--- a/src/room/track/RemoteTrackPublication.ts
++++ b/src/room/track/RemoteTrackPublication.ts
+@@ -310,8 +310,25 @@ export default class RemoteTrackPublication extends TrackPublication {
+     this.emitTrackUpdate();
+   };
+ 
++  /**
++   * WordPlus Mesh (1.0.17): while this client has the track turned off (a hidden tile, the page in the background,
++   * setEnabled(false)), since when; and when it last turned it back on, so the gap it made isn't told as the call's
++   * (room/meshReceivers.ts)
++   * @internal
++   */
++  meshOffAt?: number;
++
++  /** @internal */
++  meshOnAt?: number;
++
+   /* @internal */
+   emitTrackUpdate() {
++    if (!this.isEnabled) {
++      this.meshOffAt ??= Date.now();
++    } else if (this.meshOffAt !== undefined) {
++      this.meshOffAt = undefined;
++      this.meshOnAt = Date.now();
++    }
+     const settings: UpdateTrackSettings = new UpdateTrackSettings({
+       trackSids: [this.trackSid],
+       disabled: !this.isEnabled,
+diff --git a/src/room/track/RemoteVideoTrack.ts b/src/room/track/RemoteVideoTrack.ts
+index 7c511af..432fb0c 100644
+--- a/src/room/track/RemoteVideoTrack.ts
++++ b/src/room/track/RemoteVideoTrack.ts
+@@ -1,6 +1,7 @@
+ import type { FrameMetadata } from '../../frameMetadata/types';
+ import { debounce } from '../debounce';
+ import { TrackEvent } from '../events';
++import { sharedReceiverStats } from '../meshStats';
+ import type { VideoReceiverStats } from '../stats';
+ import { computeBitrate } from '../stats';
+ import CriticalTimers from '../timers';
+@@ -181,7 +182,12 @@ export default class RemoteVideoTrack extends RemoteTrack<Track.Kind.Video> {
+       this._currentBitrate = 0;
+       return;
+     }
+-    const stats = await this.getReceiverStats();
++    // WordPlus Mesh (1.0.16): its part of the connection's shared reading on the mesh (meshStats.ts)
++    const stats = await this.getReceiverStats(
++      typeof this.receiver.getStats === 'function'
++        ? await sharedReceiverStats(this.receiver)
++        : undefined,
++    );
+ 
+     if (stats && this.prevStats && this.receiver) {
+       this._currentBitrate = computeBitrate(stats, this.prevStats);
+@@ -190,12 +196,15 @@ export default class RemoteVideoTrack extends RemoteTrack<Track.Kind.Video> {
+     this.prevStats = stats;
+   };
+ 
+-  async getReceiverStats(): Promise<VideoReceiverStats | undefined> {
++  /** report: @internal, a reading already made (the monitor's, meshStats.ts); the receiver's own read now otherwise */
++  async getReceiverStats(
++    report?: RTCStatsReport | Map<string, any>,
++  ): Promise<VideoReceiverStats | undefined> {
+     if (!this.receiver || !this.receiver.getStats) {
+       return;
+     }
+ 
+-    const stats = await this.receiver.getStats();
++    const stats = report ?? (await this.receiver.getStats());
+     let receiverStats: VideoReceiverStats | undefined;
+     let codecID = '';
+     let codecs = new Map<string, any>();
 diff --git a/src/room/utils.test.ts b/src/room/utils.test.ts
-index 3614abe..7c02dfb 100644
+index 6e7f7e7..d0f4043 100644
 --- a/src/room/utils.test.ts
 +++ b/src/room/utils.test.ts
-@@ -1,15 +1,247 @@
- import { ClientInfo_Capability } from '@livekit/protocol';
- import { afterEach, describe, expect, it, vi } from 'vitest';
+@@ -5,25 +5,259 @@ import {
+   stubMissingDeflateRawSupport,
+ } from '../test/compressionStreamStubs';
+ import { getBrowser } from '../utils/browserParser';
 +import { ConnectionError } from './errors';
  import {
    ddExtensionURI,
 +  deviceType,
    extractMaxAgeFromRequestHeaders,
    getClientInfo,
+   isAppleMobile,
+   isCompressionStreamSupported,
+   isDeflateRawCompressionSupported,
+   isIPadOS,
 +  isMeshServer,
 +  isMeshWait,
+   isPermissionDeniedError,
+   isSVCSimulcast,
+   isSVCSimulcastSupportedByServer,
 +  isServerFull,
 +  meshAppParam,
 +  meshJoinRetry,
@@ -3538,12 +6283,16 @@ index 3614abe..7c02dfb 100644
    negotiateDependencyDescriptor,
 +  networkQuality,
 +  networkType,
+   resetDeflateRawCompressionSupportCache,
 +  resumeMoves,
 +  retryAfterMs,
++  screenShareContentHint,
++  screenShareScalabilityMode,
 +  serverAnswers,
    splitUtf8,
    supportsAdaptiveStream,
    toWebsocketUrl,
+   usesLegacySVCEncodings,
 +  withMeshWait,
  } from './utils';
  
@@ -3767,11 +6516,91 @@ index 3614abe..7c02dfb 100644
  describe('toWebsocketUrl', () => {
    it('leaves wss urls alone', () => {
      expect(toWebsocketUrl('ws://mywebsite.com')).toEqual('ws://mywebsite.com');
+@@ -295,6 +529,42 @@ describe('supportsAdaptiveStream', () => {
+   });
+ });
+ 
++describe('screenShareScalabilityMode (WordPlus Mesh 1.0.18)', () => {
++  it('keeps the two spatial layers a share asks for, and gives every other share one, as upstream', () => {
++    expect(screenShareScalabilityMode('L2T3_KEY')).toBe('L2T3_KEY');
++    expect(screenShareScalabilityMode('L2T3')).toBe('L2T3');
++    expect(screenShareScalabilityMode('L2T2')).toBe('L2T2');
++    // none asked, the camera's default, three layers or anything unknown: one spatial layer
++    expect(screenShareScalabilityMode(undefined)).toBe('L1T3');
++    expect(screenShareScalabilityMode('L3T3_KEY')).toBe('L1T3');
++    expect(screenShareScalabilityMode('L2T3h')).toBe('L1T3');
++    expect(screenShareScalabilityMode('S2T3')).toBe('L1T3');
++  });
++
++  it('keeps the frame rates a share in one spatial layer asks for (1.0.20)', () => {
++    expect(screenShareScalabilityMode('L1T2')).toBe('L1T2');
++    expect(screenShareScalabilityMode('L1T1')).toBe('L1T1');
++    expect(screenShareScalabilityMode('L1T3')).toBe('L1T3');
++    expect(screenShareScalabilityMode('L1T3h')).toBe('L1T3');
++    expect(screenShareScalabilityMode('L1T2_KEY')).toBe('L1T3');
++  });
++});
++
++describe('screenShareContentHint (WordPlus Mesh 1.0.19)', () => {
++  it('keeps the screen-content mode a share asked for in one spatial layer, and marks every other share motion', () => {
++    expect(screenShareContentHint('detail', 'L1T3')).toBe('detail');
++    expect(screenShareContentHint('text', 'L1T3')).toBe('text');
++    expect(screenShareContentHint('detail', 'L1T2')).toBe('detail');
++    // two spatial layers: the screen-content mode sends nothing of them
++    expect(screenShareContentHint('detail', 'L2T3_KEY')).toBe('motion');
++    expect(screenShareContentHint('text', 'L2T3')).toBe('motion');
++    // a share that asked for nothing, or for motion: as upstream
++    expect(screenShareContentHint('', 'L1T3')).toBe('motion');
++    expect(screenShareContentHint(undefined, 'L1T3')).toBe('motion');
++    expect(screenShareContentHint('motion', 'L1T3')).toBe('motion');
++  });
++});
++
+ describe('isSVCSimulcast', () => {
+   it('requires an svc capable codec, simulcast and a single spatial layer mode', () => {
+     expect(isSVCSimulcast('vp9', { simulcast: true, scalabilityMode: 'L1T2' })).toBe(true);
 diff --git a/src/room/utils.ts b/src/room/utils.ts
-index 3ab39e4..da4770c 100644
+index e12f8a0..9c6d8e9 100644
 --- a/src/room/utils.ts
 +++ b/src/room/utils.ts
-@@ -304,12 +304,180 @@ export function isReactNative(): boolean {
+@@ -202,6 +202,36 @@ export function isSVCSimulcast(
+   return isSVCCodec(codec) && !!options?.simulcast && !!options.scalabilityMode?.startsWith('L1T');
+ }
+ 
++/**
++ * WordPlus Mesh (1.0.18): the scalability mode a screen share in VP9 or AV1 goes out in as SVC. Upstream sends every
++ * such share in one spatial layer (L1T3): in its screen-content mode Chrome encodes nothing of a screen with more.
++ * Marked motion, as the library marks it for SVC, Chromium 156 encodes both layers of L2T3_KEY at the screen's size
++ * (2026-10-24: a 1440-line screen, 40 layer frames a second from 20, received whole). So a share that asks for two
++ * spatial layers (the whole screen and one half its size, which the node gives a viewer that can't take the whole)
++ * keeps them; anything else is L1T3, as upstream. Encoded as camera video, though, scrolled text blurs (see
++ * screenShareContentHint()), so a product that wants a sharp screen asks for one layer.
++ * WordPlus Mesh (1.0.20): a share that asks for one spatial layer keeps its frame rates too (L1T1 to L1T3). In two
++ * (L1T2) a video played on the screen kept 20 frames a second in the screen-content mode where L1T3 kept 14, and
++ * scrolled text came out sharper (quantizer 141 against 152).
++ */
++export function screenShareScalabilityMode<M extends string>(asked?: M): M | 'L1T3' {
++  return asked && /^(L2T[1-3](_KEY)?|L1T[1-3])$/.test(asked) ? asked : 'L1T3';
++}
++
++/**
++ * WordPlus Mesh (1.0.19): the content hint a screen share in VP9 or AV1 goes out with as SVC. Upstream marks every such
++ * share `motion`, so Chrome encodes it as camera video, saying Chrome holds a share in its screen-content mode to 5
++ * frames a second at L1T3. Chromium 156, a 1080-line page scrolled on a 5 Mbit/s budget: marked `motion`, its
++ * quantizer at 208 of 255 and 7 frames a second (4 in L2T3_KEY); marked `detail`, at 141-152 and 18 frames, on 3.4-3.6
++ * Mbit/s (`text` the same). So a share in one spatial layer keeps a `detail` or `text` the product set; with two, where
++ * the screen-content mode sends nothing at all, and wherever the product set no such hint, `motion` as upstream.
++ */
++export function screenShareContentHint(asked: string | undefined, scalabilityMode: string): string {
++  return scalabilityMode.startsWith('L1T') && (asked === 'detail' || asked === 'text')
++    ? asked
++    : 'motion';
++}
++
+ /**
+  * Whether the browser reads multiple encodings on an SVC capable codec as *legacy SVC*
+  * rather than as real simulcast.
+@@ -390,12 +420,180 @@ export function isReactNative(): boolean {
    return navigator.product == 'ReactNative';
  }
  
@@ -3953,7 +6782,7 @@ index 3ab39e4..da4770c 100644
  export function extractProjectFromUrl(serverUrl: URL): string | null {
    if (!isCloud(serverUrl)) {
      return null;
-@@ -317,6 +485,133 @@ export function extractProjectFromUrl(serverUrl: URL): string | null {
+@@ -403,6 +601,133 @@ export function extractProjectFromUrl(serverUrl: URL): string | null {
    return serverUrl.hostname.split('.')[0];
  }
  
@@ -4089,10 +6918,10 @@ index 3ab39e4..da4770c 100644
    // @ts-ignore
 diff --git a/src/utils/hardwareDecoders.test.ts b/src/utils/hardwareDecoders.test.ts
 new file mode 100644
-index 0000000..93f2d40
+index 0000000..0bd0768
 --- /dev/null
 +++ b/src/utils/hardwareDecoders.test.ts
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,73 @@
 +import { afterEach, describe, expect, it, vi } from 'vitest';
 +import { forgetHardwareDecoders, hardwareDecoders, hardwareEncoders } from './hardwareDecoders';
 +
@@ -4106,13 +6935,17 @@ index 0000000..93f2d40
 +  });
 +
 +  it('names the codecs decoded power efficiently, in a fixed order, asked for WebRTC at 720p', async () => {
-+    const decodingInfo = vi.fn(async (config: { type: string; video: { contentType: string; height: number } }) => ({
-+      supported: config.video.contentType !== 'video/AV1',
-+      powerEfficient: !config.video.contentType.startsWith('video/VP8'),
-+    }));
++    const decodingInfo = vi.fn(
++      async (config: { type: string; video: { contentType: string; height: number } }) => ({
++        supported: config.video.contentType !== 'video/AV1',
++        powerEfficient: !config.video.contentType.startsWith('video/VP8'),
++      }),
++    );
 +    withCapabilities({ decodingInfo });
 +    expect(await hardwareDecoders()).toEqual(['h264', 'h265', 'vp9']);
-+    expect(decodingInfo.mock.calls.every(([c]) => c.type === 'webrtc' && c.video.height === 720)).toBe(true);
++    expect(
++      decodingInfo.mock.calls.every(([c]) => c.type === 'webrtc' && c.video.height === 720),
++    ).toBe(true);
 +  });
 +
 +  it('says nothing where the browser cannot tell: no mediaCapabilities, every probe refused, or no answer in time', async () => {
@@ -4153,7 +6986,12 @@ index 0000000..93f2d40
 +    expect(await hardwareEncoders()).toEqual(['h264', 'h265', 'vp8', 'vp9', 'av1']);
 +
 +    forgetHardwareDecoders();
-+    withCapabilities({ encodingInfo: async (c: { video: { contentType: string } }) => ({ supported: true, powerEfficient: c.video.contentType === 'video/H265' }) });
++    withCapabilities({
++      encodingInfo: async (c: { video: { contentType: string } }) => ({
++        supported: true,
++        powerEfficient: c.video.contentType === 'video/H265',
++      }),
++    });
 +    expect(await hardwareEncoders()).toEqual(['h265']);
 +  });
 +});
@@ -4273,7 +7111,7 @@ index 0000000..f12e17c
 +  delete asked.encodingInfo;
 +}
 diff --git a/src/version.ts b/src/version.ts
-index 75ad4d2..2fef043 100644
+index 75ad4d2..6695853 100644
 --- a/src/version.ts
 +++ b/src/version.ts
 @@ -3,6 +3,13 @@ import { version as v } from '../package.json';
@@ -4285,7 +7123,7 @@ index 75ad4d2..2fef043 100644
 + * upstream version the client reports as its SDK's, which servers and SDKs gate protocol features on. build.sh refuses
 + * a patch whose version here isn't the one its revisions list.
 + */
-+export const rtcClientVersion = '1.0.13';
++export const rtcClientVersion = '1.0.21';
 +
  /** Initial client protocol. */
  export const CLIENT_PROTOCOL_DEFAULT = 0;

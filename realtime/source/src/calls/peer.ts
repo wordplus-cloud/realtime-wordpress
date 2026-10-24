@@ -601,6 +601,11 @@ export class P2PPeer {
     private bwe: { out: number | null; in: number | null } = { out: null, in: null };
     private readonly wanted = new Map<P2PSource, number>();
     private readonly shapedFrom = new Map<P2PSource, number>();
+    // What the screen gives up when the link is short: frames, for text, or
+    // pixels, for a video played on it (setScreenDegradation). And what the
+    // sender was last given, as a browser may not read it back.
+    private screenDegradation: RTCDegradationPreference = 'maintain-resolution';
+    private screenDegradationWritten: RTCDegradationPreference | null = null;
     private readonly paramChains = new Map<P2PSource, Promise<void>>();
     private readonly localTracks = new Map<P2PSource, MediaStreamTrack | null>();
     private readonly codecWatch = new Map<string, number>();
@@ -888,6 +893,17 @@ export class P2PPeer {
         }
     }
 
+    // What the screen's sender gives up when the link or the CPU can't keep
+    // everything: 'maintain-resolution' for text, 'maintain-framerate' for a
+    // video played on it (the presenter's "Optimize for video"). Written to
+    // the running sender at once, nothing negotiated again.
+    setScreenDegradation( preference: RTCDegradationPreference ): void {
+        if( this.screenDegradation === preference ) return;
+
+        this.screenDegradation = preference;
+        this.applyWanted( 'screen_share' );
+    }
+
     // What the other side can encode and decode; each video sender picks its
     // codec from that and this side's own abilities.
     setPeerCaps( caps: CodecCaps ): void {
@@ -1002,7 +1018,8 @@ export class P2PPeer {
                 && encoding.scaleResolutionDownBy === shape.scale
                 && ( encoding.maxFramerate ?? null ) === ( shape.maxFramerate ?? null )
                 && currentCodec === wantedCodec
-                && this.shapedFrom.get( source ) === trackHeight( sender.track ) ){
+                && this.shapedFrom.get( source ) === trackHeight( sender.track )
+                && ( source !== 'screen_share' || this.screenDegradationWritten === this.screenDegradation ) ){
                 return;
             }
 
@@ -1022,10 +1039,13 @@ export class P2PPeer {
             }
 
             // Text must stay readable when the link is short: the screen
-            // encoder gives up frames before pixels. The camera keeps the
-            // browser's own balance.
+            // encoder gives up frames before pixels, unless the screen is
+            // sent for a video played on it. The camera keeps the browser's
+            // own balance.
+            const degradation = this.screenDegradation;
+
             if( source === 'screen_share' ){
-                params.degradationPreference = 'maintain-resolution';
+                params.degradationPreference = degradation;
             }
 
             if( codec ){
@@ -1034,6 +1054,7 @@ export class P2PPeer {
 
             try {
                 await sender.setParameters( params );
+                if( source === 'screen_share' ) this.screenDegradationWritten = degradation;
             } catch (e) {
                 if( ! this.closed ) this.warn( 'setParameters failed', e );
             }

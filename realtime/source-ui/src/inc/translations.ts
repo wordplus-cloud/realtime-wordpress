@@ -31,7 +31,7 @@ type Table = Record<string, string | string[]>;
 
 const LANGUAGES: Record<string, Table> = { de, es, fr, it, nl, pl, hr, he };
 
-// The words of views with languages of their own, by their text domain: the live streams' (`wordplus-stream`) are
+// The words of views with languages of their own, by their text domain: the live streams' (`wordplus-live-stream`) are
 // registered by the views themselves (components/streams/languages.ts), so a script without them, as the elements'
 // realtime-ui.min.js, carries none of their words.
 const DOMAINS: Record<string, Record<string, Table>> = {};

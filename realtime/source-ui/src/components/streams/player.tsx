@@ -1,7 +1,8 @@
-import {createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode, type RefObject} from "react";
+import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode, type RefObject} from "react";
 import type {Appearance, Shape} from "./appearance.ts";
-import {useClient} from "./context.tsx";
+import {useClient, useStream} from "./context.tsx";
 import {isBoolean, isNumber, oneOf, readPref, writePref} from "./prefs.ts";
+import {scheduleOf, type StreamSession} from "./sessions.ts";
 
 // What the player knows beyond the stream's state: the stream as the page describes it, and what the
 // viewer set here (sound, the chat hidden, full screen, picture-in-picture). The UI reads it with
@@ -9,8 +10,12 @@ import {isBoolean, isNumber, oneOf, readPref, writePref} from "./prefs.ts";
 
 export interface StreamMeta {
     title? : string;
-    // When the stream is to start, in ms.
+    // When the stream is to start, in ms. In the player's context, the start its countdown counts to now: the next
+    // session's, and null while the viewers of a session that ended are thanked.
     scheduled? : number | null;
+    // The stream's sessions, each a planned start and its own title (sessions.ts): the player says the title of the one
+    // on air and counts down to the next. Without them, `scheduled` is the one session.
+    sessions? : StreamSession[];
     // The page to share and to come back to: the page's own address by default.
     url? : string;
     // Where a visitor logs in to chat, and comes back here after.
@@ -20,9 +25,15 @@ export interface StreamMeta {
     // A still stream drawn for a settings page: nothing that reaches beyond it (no wake lock, no warning
     // before leaving, no keys on the page).
     preview? : boolean;
+    // The site's logo may be dragged into place and sized over the host's own picture before going live, and the page
+    // saves where: the WordPress plugin's studio, for those who may change how streams look.
+    placeLogo? : boolean;
     appearance : Appearance;
     // Where a host goes live: the WordPress plugin's studio, for those who host the stream.
     studioUrl? : string;
+    // Where the site is connected to the cloud (the WordPress plugin's Licence page), for a host whose page is
+    // unconnected: the studio offers it where Go live would be.
+    connectUrl? : string;
     // The stream's Better Messages chat room, where that is its chat: Better Messages' placeholder for it, which
     // takes the light chat's place and Better Messages mounts the room into.
     room? : string;
@@ -50,6 +61,9 @@ export interface StreamTexts {
 export type PlayerLayout = 'all' | 'parts';
 
 export interface Player extends StreamMeta {
+    // The session to come, while one is planned (sessions.ts): said under the thanks of the one that ended, and in a
+    // host's studio.
+    next : StreamSession | null;
     volume : number;
     muted : boolean;
     // Whether this device lets a page set the volume (iOS doesn't: only muting).
@@ -60,8 +74,8 @@ export interface Player extends StreamMeta {
     // Whether the stream's chat shows with the player: beside it in one piece, and in its full screen.
     hasChat : boolean;
     chatHidden : boolean;
-    // Whether the player offers to hide and show its chat: in one piece, and laid out in parts only in full
-    // screen, where the chat is the player's own.
+    // Whether the player offers to hide and show its chat: in one piece, laid out in parts where the page has the chat
+    // as a part of its own, and in full screen, where the chat is the player's own.
     chatToggles : boolean;
     toggleChat : () => void;
     // What goes full screen: the player's theme root.
@@ -99,6 +113,7 @@ const noop = () => {};
 
 const still : Player = {
     appearance: {},
+    next: null,
     volume: 1,
     muted: false,
     volumeSettable: false,
@@ -196,9 +211,23 @@ type IosVideo = HTMLVideoElement & { webkitEnterFullscreen? : () => void, webkit
 const fullscreenElement = () => document.fullscreenElement ?? ( document as Prefixed ).webkitFullscreenElement ?? null;
 const fullscreenEnabled = () => Boolean( document.fullscreenEnabled || ( document as Prefixed ).webkitFullscreenEnabled );
 
+// Where full screen fills the browser's window rather than the screen, where the browser can lift the player over the
+// whole page into its top layer (popovers): a desktop's (a pointer that hovers and aims finely), and a browser's that
+// cannot put the player itself full screen, an iPhone's, whose own full screen is its video player with the picture
+// alone, none of the player's controls or chat. A phone or a tablet that can take the screen with the player does.
+const inWindow = () : boolean =>
+    typeof window !== 'undefined' && typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype
+    && ( ! fullscreenEnabled() || ( typeof window.matchMedia === 'function' && window.matchMedia( '(hover: hover) and (pointer: fine)' ).matches ) );
+
+// What the player lifted over the page carries while it fills the window: its styles' hook, and where the player's own
+// tooltip goes then (tooltip.ts).
+export const WINDOW_ATTRIBUTE = 'data-estream-window';
+
 const VOLUME_STEP = 0.1;
 
-export function PlayerProvider( props : StreamMeta & { chat : boolean, root : RefObject<HTMLElement | null>, layout? : PlayerLayout, children : ReactNode } ){
+// `chatBeside`: the stream in parts has its chat on the page with the player, in one block (a ready layout) or a block
+// of its own, which the player shows and hides as the stream in one piece does, not only in its full screen.
+export function PlayerProvider( props : StreamMeta & { chat : boolean, root : RefObject<HTMLElement | null>, layout? : PlayerLayout, chatBeside? : boolean, children : ReactNode } ){
     const client = useClient();
     const { root } = props;
     const layout = props.layout ?? 'all';
@@ -206,7 +235,10 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
     const [ volume, setVolumeState ] = useState( () => readPref( 'volume', 1, isNumber ) );
     const [ muted, setMutedState ] = useState( () => readPref( 'muted', false, isBoolean ) );
     const [ chatHidden, setChatHidden ] = useState( () => readPref( 'chat-hidden', false, isBoolean ) );
-    const [ fullscreen, setFullscreen ] = useState( false );
+    // Full screen: the screen's (the browser's Fullscreen API), or the window's, on a desktop.
+    const [ screenFull, setScreenFull ] = useState( false );
+    const [ windowFull, setWindowFull ] = useState( false );
+    const fullscreen = screenFull || windowFull;
     const [ pip, setPip ] = useState( false );
     const [ primary, setPrimary ] = useState<HTMLVideoElement | null>( null );
     const [ height, setHeight ] = useState( 0 );
@@ -257,7 +289,7 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
     }, [] );
 
     useEffect( () => {
-        const changed = () => setFullscreen( root.current !== null && fullscreenElement() === root.current );
+        const changed = () => setScreenFull( root.current !== null && fullscreenElement() === root.current );
         document.addEventListener( 'fullscreenchange', changed );
         document.addEventListener( 'webkitfullscreenchange', changed );
         return () => {
@@ -266,14 +298,62 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
         };
     }, [ root ] );
 
+    // Filling the window: the root lifted over the page into the top layer as a popover, which nothing on the page can
+    // cover or clip whatever it stacks or transforms, while it stays where it is among the page's elements; the page under
+    // it kept from scrolling. Escape leaves it, after a menu or a dialog in it, which take theirs first. Before the
+    // browser paints, so the player never shows stretched in its place on the page.
+    useLayoutEffect( () => {
+        const element = root.current;
+        if( ! windowFull || ! element ) return;
+
+        element.setAttribute( 'popover', 'manual' );
+        element.setAttribute( WINDOW_ATTRIBUTE, '' );
+        try {
+            element.showPopover();
+        } catch ( e ) {
+            // Over the page by its styles alone, then.
+        }
+
+        const page = document.documentElement;
+        const overflow = page.style.overflow;
+        page.style.overflow = 'hidden';
+
+        const escape = ( event : Event ) => {
+            if( ( event as globalThis.KeyboardEvent ).key === 'Escape' && ! event.defaultPrevented ) setWindowFull( false );
+        };
+        document.addEventListener( 'keydown', escape );
+
+        return () => {
+            document.removeEventListener( 'keydown', escape );
+            page.style.overflow = overflow;
+            try {
+                element.hidePopover();
+            } catch ( e ) {
+                // Not in the top layer.
+            }
+            element.removeAttribute( 'popover' );
+            element.removeAttribute( WINDOW_ATTRIBUTE );
+        };
+    }, [ windowFull, root ] );
+
     const ios = primary as IosVideo | null;
-    const canFullscreen = ( fullscreenEnabled() && root.current !== null ) || Boolean( ios?.webkitEnterFullscreen && ios.webkitSupportsFullscreen !== false );
+    const canFullscreen = ( ( fullscreenEnabled() || inWindow() ) && root.current !== null ) || Boolean( ios?.webkitEnterFullscreen && ios.webkitSupportsFullscreen !== false );
 
     const toggleFullscreen = useCallback( () => {
         const element = root.current as PrefixedElement | null;
 
+        if( windowFull ){
+            setWindowFull( false );
+            return;
+        }
+
         if( fullscreenElement() ){
             void ( document.exitFullscreen?.() ?? ( document as Prefixed ).webkitExitFullscreen?.() );
+            return;
+        }
+
+        if( element && inWindow() ){
+            setWindowFull( true );
             return;
         }
 
@@ -287,9 +367,9 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
             return;
         }
 
-        // iPhone: only a <video> goes full screen, the picture alone.
+        // An iPhone without popovers (before iOS 17): only a <video> goes full screen, the picture alone.
         ( primary as IosVideo | null )?.webkitEnterFullscreen?.();
-    }, [ root, primary ] );
+    }, [ root, primary, windowFull ] );
 
     const canPip = typeof document !== 'undefined' && Boolean( document.pictureInPictureEnabled ) && primary !== null && ! primary.disablePictureInPicture;
 
@@ -314,15 +394,31 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
         }
     }, [ primary ] );
 
+    // Where the stream is in its schedule: the session on air, or the one that just ended, names it, and the countdown
+    // counts to the next; looked at again each minute while there is one, as the thanks give way to the countdown and
+    // a session long past to the one after.
+    const { stream } = useStream();
+    const sessions = useMemo( () => props.sessions ?? ( props.scheduled ? [ { at: props.scheduled } ] : [] ), [ props.sessions, props.scheduled ] );
+    const now = useNow( 60_000, sessions.length > 0 );
+    const schedule = scheduleOf( sessions, stream, now );
+    const session = stream?.state === 'live' || ( stream?.state === 'ended' && ! schedule.counting ) ? schedule.current : schedule.next;
+    const title = session?.title || props.title;
+    const scheduled = schedule.counting && schedule.next ? schedule.next.at : null;
+    const next = schedule.next;
+
     const player = useMemo<Player>( () => ( {
-        title: props.title,
-        scheduled: props.scheduled,
+        title,
+        scheduled,
+        sessions,
+        next,
         url: props.url,
         loginUrl: props.loginUrl,
         cover: props.cover,
         preview: props.preview,
+        placeLogo: props.placeLogo,
         appearance: props.appearance,
         studioUrl: props.studioUrl,
+        connectUrl: props.connectUrl,
         room: props.room,
         texts: props.texts,
         volume,
@@ -333,7 +429,7 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
         layout,
         hasChat: props.chat,
         chatHidden: props.chat && chatHidden,
-        chatToggles: props.chat && ( layout === 'all' || fullscreen ),
+        chatToggles: props.chat && ( layout === 'all' || fullscreen || Boolean( props.chatBeside ) ),
         toggleChat,
         root,
         fullscreen,
@@ -355,7 +451,7 @@ export function PlayerProvider( props : StreamMeta & { chat : boolean, root : Re
         setSpeaker,
         countdown,
         setCountdown
-    } ), [ props.title, props.scheduled, props.url, props.loginUrl, props.cover, props.preview, props.appearance, props.studioUrl, props.room, props.texts, props.chat, layout, root, volume, muted, setVolume, setMuted,
+    } ), [ title, scheduled, sessions, next, props.url, props.loginUrl, props.cover, props.preview, props.placeLogo, props.appearance, props.studioUrl, props.connectUrl, props.room, props.texts, props.chat, props.chatBeside, layout, root, volume, muted, setVolume, setMuted,
         chatHidden, toggleChat, fullscreen, canFullscreen, toggleFullscreen, pip, canPip, togglePip, height, videoShape, statsOpen, toggleStats, keysOpen, speaker, setSpeaker, countdown ] );
 
     return <Context.Provider value={ player }>{ props.children }</Context.Provider>;

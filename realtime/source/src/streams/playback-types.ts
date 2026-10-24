@@ -123,7 +123,10 @@ export interface SendingStats {
 }
 
 export type PlaybackEventKind = 'joining' | 'joined' | 'first-frame' | 'stalled' | 'resumed' | 'reconnecting' | 'reconnected'
-    | 'rejoined' | 'offline' | 'online' | 'quality' | 'error' | 'left' | 'published' | 'unpublished';
+    | 'rejoined' | 'offline' | 'online' | 'quality' | 'error' | 'left' | 'published' | 'unpublished'
+    // The picture too much for the connection (its share lost, or `paused` by the media server), then turned off here
+    // and tried again (EasyStreamState's tooSlow).
+    | 'too-slow' | 'picture-off' | 'picture-retry';
 
 export interface PlaybackEvent {
     at : number;

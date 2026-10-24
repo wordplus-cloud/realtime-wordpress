@@ -46,7 +46,7 @@ export function ViewerControls( props : { guests? : boolean } ){
     return (
         <>
             { reactions.length > 0 && (
-                <div className="estream-reactions" role="group" aria-label={ __( 'Reactions', 'wordplus-stream' ) }>
+                <div className="estream-reactions" role="group" aria-label={ __( 'Reactions', 'wordplus-live-stream' ) }>
                     { reactions.map( ( kind ) => (
                         <button key={ kind } type="button" className="estream-reaction" aria-label={ reactionName( kind ) } data-estream-tip={ reactionName( kind ) } onClick={ () => client.react( kind ) }>
                             <EmojiGlyph emoji={ kind } />
@@ -57,14 +57,14 @@ export function ViewerControls( props : { guests? : boolean } ){
 
             { state.onStage ? (
                 <>
-                    <Toggle on={ state.devices.camera } icon={ state.devices.camera ? 'camera' : 'camera-off' } label={ __( 'Camera', 'wordplus-stream' ) } onChange={ ( on ) => void client.setCamera( on ) } />
-                    <Toggle on={ state.devices.microphone } icon={ state.devices.microphone ? 'mic' : 'mic-off' } label={ __( 'Microphone', 'wordplus-stream' ) } onChange={ ( on ) => void client.setMicrophone( on ) } />
-                    <button type="button" className="estream-button estream-button--danger" onClick={ () => void client.leaveStage() }>{ __( 'Leave stage', 'wordplus-stream' ) }</button>
+                    <Toggle on={ state.devices.camera } icon={ state.devices.camera ? 'camera' : 'camera-off' } label={ __( 'Camera', 'wordplus-live-stream' ) } onChange={ ( on ) => void client.setCamera( on ) } />
+                    <Toggle on={ state.devices.microphone } icon={ state.devices.microphone ? 'mic' : 'mic-off' } label={ __( 'Microphone', 'wordplus-live-stream' ) } onChange={ ( on ) => void client.setMicrophone( on ) } />
+                    <button type="button" className="estream-button estream-button--danger" onClick={ () => void client.leaveStage() }>{ __( 'Leave stage', 'wordplus-live-stream' ) }</button>
                 </>
             ) : signedIn && live && guests ? (
                 <button type="button" className={ 'estream-button' + ( state.handRaised ? ' estream-button--on' : '' ) } aria-pressed={ state.handRaised } onClick={ () => void client.raiseHand( ! state.handRaised ) }>
                     <Icon name="hand" />
-                    { state.handRaised ? __( 'Lower hand', 'wordplus-stream' ) : __( 'Ask to join on stage', 'wordplus-stream' ) }
+                    { state.handRaised ? __( 'Lower hand', 'wordplus-live-stream' ) : __( 'Ask to join on stage', 'wordplus-live-stream' ) }
                 </button>
             ) : null }
         </>
@@ -82,9 +82,9 @@ export function InviteDialog(){
         return (
             <DialogBox
                 labelId="estream-invite-title"
-                title={ __( 'You could not join the stage', 'wordplus-stream' ) }
+                title={ __( 'You could not join the stage', 'wordplus-live-stream' ) }
                 onCancel={ () => setError( '' ) }
-                actions={ <button type="button" className="estream-button" onClick={ () => setError( '' ) }>{ __( 'OK', 'wordplus-stream' ) }</button> }
+                actions={ <button type="button" className="estream-button" onClick={ () => setError( '' ) }>{ __( 'OK', 'wordplus-live-stream' ) }</button> }
             >
                 <p>{ error }</p>
             </DialogBox>
@@ -94,19 +94,19 @@ export function InviteDialog(){
     return (
         <DialogBox
             labelId="estream-invite-title"
-            title={ __( 'The host invites you on stage', 'wordplus-stream' ) }
+            title={ __( 'The host invites you on stage', 'wordplus-live-stream' ) }
             onCancel={ () => client.declineStage() }
             actions={ (
                 <>
-                    <button type="button" className="estream-button" onClick={ () => client.declineStage() }>{ __( 'Not now', 'wordplus-stream' ) }</button>
+                    <button type="button" className="estream-button" onClick={ () => client.declineStage() }>{ __( 'Not now', 'wordplus-live-stream' ) }</button>
                     <button type="button" className="estream-button estream-button--primary" onClick={ async () => {
                         const reply = await client.acceptStage();
-                        if( ! reply.ok ) setError( errorText( reply.error, __( 'Something went wrong', 'wordplus-stream' ) ) );
-                    } }>{ __( 'Join stage', 'wordplus-stream' ) }</button>
+                        if( ! reply.ok ) setError( errorText( reply.error, __( 'Something went wrong', 'wordplus-live-stream' ) ) );
+                    } }>{ __( 'Join stage', 'wordplus-live-stream' ) }</button>
                 </>
             ) }
         >
-            <p>{ __( 'Your camera and microphone will be live for everyone watching.', 'wordplus-stream' ) }</p>
+            <p>{ __( 'Your camera and microphone will be live for everyone watching.', 'wordplus-live-stream' ) }</p>
         </DialogBox>
     );
 }

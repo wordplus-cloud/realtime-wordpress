@@ -9,7 +9,7 @@ import type {
 import {realtime, type Channel, type RealtimeClient, type RealtimeOptions} from "@wordplus/realtime-client";
 import {
     CHECK_PATH, INGEST_IDENTITY, JOIN_PATH, LIVE_PATH, REACTION_EMOJI,
-    type Banned, type ChatMessage, type Corner, type Hand, type Hello, type IngestReply, type JoinFailure, type JoinReply, type Layout, type LiveStream,
+    type Banned, type ChatMessage, type Corner, type Hand, type Hello, type HiddenPictures, type IngestReply, type JoinFailure, type JoinReply, type Layout, type LiveStream,
     type MediaSeat, type Person, type Quality, type Reaction, type Role, type StreamState, type Usage, type Watched, type You
 } from "./protocol.js";
 import {avatarIn, issuerOf} from "./grant.js";
@@ -19,6 +19,7 @@ import type {SendingStats} from "./playback-types.js";
 import {SendingReader} from "./sending.js";
 import {backupFor, CHROMIUM_H264_ENCODE, cameraCodecFor, hardwareFromCaps, roomCallChoice, screenCodecFor, screenPublish, SCREEN_CONTENT_HINT, SCREEN_DEGRADATION, type CameraCodec, type CameraCodecCaps, type CodecPolicy} from "../calls/room-publish.js";
 import {probeCodecCaps} from "../calls/codecs.js";
+import {watchCameraEncoder} from "../calls/encoder-watch.js";
 
 // The browser side of Easy Stream without a UI: trades a grant for seats, keeps
 // the chat socket, watches the stream once it is live, and for a host or guest publishes. A UI reads
@@ -77,6 +78,8 @@ export interface MediaStats {
     // Sending less than the quality chosen because no viewer's player needs more now: the media server turned the
     // bigger layers off, and turns them on for the first that does (a large window, full screen).
     held? : boolean;
+    // OBS's picture: seconds between its key frames, once two have come (KEYFRAME_WINDOW_MS).
+    keyframeSeconds? : number;
 }
 
 export interface Tile {
@@ -109,7 +112,9 @@ export interface FloatingReaction {
 }
 
 export interface EasyStreamState {
-    status : 'joining' | 'ready' | 'error';
+    // `unconnected`: the cloud doesn't take the site's streams yet, and this page's host (options.offlineHost) sets up
+    // the camera, the microphone and a shared screen in the preview, without going live.
+    status : 'joining' | 'ready' | 'error' | 'unconnected';
     error : string | null;
     stream : StreamState | null;
     you : You | null;
@@ -131,6 +136,9 @@ export interface EasyStreamState {
     tiles : Tile[];
     audioBlocked : boolean;
     devices : { camera : boolean, microphone : boolean };
+    // The microphone as it hears, for music (setOriginalSound()): no echo cancellation, noise suppression nor gain
+    // control, in stereo at 128 kbps. Off, it is tuned for speech, mono at 48.
+    originalSound : boolean;
     screenSharing : boolean;
     // Whether this browser can share a screen at all: a phone's can't (no getDisplayMedia).
     canShareScreen : boolean;
@@ -162,6 +170,9 @@ export interface EasyStreamState {
     sentHere : boolean;
     // The main picture shows no new frame while it should (playbackStats() says more).
     stalled : boolean;
+    // A viewer's connection could not carry the picture: it is off for them, the sound goes on alone, and it is tried
+    // again by itself after a while (TOO_SLOW_RETRY_MS) or at once by retryPicture().
+    tooSlow : boolean;
     // The browser says it is offline.
     offline : boolean;
 }
@@ -182,6 +193,13 @@ export interface EasyStreamOptions {
     // Whether the page shows the picture (default true). One that shows only the chat or the stream's details
     // never fetches the video's part nor watches, until something on it wants the picture (wantVideo()).
     video? : boolean;
+    // The product the stream is watched or sent from, and its version, which each join of the stream's room tells the
+    // media server (@wordplus/rtc-client's meshApp, a join's `rtc_app`), as a call's product does.
+    app? : { name : string, version? : string };
+    // A host's page on a site whose streams the cloud doesn't take yet (no licence, or one without streaming): the
+    // join's refusal (UNCONNECTED) leaves it `unconnected` rather than in error, with the host in it under this name,
+    // so the preview opens as it would. Nothing goes live, nor reaches OBS, from it.
+    offlineHost? : { name : string };
     // Stand-ins for tests. realtime is the page's shared connector (@wordplus/realtime-client's realtime()).
     fetch? : typeof fetch;
     realtime? : ( options : RealtimeOptions ) => RealtimeClient;
@@ -258,18 +276,24 @@ const AWAY_AFTER_MS = 2000;
 const hasFarewell = ( chat : Channel ) => typeof ( chat as Partial<Channel> ).farewell === 'function';
 
 // A shared screen: no bigger than the quality sent, at 30 frames a second, so a video or a demo on it plays
-// smoothly (the RTC client's default is 15), with its sound, a tab's video or music.
+// smoothly (the RTC client's default is 15), with its sound, a tab's video or music. That sound as it plays, with none
+// of a microphone's processing, which takes music for noise and echo, and without what this page plays itself, such
+// as a guest's voice, which would go out twice (restrictOwnAudio, Chromium's). Not this tab, the studio, which would
+// show itself over and over.
 function screenCapture( quality : Quality ) : ScreenShareCaptureOptions {
-    return { audio: true, resolution: quality === '1080p' ? { width: 1920, height: 1080, frameRate: 30 } : { width: 1280, height: 720, frameRate: 30 } };
+    return {
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, restrictOwnAudio: true },
+        selfBrowserSurface: 'exclude',
+        resolution: quality === '1080p' ? { width: 1920, height: 1080, frameRate: 30 } : { width: 1280, height: 720, frameRate: 30 }
+    };
 }
 
 // How a shared screen goes out, as a group call's does (calls/room-publish.ts): in its codec (chosenCodecs(): the
 // hardware's H.264 where there is one, else VP8), its picture marked motion (SCREEN_CONTENT_HINT, set as it is shared) and
 // keeping its size when short of bandwidth or CPU (SCREEN_DEGRADATION), so smooth where it can be and sharp where it
-// can't. In H.264 from 1280 by 640 a second picture half its size at 15 frames goes with it, for a viewer on a slow
-// connection, at half the bitrate at most; in VP8 it goes whole only, one picture, as Chrome encodes VP8 simulcast of
-// a screen at a few frames a second (screenPublish). Its sound goes in stereo at 128 kbps, where a microphone's
-// speech goes mono at 48.
+// can't. In H.264 or H.265 from 1280 by 640, in three pictures for viewers' different screens and connections, as the
+// camera's sizes go (screenLayers()); in VP8 whole only, one picture, as Chrome encodes VP8 simulcast of a screen at a
+// few frames a second (screenPublish). Its sound goes in stereo at 128 kbps, where a microphone's speech goes mono at 48.
 function screenPublishing( lk : Media, track : LocalTrack, quality : Quality, codec : CameraCodec ) : TrackPublishOptions {
     const top = quality === '1080p' ? 3_000_000 : 2_000_000;
     let settings : MediaTrackSettings = {};
@@ -278,8 +302,9 @@ function screenPublishing( lk : Media, track : LocalTrack, quality : Quality, co
     } catch ( e ) {
         // A track that says nothing of its size goes whole.
     }
-    const screen = screenPublish( settings.width ?? 0, settings.height ?? 0, codec );
-    const layer = screen.simulcast ? screen.layer : null;
+    const layers = screenPublish( settings.width ?? 0, settings.height ?? 0, codec ).simulcast
+        ? screenLayers( settings.width ?? 0, settings.height ?? 0, quality )
+        : [];
 
     return {
         videoCodec: codec,
@@ -287,15 +312,38 @@ function screenPublishing( lk : Media, track : LocalTrack, quality : Quality, co
         degradationPreference: SCREEN_DEGRADATION,
         audioPreset: { maxBitrate: 128_000 },
         forceStereo: true,
-        ...( layer
-            ? { simulcast: true, screenShareSimulcastLayers: [ new lk.VideoPreset( layer.width, layer.height, Math.min( layer.bitrate, top / 2 ), layer.fps ) ] }
+        ...( layers.length > 0
+            ? { simulcast: true, screenShareSimulcastLayers: layers.map( ( l ) => new lk.VideoPreset( l.width, l.height, l.bitrate, l.fps ) ) }
             : { simulcast: false } )
     };
+}
+
+// The two pictures under a shared screen's whole one, smallest first, in its shape: 360 lines at 15 frames for a
+// phone or a slow connection, and at 30 frames one of 720 lines under a 1080p stream's screen (540 under a 720p
+// stream's) for a player of a laptop's size, as the camera's middle layer goes. A screen of fewer than 640 lines goes
+// whole only. Before, a screen had one picture half its size under it, and a viewer whose connection could not carry
+// the whole one dropped straight to half.
+export function screenLayers( width : number, height : number, quality : Quality ) : Array<{ width : number, height : number, bitrate : number, fps : number }> {
+    if( width <= 0 || height < 640 ) return [];
+    const middle = quality === '1080p' && height > 720 ? 720 : 540;
+    const sized = ( lines : number ) => Math.round( lines * width / height / 2 ) * 2;
+
+    return [
+        { width: sized( 360 ), height: 360, bitrate: 400_000, fps: 15 },
+        { width: sized( middle ), height: middle, bitrate: middle === 720 ? 1_500_000 : 1_000_000, fps: 30 }
+    ];
 }
 
 // Whether this browser can share a screen: no phone's browser can (no getDisplayMedia).
 export function canShareScreen( nav : { mediaDevices? : { getDisplayMedia? : unknown } } | undefined = globalThis.navigator ) : boolean {
     return typeof nav?.mediaDevices?.getDisplayMedia === 'function';
+}
+
+// Whether this browser is a phone's or a tablet's, as its user agent says, or an iPad's, which says it is a Mac's but
+// has a touch screen.
+export function handheld( nav : { userAgent? : string, maxTouchPoints? : number } | undefined = globalThis.navigator ) : boolean {
+    const agent = String( nav?.userAgent ?? '' );
+    return /Android|iPhone|iPad|iPod|Mobile/i.test( agent ) || ( /Macintosh/.test( agent ) && Number( nav?.maxTouchPoints ) > 1 );
 }
 
 const CHAT_KEPT = 200;
@@ -318,6 +366,9 @@ const FULL_AFTER_MS = 4000;
 // A viewer refused while the site's streams take no new viewers (`no_hours`: its account's credits
 // spent) asks again this often (plus the jitter), so a page left open comes in once credits are bought.
 const NO_HOURS_RETRY_MS = 60000;
+// The join's refusals of a site whose streams the cloud doesn't take: no key yet (the site's own word), a licence it
+// doesn't know or take, and a plan without streaming. A host's page (options.offlineHost) is `unconnected` after them.
+const UNCONNECTED = new Set( [ 'not_configured', 'not_licensed', 'not_included' ] );
 // How often a host's page asks what the site has left (the check), so the studio says when new viewers can't join.
 const USAGE_EVERY_MS = 120000;
 // A viewer's picture that stopped coming is taken up again by joining the room afresh, as closing the stream and
@@ -328,6 +379,20 @@ const USAGE_EVERY_MS = 120000;
 const RECONNECT_GIVE_UP_MS = 15000;
 const FLOW_CHECK_MS = 3000;
 const FLOW_SAMPLE_MS = 3000;
+// A picture while its page is hidden (another tab in front, the window minimized), from HIDDEN_AFTER_MS after, as the
+// RTC client takes a page as hidden (its BACKGROUND_REACTION_DELAY): its smallest layer, not paused. Paused, as the RTC
+// client pauses a hidden page's pictures (adaptive stream's pauseVideoInBackground), a picture came back with the next
+// key frame the media server asked its sender for, which for a shared screen it asks at most every 3 s (WordPlus Mesh's
+// screen_key_frame_request_delay): with other viewers coming and going, 3.1-3.3 s of a still picture after coming back,
+// 1.1 s alone (2026-10-23: a viewer back from another tab waited about 3 s for the stream to play again). Kept at its
+// smallest layer, it moves at once and sharpens with the next key frame. Paused as before on phones, in huge streams
+// and when the host sends no small layer: on a phone or tablet (handheld()), where the sender's smallest layer is more
+// than HIDDEN_LOW_SIDE pixels on its short side or of a size it doesn't say (an encoder over WHIP), and wherever the
+// cloud says to pause them: from as many viewers as the number it sets (the server's to change, without a reload, 50 to
+// begin with), told in the hello and as `hidden` once that changes, and by a cloud that says nothing (before
+// 2026-10-23).
+const HIDDEN_AFTER_MS = 5000;
+const HIDDEN_LOW_SIDE = 360;
 // How long a browser holds what arrives before playing it (RTCRtpReceiver.jitterBufferTarget). Left to itself it holds
 // about a frame, 13 ms on a desktop Chrome: a packet the host's upload lost comes back a round trip later, and its frame
 // then plays late, a jolt each time (seen at about 1% lost on the way to Frankfurt, on stock LiveKit as on the mesh).
@@ -339,9 +404,22 @@ const FLOW_SAMPLE_MS = 3000;
 // and never froze at 1000, decoding 29 frames a second of 29.
 const VIEWER_JITTER_BUFFER_MS = 1000;
 const STAGE_JITTER_BUFFER_MS = 150;
+// OBS's key frames counted over this long (keyframeSeconds()): OBS makes one at its interval alone, never when a
+// viewer asks, so a viewer coming in, back to the page from another, or to another size of the picture waits for the
+// next. OBS's Keyframe Interval left at 0 (auto, and Simple output mode has no other) gave one every 8.2 s at 30 fps.
+const KEYFRAME_WINDOW_MS = 30000;
 // A picture's pixel density while a viewer chose its quality: a player of any size then reckons more pixels than the
 // largest layer has (a 160-pixel thumbnail, 1,600), so the cap alone decides (capQuality).
 const CHOSEN_DENSITY = 10;
+// A viewer's picture too much for their connection (playback.ts, TOO_SLOW_MS) is turned off, so the sound has the
+// connection to itself, and tried again after TOO_SLOW_RETRY_MS, twice as long after each try that fails as well, up to
+// TOO_SLOW_RETRY_MAX_MS. A try that plays TOO_SLOW_KEPT_MS starts the waits over. The media server's own way keeps
+// sending the picture's smallest layer while the connection cannot carry it, for its feedback: on 780 kbit/s down, a
+// layer of 2,250 kbit/s was sent 27 s with 20-45% of the sound made up, and tried again 14 s after with the same. The
+// first try comes soon, for a connection that was bad only for a while; each try that fails costs a few seconds of sound.
+const TOO_SLOW_RETRY_MS = 10_000;
+const TOO_SLOW_RETRY_MAX_MS = 160_000;
+const TOO_SLOW_KEPT_MS = 30_000;
 // A person's sound is held as long as their picture, less SYNC_SLACK_MS, looked at every SYNC_TICK_MS. The media
 // server's playout delay holds pictures only: a stream's room asks 300 ms, which WordPlus Mesh (1.0.7) raises to three
 // round trips of a path that repairs, up to 2 s, while sound plays at the client's own hold. On stage that put sound
@@ -378,6 +456,7 @@ const initialState : EasyStreamState = {
     tiles: [],
     audioBlocked: false,
     devices: { camera: false, microphone: false },
+    originalSound: false,
     screenSharing: false,
     canShareScreen: false,
     reactions: [],
@@ -396,6 +475,7 @@ const initialState : EasyStreamState = {
     elsewhere: false,
     sentHere: false,
     stalled: false,
+    tooSlow: false,
     offline: false
 };
 
@@ -518,6 +598,8 @@ export class EasyStreamClient {
     // The join of the room under way, which whatever needs the room meanwhile waits for (connectMedia).
     private connectingMedia : Promise<Room | null> | null = null;
     private localTracks : LocalTrack[] = [];
+    // OBS's key asked for, found sending into the room (findEncoder()).
+    private findingEncoder = false;
     // A shared screen's picture and its sound, while shared (setScreenShare()).
     private screenTracks : LocalTrack[] = [];
     // The camera and microphone chosen (useDevice), for every track opened after.
@@ -545,6 +627,17 @@ export class EasyStreamClient {
     // back into sight.
     private stallTimer : ReturnType<typeof setTimeout> | null = null;
     private onSight : ( () => void ) | null = null;
+    // The page hidden for HIDDEN_AFTER_MS, its pictures that keep coming at their smallest layer (capQuality): whether
+    // it is, the wait for it, and whether the cloud says to keep them (the hello's `hidden`, and the event).
+    private hidden = false;
+    private hiddenTimer : ReturnType<typeof setTimeout> | null = null;
+    private hiddenKept = false;
+    private readonly handheld = handheld();
+    // A picture turned off as too much for the connection: its next try, the tries that failed in a row, and the wait
+    // after a try that tells it played (TOO_SLOW_KEPT_MS).
+    private slowTimer : ReturnType<typeof setTimeout> | null = null;
+    private slowTries = 0;
+    private slowKept : ReturnType<typeof setTimeout> | null = null;
     // Sound follows picture (soundFollowsPicture): its look every SYNC_TICK_MS, whether one is running, and each
     // picture's hold as last read from its receiver's totals.
     private syncTimer : ReturnType<typeof setInterval> | null = null;
@@ -559,6 +652,7 @@ export class EasyStreamClient {
     // What a host sends, in detail (sendingDetail()).
     private readonly sending = new SendingReader();
     private pixelDensity = 1;
+    private screenDensity = 1;
     // The page's listener for the browser going offline and online (followNetwork).
     private onNetwork : ( () => void ) | null = null;
 
@@ -568,6 +662,7 @@ export class EasyStreamClient {
         this.random = options.random ?? Math.random;
         this.video = options.video ?? true;
         this.state = { ...this.state, canShareScreen: Boolean( options.createLocalScreenTracks ) || canShareScreen() };
+        this.playback.onTooSlow = () => this.pictureTooSlow();
     }
 
     // Something on the page shows the picture now (a player added beside a chat): video comes as it would have.
@@ -643,11 +738,13 @@ export class EasyStreamClient {
         this.joinTimer = this.usageTimer = null;
         if( this.onSight ) globalThis.document?.removeEventListener( 'visibilitychange', this.onSight );
         this.onSight = null;
+        this.unhide();
         if( this.onNetwork ){
             globalThis.removeEventListener?.( 'online', this.onNetwork );
             globalThis.removeEventListener?.( 'offline', this.onNetwork );
         }
         this.onNetwork = null;
+        this.forgetSlow();
         this.stopped = true;
     }
 
@@ -807,6 +904,15 @@ export class EasyStreamClient {
             reply = await this.requestSeats();
         } catch ( e ) {
             const error = ( e as Error ).message;
+            const host = this.options.offlineHost;
+            if( host && UNCONNECTED.has( error ) ){
+                // The host here, under the page's name for them, to set up the preview: the best quality a host
+                // sends, as the cloud would give it, and no chat, stage or socket, which only the cloud has.
+                this.set( { status: 'unconnected', error, you: { identity: 'local', role: 'host', name: host.name, chat: 'read', mod: true, stage: false, quality: '1080p' } } );
+                this.set( this.sendQualities( this.wantedQuality ) );
+                if( this.video ) this.media().catch( () => {} );
+                return;
+            }
             this.set( { status: 'error', error } );
             // The site's streams take no new viewers now: asked again in a while, so the page comes in once they do.
             if( error === 'no_hours' && ! this.stopped ){
@@ -819,6 +925,8 @@ export class EasyStreamClient {
         this.joinedAt = Date.now();
         this.set( { stream: reply.stream, you: reply.you, audience: reply.audience ?? null, usage: reply.usage ?? null, ...this.sendQualities( this.wantedQuality ) } );
         if( reply.you.role === 'host' ) this.watchUsage();
+        // Video coming (onStreamState): its part fetched now, beside the chat socket, whose hello took about 0.5 s more.
+        if( this.video && ( reply.stream.state === 'live' || reply.you.role !== 'viewer' ) ) this.media().catch( () => {} );
         // A camera turned on before the join answered had no one to show it as: it shows now.
         if( this.localTracks.length > 0 ) this.refreshTiles();
         this.openChat();
@@ -852,7 +960,7 @@ export class EasyStreamClient {
     // The quality a host sends and the best they may, from the join: the socket's hello, which replaces `you`,
     // doesn't carry it. The quality wanted is kept within the best.
     private sendQualities( wanted : Quality ) : Pick<EasyStreamState, 'sendQuality' | 'topQuality'> {
-        const you = this.joined?.you;
+        const you = this.joined?.you ?? ( this.state.status === 'unconnected' ? this.state.you : null );
         const topQuality : Quality = you?.role === 'host' && you.quality === '1080p' ? '1080p' : '720p';
         return { topQuality, sendQuality: topQuality === '1080p' ? wanted : '720p' };
     }
@@ -1012,6 +1120,7 @@ export class EasyStreamClient {
             hands: hello.hands,
             ...helloExtras( hello )
         } );
+        this.keepHidden( hello.hidden );
         if( this.live() ) this.count( { peak: peakOf( hello.peak, hello.viewers, this.state.tally.peak ) } );
         this.onStreamState( hello.stream, false );
         this.recheck = false;
@@ -1057,6 +1166,7 @@ export class EasyStreamClient {
             const n = Object.values( counts ).reduce<number>( ( sum, c ) => sum + ( Number( c ) || 0 ), 0 );
             if( this.live() ) this.count( { reactions: this.state.tally.reactions + n } );
         } );
+        on( 'hidden', ( p : { pictures : HiddenPictures } ) => this.keepHidden( p?.pictures ) );
         on( 'viewers', ( p : { n : number, peak? : number } ) => {
             this.set( { viewers: p.n } );
             if( this.live() ) this.count( { peak: peakOf( p.peak, p.n, this.state.tally.peak ) } );
@@ -1064,7 +1174,7 @@ export class EasyStreamClient {
         on( 'slow', ( p : { seconds : number } ) => this.set( { slow: p.seconds } ) );
         on( 'hands', ( hands : Hand[] ) => this.set( { hands } ) );
         on( 'invited', () => this.set( { invited: true, handRaised: false } ) );
-        on( 'unstaged', () => { void this.leaveStage(); } );
+        on( 'unstaged', () => { this.backToWatching(); } );
         on( 'pinned', ( p : { message : ChatMessage | null } ) => this.set( { pinned: p.message ?? null } ) );
         on( 'layout', ( layout : Layout ) => this.set( { layout: cleanLayout( layout ) } ) );
         on( 'timeout', ( p : { until : number } ) => this.set( { timeoutUntil: Number( p.until ) || null } ) );
@@ -1143,6 +1253,7 @@ export class EasyStreamClient {
             hands: hello.hands,
             ...helloExtras( hello )
         } );
+        this.keepHidden( hello.hidden );
 
         if( stream.state !== before?.state ) this.onStreamState( stream, true );
     }
@@ -1182,8 +1293,10 @@ export class EasyStreamClient {
             // A host who comes to a stream already live (a reload, another tab, the stream's page beside the studio)
             // sees it, OBS's picture included, and their camera goes out once they turn it on. Their place in the
             // room is this tab's own, so another window of theirs stays live. A window that was sending it before a
-            // reload sends again what it sent: its camera and microphone.
-            if( stream.state === 'live' && you.role === 'host' && ! this.room && ! changed ){
+            // reload sends again what it sent: its camera and microphone. So does a window of theirs open as the
+            // stream goes live from another one, which waited for the host's picture until a reload while only a
+            // window coming to it live joined. The window going live is in the room by then.
+            if( stream.state === 'live' && you.role === 'host' && ! this.room ){
                 void this.connectMedia( 'publisher' ).then( ( room ) => { if( room ) void this.resume(); } );
             }
         }
@@ -1222,16 +1335,20 @@ export class EasyStreamClient {
         }
     }
 
-    // After a reload while live: the camera and microphone this window sent, on again and sent.
-    private async resume(){
+    // What this window sent before a reload (rememberSending()), or null.
+    private sentBefore() : { camera? : boolean, microphone? : boolean } | null {
         const key = this.sendingKey();
-        let was : { camera? : boolean, microphone? : boolean } | null = null;
         try {
             const saved = key ? globalThis.sessionStorage?.getItem( key ) : null;
-            was = saved ? JSON.parse( saved ) : null;
+            return saved ? JSON.parse( saved ) : null;
         } catch ( e ) {
-            was = null;
+            return null;
         }
+    }
+
+    // After a reload while live: the camera and microphone this window sent, on again and sent.
+    private async resume(){
+        const was = this.sentBefore();
         if( ! was || ( ! was.camera && ! was.microphone ) || ! this.live() || this.localTracks.length > 0 ) return;
 
         try {
@@ -1313,9 +1430,18 @@ export class EasyStreamClient {
         // as tall as the player's height times this, less 10%. A Retina screen taken as 1 got a picture half as
         // sharp as it shows; taken as 2, a small player got 720p (a 440-pixel one, 248 tall). At most 1.5: a player
         // up to about 470 pixels wide gets 360p (a phone's), a larger one 720p, and 1080p from about 950 wide.
-        const pixelDensity = Math.min( 1.5, Math.max( 1, Number( globalThis.devicePixelRatio ) || 1 ) );
+        // A shared screen at the screen's own density, up to 2 (capQuality): its text is what is read, and at 1.5 a
+        // player beside a chat, 700 to 950 pixels wide, got 720p of a 1080p screen on a Retina screen, which shows
+        // 1080p sharply there. At 2 it asks for 1080p from about 710 wide, and a connection that cannot carry it
+        // still gets the 720p layer below.
+        const density = Math.max( 1, Number( globalThis.devicePixelRatio ) || 1 );
+        const pixelDensity = Math.min( 1.5, density );
         this.pixelDensity = pixelDensity;
-        const room = new ( this.options.Room ?? lk.Room )( { adaptiveStream: { pixelDensity }, dynacast: true } );
+        this.screenDensity = Math.min( 2, density );
+        // Two connections, a publisher and a subscriber, as a call's (sdk-calls/group-call.ts): the mesh's mediasoup
+        // engine doesn't serve one connection both ways (/rtc/v1), and its refused try, then the RTC client's check of
+        // why, held every join about 0.4 s before the connection that works.
+        const room = new ( this.options.Room ?? lk.Room )( { adaptiveStream: { pixelDensity }, dynacast: true, singlePeerConnection: false } );
         this.room = room;
         this.wireRoom( room, lk );
         this.playback.joining();
@@ -1327,7 +1453,8 @@ export class EasyStreamClient {
             meshJoinBudgetMs: MESH_JOIN_BUDGET_MS,
             onMeshWait: ( wait ) => {
                 if( this.room === room ) this.set( { media: 'waiting', waitUntil: wait.until } );
-            }
+            },
+            ...( this.options.app ? { meshApp: this.options.app } : {} )
         };
 
         // A viewer still connecting a few seconds in while as many watch as the stream takes is waiting for a place: the
@@ -1398,12 +1525,15 @@ export class EasyStreamClient {
         }
 
         // Every picture that arrives is capped at the viewer's choice, and everything that arrives is held long enough
-        // for what the host's connection lost to be sent again in time. A host's encoder picture keeps coming.
+        // for what the host's connection lost to be sent again in time. A host's encoder picture keeps coming, and a
+        // picture coming while the viewer's connection is too slow for pictures is off as well.
         room.on( RoomEvent.TrackSubscribed, ( track : Track, publication : TrackPublication, participant? : Participant ) => {
             if( this.room !== room ) return;
             this.capQuality( publication );
             this.holdArrivals( track );
             this.keepEncoderOn( publication, participant );
+            if( this.state.tooSlow ) this.pictureOff( publication );
+            this.findEncoder( publication, participant );
         } );
         // What goes out from here, for the statistics' list of what happened.
         room.on( RoomEvent.LocalTrackPublished, ( publication : TrackPublication ) => {
@@ -1463,22 +1593,127 @@ export class EasyStreamClient {
         }
         this.stopFollowing();
         this.playback.end();
+        this.forgetSlow();
         const room = this.room;
         this.room = null;
         if( room && room.state !== this.lk?.ConnectionState.Disconnected ) void room.disconnect();
-        this.set( { media: 'off', waitUntil: null, tiles: this.previewTiles(), connection: 'unknown', elsewhere: false, stalled: false } );
+        this.set( { media: 'off', waitUntil: null, tiles: this.previewTiles(), connection: 'unknown', elsewhere: false, stalled: false, tooSlow: false } );
+    }
+
+    // A viewer's picture too much for their connection (the playback monitor's onTooSlow): every picture off for them,
+    // so the sound has the connection, and tried again after a wait twice as long as the last one that failed. A host
+    // and a guest on stage keep theirs.
+    private pictureTooSlow(){
+        const room = this.room;
+        if( ! room || this.state.tooSlow || this.state.you?.role !== 'viewer' || this.state.onStage ) return;
+        if( this.slowKept ) clearTimeout( this.slowKept );
+        this.slowKept = null;
+        const wait = Math.min( TOO_SLOW_RETRY_MAX_MS, TOO_SLOW_RETRY_MS * 2 ** this.slowTries++ );
+        this.playback.note( 'picture-off', String( wait ) );
+        this.set( { tooSlow: true } );
+        for( const participant of room.remoteParticipants.values() ){
+            for( const publication of participant.trackPublications.values() ) this.pictureOff( publication );
+        }
+        if( this.slowTimer ) clearTimeout( this.slowTimer );
+        this.slowTimer = setTimeout( () => {
+            this.slowTimer = null;
+            this.retryPicture();
+        }, wait );
+    }
+
+    // The picture tried again on a connection that could not carry it: at once (a viewer's Try again, back online), or
+    // when its wait is over. One that is too much again within TOO_SLOW_KEPT_MS waits twice as long as before.
+    retryPicture(){
+        if( this.slowTimer ) clearTimeout( this.slowTimer );
+        this.slowTimer = null;
+        if( ! this.state.tooSlow ) return;
+        this.playback.note( 'picture-retry' );
+        this.set( { tooSlow: false } );
+        for( const participant of this.room?.remoteParticipants.values() ?? [] ){
+            for( const publication of participant.trackPublications.values() ) this.pictureOn( publication );
+        }
+        if( this.slowKept ) clearTimeout( this.slowKept );
+        this.slowKept = setTimeout( () => {
+            this.slowKept = null;
+            this.slowTries = 0;
+        }, TOO_SLOW_KEPT_MS );
+    }
+
+    private forgetSlow(){
+        if( this.slowTimer ) clearTimeout( this.slowTimer );
+        if( this.slowKept ) clearTimeout( this.slowKept );
+        this.slowTimer = this.slowKept = null;
+        this.slowTries = 0;
+    }
+
+    // A picture off for this viewer: the media server sends none of it, and its last frame stays on screen.
+    private pictureOff( publication : TrackPublication ){
+        const remote = publication as TrackPublication & { setEnabled? : ( enabled : boolean ) => void };
+        if( publication.kind === this.lk?.Track.Kind.Video ) remote.setEnabled?.( false );
+    }
+
+    // A picture on again, following its element's sight once more as adaptive stream has it: the RTC client keeps a
+    // publication enabled by hand on whether or not it is on screen, so where it can, what was asked by hand is let go.
+    private pictureOn( publication : TrackPublication ){
+        const remote = publication as TrackPublication & { setEnabled? : ( enabled : boolean ) => void, requestedDisabled? : boolean, emitTrackUpdate? : () => void };
+        if( publication.kind !== this.lk?.Track.Kind.Video ) return;
+        remote.setEnabled?.( true );
+        if( remote.requestedDisabled === false && typeof remote.emitTrackUpdate === 'function' ){
+            remote.requestedDisabled = undefined;
+            remote.emitTrackUpdate();
+        }
     }
 
     // A stopped picture, taken up again: after a minimized browser came back, the page showed reconnecting and the
     // video never played again until the viewer left and joined. A page back in sight looks whether its picture comes
     // (rejoinStalled).
+    // And a hidden page's pictures at their smallest layer where they keep coming (HIDDEN_AFTER_MS), back as they were
+    // once it is in sight.
     private followSight(){
         const doc = globalThis.document;
         if( ! doc || this.onSight ) return;
         this.onSight = () => {
-            if( doc.visibilityState === 'visible' && this.room ) this.lookAgain( FLOW_CHECK_MS );
+            if( doc.visibilityState === 'hidden' ){
+                this.hideLater();
+                return;
+            }
+            this.unhide();
+            if( this.room ) this.lookAgain( FLOW_CHECK_MS );
         };
         doc.addEventListener( 'visibilitychange', this.onSight );
+        // A page opened hidden, in a tab behind, is hidden from the start, as the RTC client takes it.
+        if( doc.visibilityState === 'hidden' ) this.hide();
+    }
+
+    private hideLater(){
+        if( this.hidden || this.hiddenTimer ) return;
+        this.hiddenTimer = setTimeout( () => {
+            this.hiddenTimer = null;
+            this.hide();
+        }, HIDDEN_AFTER_MS );
+    }
+
+    private hide(){
+        this.hidden = true;
+        this.capAll();
+    }
+
+    // The page in sight again, or the client stopped: its pictures as they were.
+    private unhide(){
+        if( this.hiddenTimer ) clearTimeout( this.hiddenTimer );
+        this.hiddenTimer = null;
+        if( ! this.hidden ) return;
+        this.hidden = false;
+        this.capAll();
+    }
+
+    // The cloud's word on a hidden page's pictures, in the hello and once it changes: on a hidden page, those it keeps
+    // come at their smallest layer again or are paused at once, the RTC client told (capQuality).
+    private keepHidden( pictures : HiddenPictures | undefined ){
+        const kept = pictures === 'low';
+        if( kept === this.hiddenKept ) return;
+        this.hiddenKept = kept;
+        this.capAll();
     }
 
     // The browser offline, said at once (the RTC client takes seconds to notice), and once it is back online a viewer's
@@ -1492,6 +1727,8 @@ export class EasyStreamClient {
             this.set( { offline } );
             this.playback.note( offline ? 'offline' : 'online' );
             if( offline ) return;
+            // A connection back may carry the picture its last one could not.
+            this.retryPicture();
             if( this.room ) this.lookAgain( FLOW_CHECK_MS );
             else if( this.state.you?.role === 'viewer' && ! this.state.onStage && this.video && ! this.away ) this.watch( 0 );
         };
@@ -1558,7 +1795,9 @@ export class EasyStreamClient {
     // The picture, on one track: on `auto` the best the player's size allows (adaptive stream); on a viewer's choice the
     // sender's layer of that quality, whatever the player's size. Adaptive stream asks for the smaller of the player's
     // size and the cap, so for a choice the size it reckons is made larger than any layer (the track's own pixel
-    // density, CHOSEN_DENSITY), and the cap is the layer chosen. Auto gives the room's density back.
+    // density, CHOSEN_DENSITY), and the cap is the layer chosen. Auto gives the room's density back, and a shared
+    // screen the screen's own, up to 2. While the page is hidden, a picture that keeps coming (hiddenLow()) is capped at
+    // its smallest layer, and the RTC client pauses the others (HIDDEN_AFTER_MS).
     private capQuality( publication : TrackPublication ){
         const lk = this.lk;
         const remote = publication as TrackPublication & { setVideoQuality? : ( q : VideoQuality ) => void };
@@ -1566,16 +1805,40 @@ export class EasyStreamClient {
 
         const choice = this.state.quality;
         const { VideoQuality } = lk;
-        // A choice above 720p takes the largest layer below it (chosenLayer): Full HD only on auto.
-        const layer = choice === 'auto' ? 'high' : chosenLayer( choice, layersOf( publication ) );
+        const layers = layersOf( publication );
+        const low = this.hiddenLow( layers );
+        // A choice above 720p takes the largest layer below it (chosenLayer): Full HD only on auto. Auto caps at the best
+        // layer the sender sends: the RTC client sends the player's size only while it is under the cap's layer, and an
+        // encoder's two layers over WHIP are low and medium, so a cap at high, a layer not sent, asked for the best
+        // layer whatever the player's size.
+        const layer = low && this.hidden ? layers[ layers.length - 1 ]!.quality
+            : choice === 'auto' ? layers[ 0 ]?.quality ?? 'high' : chosenLayer( choice, layers );
         remote.setVideoQuality( layer === 'low' ? VideoQuality.LOW : layer === 'medium' ? VideoQuality.MEDIUM : VideoQuality.HIGH );
 
-        const track = remote.track as ( Track & { adaptiveStreamSettings? : { pixelDensity? : number | 'screen' }, updateDimensions? : () => void } ) | undefined;
+        const track = remote.track as ( Track & {
+            adaptiveStreamSettings? : { pixelDensity? : number | 'screen', pauseVideoInBackground? : boolean },
+            updateDimensions? : () => void,
+            updateVisibility? : () => void
+        } ) | undefined;
         const settings = track?.adaptiveStreamSettings;
-        const density = choice === 'auto' ? this.pixelDensity : CHOSEN_DENSITY;
-        if( ! track || ! settings || settings.pixelDensity === density ) return;
-        track.adaptiveStreamSettings = { ...settings, pixelDensity: density };
-        track.updateDimensions?.();
+        const density = choice !== 'auto' ? CHOSEN_DENSITY : publication.source === lk.Track.Source.ScreenShare ? this.screenDensity : this.pixelDensity;
+        if( ! track || ! settings ) return;
+        const resized = settings.pixelDensity !== density;
+        // The RTC client pauses a hidden page's picture unless told not to, and looks again when told otherwise while
+        // the page is hidden: the cloud saying to pause them pauses it then.
+        const turned = ( settings.pauseVideoInBackground ?? true ) === low;
+        if( ! resized && ! turned ) return;
+        track.adaptiveStreamSettings = { ...settings, pixelDensity: density, pauseVideoInBackground: ! low };
+        if( resized ) track.updateDimensions?.();
+        if( turned ) track.updateVisibility?.();
+    }
+
+    // Whether a picture keeps coming at its smallest layer while the page is hidden (HIDDEN_AFTER_MS): while the cloud
+    // says so, not on a phone or tablet, and only from a sender whose smallest layer is small and of a size it says.
+    private hiddenLow( layers : PictureLayer[] ) : boolean {
+        const smallest = layers[ layers.length - 1 ];
+        return this.hiddenKept && ! this.handheld
+            && !! smallest && smallest.height > 0 && Math.min( smallest.width, smallest.height ) <= HIDDEN_LOW_SIDE;
     }
 
     // A track's jitter buffer at VIEWER_JITTER_BUFFER_MS for a viewer, STAGE_JITTER_BUFFER_MS on stage; a browser
@@ -1598,6 +1861,27 @@ export class EasyStreamClient {
         const remote = publication as TrackPublication & { setEnabled? : ( enabled : boolean ) => void };
         if( participant?.identity !== INGEST_IDENTITY || this.state.you?.role !== 'host' || publication.kind !== this.lk?.Track.Kind.Video ) return;
         remote.setEnabled?.( true );
+    }
+
+    // A host's window that finds OBS sending into the room, and sends nothing of its own nor sent before a reload,
+    // streams from OBS too: a studio reloaded while live from OBS, or opened on a stream gone live as OBS connected,
+    // showed the camera's bar, whose camera would go out over OBS's picture, and none of what arrives from OBS. The
+    // key is asked as Stream from OBS asks it (useEncoder()), the same key, for the address and key the studio shows.
+    private findEncoder( publication : TrackPublication, participant? : Participant ){
+        if( participant?.identity !== INGEST_IDENTITY || this.state.you?.role !== 'host' || publication.kind !== this.lk?.Track.Kind.Video ) return;
+        if( this.state.encoder || this.findingEncoder || this.localTracks.length > 0 || this.screenTracks.length > 0 ) return;
+        const was = this.sentBefore();
+        if( was?.camera || was?.microphone ) return;
+
+        this.findingEncoder = true;
+        void this.ack( 'ingest' ).then( ( reply ) => {
+            if( reply.ok && ! this.state.encoder && ! this.stopped ) this.set( { encoder: this.encoderOf( reply as unknown as IngestReply ) } );
+        } ).finally( () => { this.findingEncoder = false; } );
+    }
+
+    // Where OBS sends, and with which key, from the cloud's answer to `ingest`.
+    private encoderOf( { key, path } : IngestReply ) : { url : string, key : string } {
+        return { url: this.options.cloud.replace( /\/$/, '' ) + path, key };
     }
 
     private ownHold() : number {
@@ -1708,6 +1992,9 @@ export class EasyStreamClient {
 
             // A host's own other window, sending: shown here as everyone sees it.
             if( ! p.isLocal && role === 'host' && you?.role === 'host' && personOf( p.identity ) === you.identity ) elsewhere = true;
+            // One's own voice and screen sound are never played here, from this window or another: heard back, they
+            // echo, and a screen shared with the computer's sound sends them out again, so viewers hear them twice.
+            const silent = p.isLocal || ( !! you && personOf( p.identity ) === you.identity );
 
             tiles.push( {
                 identity: p.identity,
@@ -1717,7 +2004,7 @@ export class EasyStreamClient {
                 local: p.isLocal,
                 camera: camera?.track && ! camera.isMuted ? camera.track : ( own?.camera ?? null ),
                 screen: screen?.track && ! screen.isMuted ? screen.track : ( own?.screen ?? null ),
-                audio: p.isLocal ? [] : [ mic?.track, screenAudio?.track ].filter( ( t ) : t is Track => Boolean( t ) ),
+                audio: silent ? [] : [ mic?.track, screenAudio?.track ].filter( ( t ) : t is Track => Boolean( t ) ),
                 micMuted: own ? own.micMuted && ( ! mic || mic.isMuted ) : ! mic || mic.isMuted,
                 speaking: speaking.has( p.identity ),
                 encoder: ! p.isLocal && p.identity === INGEST_IDENTITY
@@ -1796,8 +2083,21 @@ export class EasyStreamClient {
             : { resolution: this.resolution( lk ), facingMode: this.state.facing };
     }
 
+    // Tuned for speech, or as it hears (originalSound): echo cancellation takes a held note for an echo, noise
+    // suppression an instrument for noise, and gain control pumps a song's quiet and loud parts, so for music none of
+    // them, in two channels where the microphone has them.
     private microphoneOptions() : AudioCaptureOptions {
-        return { echoCancellation: true, noiseSuppression: true, ...( this.deviceIds.microphone ? { deviceId: this.deviceIds.microphone } : {} ) };
+        const device = this.deviceIds.microphone ? { deviceId: this.deviceIds.microphone } : {};
+        return this.state.originalSound
+            ? { echoCancellation: false, noiseSuppression: false, autoGainControl: false, voiceIsolation: false, channelCount: 2, ...device }
+            : { echoCancellation: true, noiseSuppression: true, ...device };
+    }
+
+    // How the microphone goes out: in original sound, in stereo at 128 kbps, as a shared screen's sound goes
+    // (screenPublishing()), and without DTX, which sends next to nothing in a quiet passage and clips what starts it.
+    // Tuned for speech, the RTC client's own, mono at 48 kbps.
+    private microphonePublishing() : TrackPublishOptions {
+        return this.state.originalSound ? { audioPreset: { maxBitrate: 128_000 }, forceStereo: true, dtx: false } : {};
     }
 
     private localTrack( kind : 'audio' | 'video' ) : LocalTrack | undefined {
@@ -1841,6 +2141,39 @@ export class EasyStreamClient {
         } catch ( e ) {
             return false;
         }
+    }
+
+    // Original sound on or off (originalSound). A microphone open now is opened again so, muted if it was, and where it
+    // was out it goes out again, as the stereo is fixed as a track is published: viewers miss a moment of it. Answers
+    // whether it is on, which a microphone that cannot be opened so leaves as it was.
+    async setOriginalSound( on : boolean ) : Promise<boolean> {
+        if( on === this.state.originalSound ) return on;
+        this.set( { originalSound: on } );
+
+        const track = this.localTrack( 'audio' );
+        const lk = this.lk;
+        if( ! track || ! lk ) return on;
+
+        let fresh : LocalTrack | undefined;
+        try {
+            [ fresh ] = await this.makeTracks( lk )( { audio: this.microphoneOptions(), video: false } );
+        } catch ( e ) {
+            fresh = undefined;
+        }
+        if( ! fresh ){
+            this.set( { originalSound: ! on } );
+            return ! on;
+        }
+
+        const room = this.room;
+        const out = room?.localParticipant.getTrackPublication?.( track.source )?.track === track;
+        if( track.isMuted ) await fresh.mute();
+        this.localTracks = this.localTracks.map( ( t ) => t === track ? fresh! : t );
+        if( out && room ) await room.localParticipant.unpublishTrack( track );
+        track.stop();
+        if( out && room && this.room === room ) await this.publishUnpublished( room );
+        this.refreshTiles();
+        return on;
     }
 
     // A phone's other camera: the back one, or the front again. The picture isn't mirrored from the back.
@@ -1906,6 +2239,9 @@ export class EasyStreamClient {
     }
 
     private lastDecoded : { at : number, frames : number } | null = null;
+    // OBS's key frames decoded here, for keyframeSeconds(): the track they came on, the count at the last look, and
+    // the looks it had grown at, the last KEYFRAME_WINDOW_MS of them.
+    private keyframes : { track : unknown, count : number, grew : Array<{ at : number, count : number }> } | null = null;
 
     // OBS's picture as it arrives here, while streaming from it.
     async encoderStats() : Promise<MediaStats | null> {
@@ -1925,7 +2261,43 @@ export class EasyStreamClient {
         this.lastDecoded = { at: stats.timestamp, frames };
         const fps = before && stats.timestamp > before.at ? Math.round( ( frames - before.frames ) * 1000 / ( stats.timestamp - before.at ) ) : 0;
 
-        return { width: stats.frameWidth ?? 0, height: stats.frameHeight ?? 0, fps: Math.max( 0, fps ), kbps: Math.round( track.currentBitrate / 1000 ), limited: null };
+        const keyframes = await this.keyframeSeconds( track );
+        return {
+            width: stats.frameWidth ?? 0, height: stats.frameHeight ?? 0, fps: Math.max( 0, fps ), kbps: Math.round( track.currentBitrate / 1000 ), limited: null,
+            ...( keyframes !== null ? { keyframeSeconds: keyframes } : {} )
+        };
+    }
+
+    // Seconds between OBS's key frames, from the browser's count of those decoded, at each look: the time between the
+    // first and last looks it had grown at, over the key frames between, so a look every few seconds still tells a
+    // second apart. Null until it has grown twice.
+    private async keyframeSeconds( track : RemoteVideoTrack ) : Promise<number | null> {
+        const now : { count : number | null, at : number } = { count: null, at: 0 };
+        try {
+            ( await track.receiver?.getStats() )?.forEach( ( s : { type? : string, keyFramesDecoded? : number, timestamp? : number } ) => {
+                if( s.type !== 'inbound-rtp' || typeof s.keyFramesDecoded !== 'number' ) return;
+                now.count = s.keyFramesDecoded;
+                now.at = s.timestamp ?? 0;
+            } );
+        } catch ( e ) {
+            return null;
+        }
+        const { count, at } = now;
+        if( count === null ) return null;
+
+        const seen = this.keyframes;
+        if( seen?.track !== track ){
+            this.keyframes = { track, count, grew: [] };
+            return null;
+        }
+        if( count > seen.count ) seen.grew.push( { at, count } );
+        seen.count = count;
+        while( seen.grew.length > 2 && at - seen.grew[0]!.at > KEYFRAME_WINDOW_MS ) seen.grew.shift();
+
+        const first = seen.grew[0];
+        const last = seen.grew[ seen.grew.length - 1 ];
+        if( ! first || ! last || last.count === first.count ) return null;
+        return Math.round( ( last.at - first.at ) / ( last.count - first.count ) / 100 ) / 10;
     }
 
     // How a camera goes out (chosenCodecs()): three layers, so each viewer gets the one their player and connection
@@ -1969,6 +2341,17 @@ export class EasyStreamClient {
     // Chromium's Baseline only on the mesh, VP8 behind any codec but VP8 for a viewer that decodes none of it.
     private codecChoice : Promise<StreamCodecs> | null = null;
 
+    // The camera sent, watched for a hardware encoder dropping its frames (calls/encoder-watch.ts): once seen, this
+    // browser remembers it, and its next camera goes out in software. The watch follows the track's sender (a full
+    // reconnect publishes it on a new one) and ends with the next camera's, or some minutes after this one's.
+    private cameraWatch : ( () => void ) | null = null;
+
+    private watchCamera( publication : unknown ){
+        this.cameraWatch?.();
+        const track = ( publication as { track? : { sender? : RTCRtpSender } } | undefined )?.track;
+        this.cameraWatch = track?.sender ? watchCameraEncoder( () => track.sender, { onDrops: () => { this.codecChoice = null; } } ) : null;
+    }
+
     private chosenCodecs( room : Room ) : Promise<StreamCodecs> {
         this.codecChoice ??= this.pickCodecs( room ).catch( () => ( { camera: 'vp8', screen: 'vp8', backup: null } ) );
         return this.codecChoice;
@@ -1993,13 +2376,19 @@ export class EasyStreamClient {
     private async publishUnpublished( room : Room ){
         const codecs = await this.chosenCodecs( room );
         const tracks = [
-            ...this.localTracks.map( ( track ) => ( { track, options: this.cameraPublishing( this.lk!, codecs ) } ) ),
+            ...this.localTracks.map( ( track ) => ( {
+                track,
+                options: track.kind === this.lk!.Track.Kind.Audio
+                    ? { ...this.cameraPublishing( this.lk!, codecs ), ...this.microphonePublishing() }
+                    : this.cameraPublishing( this.lk!, codecs )
+            } ) ),
             ...this.screenTracks.map( ( track ) => ( { track, options: screenPublishing( this.lk!, track, this.state.sendQuality, codecs.screen ) } ) )
         ];
         for( const { track, options } of tracks ){
             const published = room.localParticipant.getTrackPublication?.( track.source );
             if( published && published.track === track ) continue;
-            await room.localParticipant.publishTrack( track, options );
+            const publication = await room.localParticipant.publishTrack( track, options );
+            if( track.source === this.lk!.Track.Source.Camera ) this.watchCamera( publication );
         }
         this.refreshTiles();
     }
@@ -2037,6 +2426,7 @@ export class EasyStreamClient {
     // Publishes, then tells everyone the stream is live. Streaming from OBS, the encoder publishes, so its
     // picture must have come first.
     async goLive() : Promise<Ack> {
+        if( this.state.status === 'unconnected' ) return { ok: false, error: this.state.error ?? 'not_configured' };
         if( this.state.you?.role !== 'host' ) return { ok: false, error: 'not_host' };
 
         if( this.state.encoder ){
@@ -2064,13 +2454,13 @@ export class EasyStreamClient {
     // Streaming from OBS over WHIP: the stream's key and the address the encoder sends to, and the host in the
     // room to see what it sends. `renew` makes a new key, which cuts off an encoder using the old one.
     async useEncoder( renew : boolean = false ) : Promise<Ack> {
+        if( this.state.status === 'unconnected' ) return { ok: false, error: this.state.error ?? 'not_configured' };
         if( this.state.you?.role !== 'host' ) return { ok: false, error: 'not_host' };
 
         const reply = await this.ack( 'ingest', renew ? { renew: true } : {} );
         if( ! reply.ok ) return reply;
 
-        const { key, path } = reply as unknown as IngestReply;
-        this.set( { encoder: { url: this.options.cloud.replace( /\/$/, '' ) + path, key } } );
+        this.set( { encoder: this.encoderOf( reply as unknown as IngestReply ) } );
 
         // Before going live, the encoder's picture takes the camera's place.
         if( this.state.stream?.state !== 'live' ) this.stopLocalTracks();
@@ -2239,14 +2629,24 @@ export class EasyStreamClient {
         this.set( { invited: false } );
     }
 
-    // Off stage, by choice or by the host: back to watching.
+    // Off stage by choice: the cloud takes this guest off everyone's stage first, as the host's taking off does, and
+    // then this page comes back as a viewer. Leaving the room alone, the guest's session stayed a publisher there until
+    // the media server let it go, and the viewer's join, the same person's, waited minutes for it. A cloud before this
+    // refuses (`not_host`), and the page leaves the room alone, as it did.
     async leaveStage(){
-        const wasOnStage = this.state.onStage;
+        const identity = this.state.you?.identity;
+        if( this.state.onStage && identity ) await this.ack( 'unstage', { identity } );
+        this.backToWatching();
+    }
+
+    // Off stage, back to watching: once, whichever comes first, the cloud's word (`unstaged`) or this page's own.
+    private backToWatching(){
+        if( ! this.state.onStage ) return;
         this.set( { onStage: false, screenSharing: false } );
         this.disconnectMedia();
         this.stopLocalTracks();
         this.stopScreenTracks();
-        if( wasOnStage && this.state.stream?.state === 'live' ) this.watch( 0 );
+        if( this.state.stream?.state === 'live' ) this.watch( 0 );
     }
 
     // Everyone
@@ -2306,7 +2706,10 @@ export class EasyStreamClient {
     setQuality( quality : VideoChoice ){
         if( quality !== this.state.quality ) this.playback.note( 'quality', quality );
         this.set( { quality } );
+        this.capAll();
+    }
 
+    private capAll(){
         for( const participant of this.room?.remoteParticipants.values() ?? [] ){
             for( const publication of participant.trackPublications.values() ) this.capQuality( publication );
         }

@@ -12,6 +12,19 @@ export type {AudioIn, LayerQuality, MediaServer, PictureLayer, PlaybackEvent, Pl
 
 // A picture that shows no new frame this long while it should is stalled: a camera sends 30 a second.
 const STALL_MS = 1000;
+// A picture too much for this viewer's connection, and only theirs: no new frame for TOO_SLOW_MS while the media server
+// holds it back for them (it does so for a download that cannot carry it, nobody else's), or while all of these hold
+// over that time: at least TOO_SLOW_LOSS of what was sent of it lost (of TOO_SLOW_PACKETS or more), at least
+// TOO_SLOW_SOUND of the sound made up, the media server rating this viewer's connection poor or lost, and not rating its
+// sender's so. A connection that carries less than the picture's smallest layer loses most of it, and its sound with it:
+// on 780 kbit/s down, a layer of 2,250 kbit/s showed 2 frames in 40 s, 63-77% of it lost, and 20-45% of the sound was
+// made up, rated weak from its 8th second. A picture only waiting for its sender's next key frame loses nothing. One whose
+// sender's upload loses it comes with the same gaps to every viewer, and its sender is rated poor, within the media
+// server's look every few seconds, which TOO_SLOW_MS waits out. Sound played whole gives no reason to take the picture.
+const TOO_SLOW_MS = 5000;
+const TOO_SLOW_LOSS = 0.2;
+const TOO_SLOW_PACKETS = 30;
+const TOO_SLOW_SOUND = 0.05;
 const SAMPLE_MS = 1000;
 const FIRST_FRAME_SAMPLE_MS = 250;
 const EVENTS_KEPT = 30;
@@ -19,6 +32,13 @@ const EVENTS_KEPT = 30;
 export type Stat = Record<string, unknown> & { type? : string, id? : string };
 export type StatsTrack = Track & { getRTCStatsReport? : () => Promise<RTCStatsReport | undefined> };
 type Remote = TrackPublication & { isSubscribed? : boolean, isEnabled? : boolean, trackInfo? : { layers? : Array<{ quality? : number, width? : number, height? : number }> } };
+// The main picture of a look: its frames decoded so far, whether it should be coming, what of it arrived and was lost
+// since the last look, whether the media server holds it back (its stream state, paused for a download that cannot
+// carry it), and how the media server rates its sender's connection (ConnectionQuality: excellent, good, poor, lost).
+interface Main { video : VideoIn, frames : number, should : boolean, lost : number, got : number, paused : boolean, sender : string }
+// The rest of a look, for the picture's judging: the sound's samples made up and played since the last look, and how the
+// media server rates this viewer's connection.
+interface Around { concealed : number, samples : number, mine : string }
 
 export const num = ( v : unknown ) : number => Number( v ) || 0;
 const QUALITIES : LayerQuality[] = [ 'low', 'medium', 'high' ];
@@ -89,6 +109,11 @@ export class PlaybackMonitor {
     private lastFrames = -1;
     private progressAt : number | null = null;
     private stalledSince : number | null = null;
+    // The main picture showing nothing new while it should, since when, what of it arrived and was lost meanwhile, the
+    // sound's samples made up and played meanwhile, and whether it was said too much for the connection (onTooSlow).
+    private slow : { since : number, lost : number, got : number, concealed : number, samples : number, said : boolean } | null = null;
+    // Told once a picture shows nothing new while it should, too much for the connection (TOO_SLOW_MS).
+    onTooSlow : ( () => void ) | null = null;
 
     constructor( private readonly onStalled : ( stalled : boolean ) => void, private readonly now : () => number = Date.now ){}
 
@@ -116,6 +141,7 @@ export class PlaybackMonitor {
         this.joinedAt = this.now();
         this.progressAt = null;
         this.lastFrames = -1;
+        this.slow = null;
         this.note( 'joined', url );
         this.schedule();
     }
@@ -128,6 +154,7 @@ export class PlaybackMonitor {
         this.room = null;
         this.resume();
         this.progressAt = null;
+        this.slow = null;
     }
 
     snapshot() : PlaybackStats {
@@ -162,11 +189,14 @@ export class PlaybackMonitor {
     // One look at what arrives: the picture with the most pixels coming is the main one.
     async sample( room : Room ){
         const at = this.now();
-        let main : { video : VideoIn, frames : number, should : boolean } | null = null;
+        let main : Main | null = null;
         let sound : AudioIn | null = null;
         let transport : TransportIn | null = null;
+        const local = ( room as Room & { localParticipant? : { connectionQuality? : unknown } } ).localParticipant;
+        const around : Around = { concealed: 0, samples: 0, mine: String( local?.connectionQuality ?? '' ) };
 
         for( const participant of room.remoteParticipants.values() ){
+            const sender = String( ( participant as { connectionQuality? : unknown } ).connectionQuality ?? '' );
             for( const publication of participant.trackPublications.values() ){
                 const remote = publication as Remote;
                 const track = remote.track as StatsTrack | undefined;
@@ -209,9 +239,12 @@ export class PlaybackMonitor {
                     // A picture should be coming while its sender sends it and the RTC client hasn't paused it for
                     // being out of sight. Not a shared screen: one where nothing moves may send no frame at all.
                     const should = ! publication.isMuted && remote.isEnabled !== false && String( publication.source ) !== 'screen_share';
-                    if( ! main || width * height > main.video.width * main.video.height ) main = { video, frames: now.frames, should };
+                    const paused = ( track as StatsTrack & { streamState? : string } ).streamState === 'paused';
+                    if( ! main || width * height > main.video.width * main.video.height ) main = { video, frames: now.frames, should, lost, got, paused, sender };
                 } else if( publication.kind === 'audio' ){
                     const samples = delta( 'samples' );
+                    around.concealed += delta( 'concealed' );
+                    around.samples += samples;
                     sound = {
                         codec: codecName, kbps, lossPct, jitterMs: Math.round( num( inbound.jitter ) * 1000 ), bufferMs,
                         concealedPct: samples > 0 ? Math.round( delta( 'concealed' ) / samples * 1000 ) / 10 : 0
@@ -224,17 +257,19 @@ export class PlaybackMonitor {
         this.video = main?.video ?? null;
         this.audio = sound;
         this.transport = transport;
-        this.follow( main, at );
+        this.follow( main, at, around );
     }
 
     // The first frame, and the main picture stalling and coming back. Without a picture nothing stalls; before its first
     // frame it is starting.
-    private follow( main : { frames : number, should : boolean } | null, at : number ){
+    private follow( main : Main | null, at : number, around : Around = { concealed: 0, samples: 0, mine: '' } ){
         if( ! main ){
             this.progressAt = null;
+            this.slow = null;
             this.resume();
             return;
         }
+        this.followSlow( main, at, around );
         if( main.frames === 0 ) return;
         if( this.session.startupMs === null && this.joiningAt !== null ){
             this.session.startupMs = at - this.joiningAt;
@@ -256,6 +291,33 @@ export class PlaybackMonitor {
             this.note( 'stalled' );
             this.onStalled( true );
         }
+    }
+
+    // Whether the main picture is too much for this viewer's connection (TOO_SLOW_MS), before its first frame too: a key
+    // frame that never gets through shows none. Said once until it shows something new again or should no longer come.
+    private followSlow( main : Main, at : number, around : Around ){
+        const sight = globalThis.document?.visibilityState !== 'hidden';
+        const moving = main.frames > 0 && main.frames !== this.lastFrames;
+        if( moving || ! main.should || ! sight ){
+            this.slow = null;
+            return;
+        }
+        const slow = this.slow ??= { since: at, lost: 0, got: 0, concealed: 0, samples: 0, said: false };
+        slow.lost += main.lost;
+        slow.got += main.got;
+        slow.concealed += around.concealed;
+        slow.samples += around.samples;
+        if( slow.said || at - slow.since < TOO_SLOW_MS ) return;
+
+        const packets = slow.lost + slow.got;
+        const weak = ( rating : string ) => rating === 'poor' || rating === 'lost';
+        const lossy = packets >= TOO_SLOW_PACKETS && slow.lost / packets >= TOO_SLOW_LOSS
+            && slow.samples > 0 && slow.concealed / slow.samples >= TOO_SLOW_SOUND
+            && weak( around.mine ) && ! weak( main.sender );
+        if( ! lossy && ! main.paused ) return;
+        slow.said = true;
+        this.note( 'too-slow', main.paused ? 'paused' : Math.round( slow.lost / packets * 100 ) + '%' );
+        this.onTooSlow?.();
     }
 
     private resume(){

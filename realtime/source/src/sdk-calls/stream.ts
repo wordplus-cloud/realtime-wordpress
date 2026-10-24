@@ -52,7 +52,8 @@ export interface StreamTile {
 
 /** The stream as a screen of one's own draws it: Easy Stream's state, the parts an app reads. */
 export interface StreamSnapshot {
-    status: 'joining' | 'ready' | 'error';
+    // `unconnected`: a host's page set up without the cloud (the engine's offlineHost), which an app's streams never are.
+    status: 'joining' | 'ready' | 'error' | 'unconnected';
     error: string | null;
     stream: StreamInfo | null;
     you: You | null;

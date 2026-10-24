@@ -55,6 +55,8 @@ export default function GroupAudioCallLayout() {
         disableMic,
         enableShareScreen,
         disableShareScreen,
+        screenForVideo,
+        setScreenForVideo,
         enableFullScreen,
         disableFullScreen,
         fullScreenAvailable,
@@ -216,6 +218,15 @@ export default function GroupAudioCallLayout() {
                                         <Tooltip content={_x('Stop Screen Sharing', 'Group Video Chat', 'bp-better-messages')}>
                                             <span onClick={disableShareScreen} className="bm-switch-share-screen" data-active="1">
                                                 <Icon name="screenShareOff" size={ 20 } />
+                                            </span>
+                                        </Tooltip>
+                                    }
+
+                                    { ( myScreenVideoTrack && setScreenForVideo ) &&
+                                        <Tooltip content={_x('Optimize for video', 'Group Video Chat', 'bp-better-messages')}>
+                                            <span onClick={() => setScreenForVideo( ! screenForVideo )} className="bm-screen-for-video"
+                                                  aria-pressed={ !! screenForVideo } data-active={ screenForVideo ? "1" : undefined }>
+                                                <Icon name="play" size={ 20 } />
                                             </span>
                                         </Tooltip>
                                     }

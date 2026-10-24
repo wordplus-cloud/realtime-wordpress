@@ -8,18 +8,21 @@
 //     import { CallScreen, CallButton, OnlineList, Typing, Chat } from '@wordplus/realtime-ui/react';
 //
 //     <CallScreen rt={ rt } lang="de" />                      // the rings and the call window, once on the page
+//     <CallSpot rt={ rt } call="match:34:42" className="h-96" /> // that call in the page, in place of the window
 //     <OnlineList rt={ rt } room="shop" actions={ ( m ) => <CallButton rt={ rt } to={ m.id } call={ … } name={ m.name } /> } />
 //     <Typing rt={ rt } room="chat:34:42" />
 //     <Chat rt={ rt } room="chat:34:42" />                     // the conversation, its history, typing and reactions
-import React, { useEffect, useState, type ReactNode } from "react";
+//     <Chat rt={ rt } room="chat:34:42" to="42" call />        // with them on top, and their calls in it
+import React, { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { configureUi, setUiUsers } from "./host.ts";
 import { translator, direction } from "./inc/translations.ts";
 import { setOwnTooltips } from "./inc/shared-parts.ts";
 import { ownTooltips } from "./inc/floater.ts";
 import { _x } from "./inc/globals.ts";
-import { controllerFor, type CallsController } from "./sdk/controller.ts";
+import { showingName } from "./sdk/controller.ts";
+import { useController, type CallsSource } from "./sdk/use-controller.ts";
 import CallsApp, { type CallView } from "./sdk/calls-app.tsx";
-import { callUserOf, type SdkCalls } from "./sdk/types.ts";
+import { callUserOf } from "./sdk/types.ts";
 import type { SdkRooms } from "./sdk/rooms.ts";
 import { callName } from "./sdk/call-name.ts";
 import { MayCall } from "./sdk/may-call.tsx";
@@ -30,7 +33,7 @@ import { PiecesProvider, type Pieces } from "./pieces.tsx";
 export { PiecesProvider, usePieces } from "./pieces.tsx";
 export type {
     Pieces, Drawn, RingCardProps, CallStatusProps, VideoTileProps, SelfViewProps, GridTileProps, OnlineRowProps, MessageProps,
-    ComposerProps, ChatMessageView,
+    ComposerProps, ChatMessageView, ChatHeaderProps,
 } from "./pieces.tsx";
 export { default as CallControl } from "./components/calls/call-control.tsx";
 export type { CallControlProps } from "./components/calls/call-control.tsx";
@@ -44,37 +47,13 @@ export type { ChatProps, ChatLoader, ChatPage, StoredMessage, SentMessage } from
 // The engines under the views, which an app's own copy of a view runs on (`npx @wordplus/realtime-ui add`).
 export { useChat, grouped as groupedByDay } from "./sdk/use-chat.ts";
 export type { UseChatOptions, ChatState, ChatMessage, ChatPerson, ChatEvents } from "./sdk/use-chat.ts";
+export { useChatCall, useChatPeer, useStartCall } from "./sdk/chat-call.tsx";
+export type { ChatCall, ChatPeer } from "./sdk/chat-call.tsx";
 export { useRoom, useOnline, useProfiles, useTyping, personOf } from "./sdk/rooms.ts";
 export type { SdkRooms, SdkRoom, RoomMember, RoomView, SdkEventMeta, SdkHistoryEvent, SdkProfile } from "./sdk/rooms.ts";
 export { configureUi } from "./host.ts";
 
-/** What the call screen asks of the page's `rt`: its calls (`rt.calls()`). */
-export interface CallsSource {
-    calls(): Promise<SdkCalls>;
-}
-
-const pending = new WeakMap<CallsSource, Promise<CallsController>>();
-
-/** The page's calls controller, once its calls are loaded. */
-function useController( rt: CallsSource | null | undefined, add?: boolean ): CallsController | null {
-    const [ controller, setController ] = useState<CallsController | null>( null );
-
-    useEffect( () => {
-        if ( ! rt ) return;
-        let live = true;
-        let made = pending.get( rt );
-        if ( ! made ) pending.set( rt, ( made = rt.calls().then( ( calls ) => controllerFor( calls, { add } ) ) ) );
-        made.then( ( c ) => {
-            if ( add !== undefined ) c.setAdd( add );
-            if ( live ) setController( c );
-        }, () => {} );
-        return () => {
-            live = false;
-        };
-    }, [ rt, add ] );
-
-    return controller;
-}
+export type { CallsSource };
 
 export interface CallScreenProps {
     rt: CallsSource | null | undefined;
@@ -111,6 +90,46 @@ export function CallScreen( { rt, lang, strings, add, components, view }: CallSc
     // (an SDK review, 2026-10-15), while its look still reaches them through the wrapper.
     return <div className="realtime-calls" dir={ direction( language ) } style={ { display: "contents" } }>
         <PiecesProvider pieces={ components }><CallsApp controller={ controller } view={ view } /></PiecesProvider>
+    </div>;
+}
+
+export interface CallSpotProps {
+    rt: CallsSource | null | undefined;
+    /**
+     * Which calls show here: a call's name (`match:34:42`), a pattern as the server's rules write them
+     * (`match:{a}:{b}`), or every call when left out. A group call by its name (`meeting:daily`).
+     */
+    call?: string;
+    className?: string;
+    style?: CSSProperties;
+    /** What the spot shows while no call is in it. With none, the spot is hidden until a call comes. */
+    children?: ReactNode;
+}
+
+const noCalls = () => () => {};
+const noView = () => null;
+
+/**
+ * A place in the page for a call: the calls `call` names show here, in place of the CallScreen's window in the corner.
+ * A call moves in when it starts, or once the spot is on the page, and back to the window when the spot goes, going on
+ * throughout, its camera and microphone as they were. `data-call` holds the call's name while one is here, for the
+ * page's CSS. The CallScreen on the page still rings for it and runs it: the spot only says where it shows.
+ */
+export function CallSpot( { rt, call, className, style, children }: CallSpotProps ) {
+    const controller = useController( rt );
+    const place = useRef<HTMLDivElement>( null );
+
+    useLayoutEffect( () => {
+        if ( ! controller || ! place.current ) return;
+        return controller.spot( call ?? null, place.current );
+    }, [ controller, call ] );
+
+    const view = useSyncExternalStore( controller?.subscribe ?? noCalls, controller?.snapshot ?? noView, noView );
+    const here = view !== null && view.spot !== null && view.spot === place.current;
+
+    return <div ref={ place } className={ className ? "realtime-call-spot " + className : "realtime-call-spot" } style={ style }
+                data-call={ here ? showingName( view.showing ) ?? undefined : undefined } hidden={ ! here && children == null }>
+        { here ? null : children }
     </div>;
 }
 

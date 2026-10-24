@@ -12,8 +12,9 @@ import type { Keyring } from '../keys.js';
 import type { Invite } from './invite.js';
 import { encryptionWorker, kitSource, liveKitSource, type LiveKit, type MediaSource, MESH_JOIN_BUDGET_MS } from './media.js';
 import { probeCodecCaps } from '../calls/codecs.js';
+import { watchCameraEncoder } from '../calls/encoder-watch.js';
 import { callUserOf, type CallUser } from '../calls/users.js';
-import { cameraPublish, fitCameraTrack, hardwareFromCaps, roomCallChoice, roomPixelDensity, screenCodecFor, screenPublish, SCREEN_CONTENT_HINT, SCREEN_DEGRADATION, SCREEN_ENCODING, type CallLayer, type CameraChoice, type CameraCodecCaps, type CodecPolicy } from '../calls/room-publish.js';
+import { cameraPublish, fitCameraTrack, hardwareFromCaps, roomCallChoice, roomPixelDensity, screenCodecFor, screenPublish, SCREEN_DEGRADATION, SCREEN_ENCODING, type CallLayer, type CameraChoice, type CameraCodecCaps, type CodecPolicy } from '../calls/room-publish.js';
 
 /** A track another person sends: show it with `attach( element )`, stop with `detach()`. */
 export interface RemoteTrack {
@@ -319,6 +320,10 @@ export class GroupCall {
         const current = this.published.get(source);
         if (current) {
             this.published.delete(source);
+            if (source === 'camera') {
+                this.cameraWatch?.();
+                this.cameraWatch = null;
+            }
             await this.livekit.localParticipant.unpublishTrack(current.track, false).catch(() => {});
         }
         // A listener keeps it for when the site's server lets them speak (publishWanted), never a refused try.
@@ -354,6 +359,7 @@ export class GroupCall {
             const options = { source: liveKitSource(this.lib, source), name: source, ...(await this.publishOptions(source, track)) };
             const publication = await this.livekit.localParticipant.publishTrack(track, options);
             this.published.set(source, publication);
+            if (source === 'camera') this.watchCamera(publication);
         } catch (error) {
             this.listeners.fire('error', [{ code: 'publish_failed', source, error }], false);
         }
@@ -389,9 +395,9 @@ export class GroupCall {
             const codec = screenCodecFor(globalThis.navigator?.userAgent ?? '', hardwareFromCaps(await this.capabilities()), this.codecOptions());
             const screen = screenPublish(settings.width ?? 0, settings.height ?? 0, codec);
             // smooth where it can be, sharp where it can't (SCREEN_CONTENT_HINT: marked detail, Chrome dropped two
-            // frames in three of a busy screen)
+            // frames in three of a busy screen in H.264), and in VP9 or AV1 sharp as it scrolls (SCREEN_CONTENT_HINT_SVC)
             try {
-                track.contentHint = SCREEN_CONTENT_HINT;
+                track.contentHint = screen.contentHint;
             } catch {
                 // a track that takes no hint goes as it is
             }
@@ -400,6 +406,8 @@ export class GroupCall {
                 videoCodec: codec,
                 screenShareEncoding: SCREEN_ENCODING,
                 degradationPreference: SCREEN_DEGRADATION,
+                // VP9 and AV1 in one spatial layer of two frame rates (SCREEN_SCALABILITY_MODE_SVC)
+                ...(screen.scalabilityMode ? { scalabilityMode: screen.scalabilityMode } : {}),
                 ...(screen.simulcast && screen.layer
                     ? { simulcast: true, screenShareSimulcastLayers: [this.preset(screen.layer)] }
                     : { simulcast: false }),
@@ -410,6 +418,19 @@ export class GroupCall {
 
     private caps: Promise<CameraCodecCaps | null> | null = null;
     private choice: Promise<CameraChoice> | null = null;
+    // the camera's sender watched for a hardware encoder dropping its frames (encoder-watch.ts); its stop
+    private cameraWatch: (() => void) | null = null;
+
+    /**
+     * Watches the camera sent for a hardware encoder dropping its frames (encoder-watch.ts): once seen, this browser
+     * remembers it, and the next camera, in this call or another, goes out in software.
+     */
+    private watchCamera(publication: { track?: { sender?: RTCRtpSender } } | null): void {
+        this.cameraWatch?.();
+        // the track's sender as it is now: a full reconnect publishes the camera again on a new one
+        const track = publication?.track;
+        this.cameraWatch = track?.sender ? watchCameraEncoder(() => track.sender, { onDrops: () => { this.choice = null; } }) : null;
+    }
     // the server the room is on, which says whether it forwards H.265 (the mesh's)
     private server: string | null = null;
 
@@ -493,6 +514,8 @@ export class GroupCall {
         if (this.ended) return;
         this.ended = true;
         this.state = 'ended';
+        this.cameraWatch?.();
+        this.cameraWatch = null;
         try {
             // The page's tracks stay as they are: they are the page's, and a call moving from the room it fell back to
             // into its group call's sends them on there.

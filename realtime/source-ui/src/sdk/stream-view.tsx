@@ -34,7 +34,9 @@ export function StreamView( { stream, lang, strings, ...props }: StreamViewProps
     useState( () => configureUi( translator( language, strings ) ) );
     useEffect( () => configureUi( translator( language, strings ) ), [ language, strings ] );
 
+    // Guests on stage as the app's rule allows them: a signed-in viewer asks with a raised hand and the host invites from
+    // the studio, wherever the grant's `stage` doesn't say no (the controls hold to it).
     return <div dir={ direction( language ) }>
-        <EasyStreamApp { ...props } client={ streamEngine( stream ) } manage={ false } />
+        <EasyStreamApp { ...props } client={ streamEngine( stream ) } manage={ false } guests />
     </div>;
 }

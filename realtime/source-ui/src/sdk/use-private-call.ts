@@ -76,9 +76,9 @@ export function usePrivateCall(
         call.on( 'ended', onEnded );
         if ( call.state === 'ended' ) onEnded( call.endReason ?? 'hangup' );
 
-        // What a call starts with: the microphone, and the camera on a video call.
-        void media.enableMic();
-        if ( call.type === 'video' ) void media.enableCamera();
+        // What a call starts with: the microphone, and the camera on a video call, asked for together so the browser
+        // asks once.
+        void ( call.type === 'video' ? media.enableMicAndCamera() : media.enableMic() );
 
         const tick = window.setInterval( () => {
             callDurationRef.current = connectedAt.current === null ? 0 : Date.now() - connectedAt.current;

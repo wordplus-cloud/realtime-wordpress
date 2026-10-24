@@ -21,3 +21,9 @@ export function useStream() : EasyStreamState {
     const client = useClient();
     return useSyncExternalStore( client.subscribe, client.getState, client.getState );
 }
+
+// Whether the stream's chat is there to show: not on a page the cloud refused, nor on a host's page set up without it
+// (`unconnected`), which has no chat to reach.
+export function chatReached( state : EasyStreamState ) : boolean {
+    return state.status !== 'error' && state.status !== 'unconnected';
+}

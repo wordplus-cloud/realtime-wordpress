@@ -132,8 +132,15 @@ if ( engineInputs.length ) throw new Error( `realtime-ui-streams.min.js takes in
 // change that grows one past it stops the build, to be looked at before the limit is raised. The streams' was 650,000
 // until the player's statistics, quality by layer and offline notice came with their words in the eight languages
 // (661 KB, 171 KB gzipped), and 700,000 until the host could drag the sharer's camera over a shared screen (3.6 KB more,
-// 702.6 KB in all).
-const BUDGETS = { 'realtime-ui.min.js': 800_000, 'realtime-ui-streams.min.js': 720_000 };
+// 702.6 KB in all), and 720,000 until OBS's steps said where its Keyframe Interval is and the studio said when its key
+// frames come far apart, in the eight languages (13.1 KB more, 727 KB in all), and 740,000 until those steps named
+// Max B-frames and said the numbers are a starting point to try, and the studio said when OBS sends too few frames a
+// second (15.5 KB more, 742.5 KB in all), and 760,000 until the engine watched for a hardware encoder dropping the
+// camera's frames, and the studio set up a host's preview before their site is connected and said when OBS stopped
+// sending, in the eight languages (760.7 KB in all). The one for calls was 800,000 until a call could show in the page
+// (<call-spot>) and in its chat (<chat-room to call>), with the chat's bar for the other person (10 KB more, 805 KB in
+// all).
+const BUDGETS = { 'realtime-ui.min.js': 820_000, 'realtime-ui-streams.min.js': 780_000 };
 for ( const [ file, most ] of Object.entries( BUDGETS ) ) {
     const size = statSync( join( root, 'dist', file ) ).size;
     if ( size > most ) throw new Error( `dist/${ file } is ${ size } bytes, over its ${ most }. Nothing more was built.` );

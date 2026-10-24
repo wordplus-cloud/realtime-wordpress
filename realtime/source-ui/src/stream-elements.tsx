@@ -164,6 +164,8 @@ function draw( group: Group ): void {
             loginUrl={ attribute( group, "login-url" ) }
             studioUrl={ attribute( group, "studio-url" ) }
             chat={ chat !== "off" && chat !== "false" }
+            // Guests on stage as the app's rule allows them (the grant's `stage`, which the controls hold to).
+            guests
         />,
     );
 }

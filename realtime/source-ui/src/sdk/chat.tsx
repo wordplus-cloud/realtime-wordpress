@@ -12,6 +12,8 @@ import type { SdkRooms } from "./rooms.ts";
 import { grouped, useChat, type ChatEvents, type ChatLoader, type SentMessage } from "./use-chat.ts";
 import { routeLoader } from "./route-loader.ts";
 import { Piece, PiecesProvider, type Pieces } from "../pieces.tsx";
+import Tooltip from "../primitives/tooltip.tsx";
+import { useChatCall, useChatPeer, useStartCall, type ChatCall, type ChatPeer } from "./chat-call.tsx";
 
 export type { StoredMessage, ChatPage, ChatLoader, SentMessage } from "./use-chat.ts";
 
@@ -45,7 +47,31 @@ export interface ChatProps {
     messages?: string;
     /** Called as the room takes a message of the page user: for the page to tell its own server (useChat's `onSent`). */
     onSent?: ( message: SentMessage ) => void;
-    /** The app's own pieces in place of ours: `Message`, `Composer`, `EmptyConversation` (pieces.tsx). */
+    /**
+     * The other person, in a chat between two: their id. The chat shows them on its top bar, online or not, with their
+     * calls where it has its `call`.
+     */
+    to?: string | number;
+    /**
+     * The other person's name and picture (`to`), where the page has them, as `CallButton` takes them: on the top bar
+     * at once and in their call's window. Without them, the directory's, which knows a person for a day after they were
+     * last online.
+     */
+    name?: string;
+    avatar?: string;
+    /**
+     * The conversation's own call, which shows in the chat while it is on: `true` for the call named as the room, or
+     * the call's name (`{pair}` the page's user and `to` in order). Beside the messages where the chat is wide, over
+     * them where it is narrow, its controls showing and hiding them. The page's CallScreen rings for it and runs it,
+     * and the `rt` gives its calls (`useRealtime()`).
+     */
+    call?: boolean | string;
+    /**
+     * Calls `to` as the chat opens, once: for the page a call button elsewhere opens, such as Video on a list of people,
+     * so the call starts in the chat rather than where the button was. Needs `to` and `call`.
+     */
+    startCall?: "video" | "audio";
+    /** The app's own pieces in place of ours: `Message`, `Composer`, `EmptyConversation`, `ChatHeader` (pieces.tsx). */
     components?: Pieces;
 }
 
@@ -57,9 +83,15 @@ export function Chat( { components, messages, load, ...props }: ChatProps ) {
     return <PiecesProvider pieces={ components }><Conversation { ...props } load={ load ?? fromRoute } /></PiecesProvider>;
 }
 
-function Conversation( { rt, room, events, reactions = DEFAULT_REACTIONS, maxLength = 0, placeholder, locale, load, onSent }: Omit<ChatProps, "components"> ) {
+function Conversation( { rt, room, events, reactions = DEFAULT_REACTIONS, maxLength = 0, placeholder, locale, load, onSent, to, name, avatar, call, startCall }: Omit<ChatProps, "components"> ) {
     const chat = useChat( { rt, room, events, maxLength, load, onSent } );
-    const { me, messages, history, writers, person } = chat;
+    const { me, messages, history, writers } = chat;
+    const other = to === undefined || to === null || to === "" ? null : String( to );
+    const ownCall = useChatCall( rt, room, call, other );
+    const peer = useChatPeer( rt, other, chat.person, { name, avatar } );
+    // The other person by the name and picture the page gave, on their messages too.
+    const person = ( id: string ) => peer && id === peer.id ? { ...chat.person( id ), name: peer.name, avatar: peer.avatar } : chat.person( id );
+    useStartCall( ownCall, startCall, peer );
     const lang = locale ?? ( ( typeof document !== "undefined" && document.documentElement.lang ) || undefined );
 
     const [ text, setText ] = useState( "" );
@@ -137,8 +169,7 @@ function Conversation( { rt, room, events, reactions = DEFAULT_REACTIONS, maxLen
     const days = grouped( messages );
     const lead = writers[ 0 ];
 
-    return (
-        <div className="realtime-chat">
+    const conversation = <>
             <div className="bm-msg-list-wrap">
                 <div ref={ listRef } className="bm-msg-list" onScroll={ onScroll } data-typing={ writers.length > 0 ? "list" : undefined }>
                     { [ ...days ].reverse().map( ( day ) => (
@@ -247,6 +278,54 @@ function Conversation( { rt, room, events, reactions = DEFAULT_REACTIONS, maxLen
                 />
                 </Piece>
             </div> }
+    </>;
+
+    // A chat between two, or with its call: the other person on top, and the call beside the conversation or over it.
+    // `data-call` holds the call's name while it is in the chat, `data-call-chat` whether the messages show with it, and
+    // `data-call-layout` where: `beside` them, or `over` them in a narrow chat.
+    const { here, chatShown } = ownCall;
+    return (
+        <div className="realtime-chat" data-call={ here ? ownCall.name ?? undefined : undefined } data-call-chat={ here ? ( chatShown ? "1" : "0" ) : undefined }
+             data-call-layout={ here ? ( ownCall.narrow ? "over" : "beside" ) : undefined }>
+            { peer && <ChatTop peer={ peer } call={ ownCall } /> }
+            { peer || ownCall.name !== null
+                ? <div ref={ ownCall.body } className="realtime-chat-body">
+                    { ownCall.name !== null && <div ref={ ownCall.spot } className="realtime-call-spot realtime-chat-call" /> }
+                    <div className="realtime-chat-col">{ conversation }</div>
+                </div>
+                : conversation }
         </div>
+    );
+}
+
+/** The chat's top bar: the other person, and the call buttons where the chat has its call. */
+function ChatTop( { peer, call }: { peer: ChatPeer; call: ChatCall } ) {
+    const place = call.place && ( ( type: "audio" | "video" ) => call.place!( type, { name: peer.name, avatar: peer.avatar } ) );
+    const person = { id: peer.id, name: peer.name, avatar: peer.avatar };
+
+    return (
+        <Piece name="ChatHeader" props={ { person, online: peer.online, call: place, calling: call.busy } }>
+            <div className="realtime-chat-top" part="chat-header">
+                <Avatar user={ peer } size={ 36 } title="" />
+                <div className="realtime-chat-top__who">
+                    <span className="realtime-chat-top__name">{ plainName( peer.name ) }</span>
+                    { peer.online && <span className="realtime-chat-top__online">{ _x( "Online", "User online status", "bp-better-messages" ) }</span> }
+                </div>
+                { place && <div className="realtime-chat-top__calls">
+                    <TopButton icon="phone" label={ _x( "Audio Call", "Users List", "bp-better-messages" ) } disabled={ call.busy } onClick={ () => place( "audio" ) } />
+                    <TopButton icon="video" label={ _x( "Video Call", "Users List", "bp-better-messages" ) } disabled={ call.busy } onClick={ () => place( "video" ) } />
+                </div> }
+            </div>
+        </Piece>
+    );
+}
+
+function TopButton( { icon, label, disabled, onClick }: { icon: "phone" | "video"; label: string; disabled: boolean; onClick: () => void } ) {
+    return (
+        <Tooltip label={ label }>
+            <Btn className="realtime-chat-top__call" data-call-type={ icon === "phone" ? "audio" : "video" } aria-label={ label } disabled={ disabled } onClick={ onClick }>
+                <Icon name={ icon } size={ 20 } />
+            </Btn>
+        </Tooltip>
     );
 }

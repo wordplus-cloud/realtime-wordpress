@@ -96,7 +96,7 @@ export function ConfirmProvider( props : { children : ReactNode, layer? : Layer 
                     onCancel={ () => answer( false ) }
                     actions={ (
                         <>
-                            <button type="button" className="estream-button" onClick={ () => answer( false ) }>{ pending.cancel ?? __( 'Cancel', 'wordplus-stream' ) }</button>
+                            <button type="button" className="estream-button" onClick={ () => answer( false ) }>{ pending.cancel ?? __( 'Cancel', 'wordplus-live-stream' ) }</button>
                             <button type="button" className={ 'estream-button ' + ( pending.danger ? 'estream-button--danger-solid' : 'estream-button--primary' ) } onClick={ () => answer( true ) }>{ pending.confirm }</button>
                         </>
                     ) }

@@ -1,6 +1,6 @@
 {
   "name": "@wordplus/realtime-ui",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "The Better Messages screens for apps on WordPlus Cloud's realtime SDK (@wordplus/realtime): the call screen with its ring, group video and audio grids and call dock, who is online, typing, and the chat. React components in your app's own tree, or custom elements for any page. Optional: an app uses them or draws its own.",
   "license": "MIT",
   "homepage": "https://docs.wordplus.cloud/apps/react/",

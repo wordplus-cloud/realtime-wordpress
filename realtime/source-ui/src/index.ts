@@ -14,7 +14,7 @@ export { plainName, escapeHtml } from "./inc/names.ts";
 export { Piece, PiecesProvider, usePieces } from "./pieces.tsx";
 export type {
     Pieces, Drawn, RingCardProps, CallStatusProps, VideoTileProps, SelfViewProps, GridTileProps, OnlineRowProps, MessageProps,
-    ComposerProps, ChatMessageView,
+    ComposerProps, ChatMessageView, ChatHeaderProps,
 } from "./pieces.tsx";
 
 // Presence: the avatar with its dot, the stack, typing, the label, read-by; who is online, a person's row, a live
@@ -63,6 +63,9 @@ export {
     DEFAULT_TILE_RATIO, TALL_TILE_RATIO, publicationRatio, participantRatio, useMediaRatio, usePictureDrawn, cssRatio,
 } from "./inc/calls/ratio.ts";
 export type { PictureDrawn } from "./inc/calls/ratio.ts";
+// "Optimizing video quality..." over someone's picture while their camera moves to another codec during a call.
+export { useCameraOptimizing, CameraOptimizingNotice, OPTIMIZING_MAX_MS, OPTIMIZING_FADE_MS } from "./components/calls/optimizing.tsx";
+export type { CameraOptimizingState } from "./components/calls/optimizing.tsx";
 
 // What the screens stand on.
 export { default as Icon, iconPathD, isRegistryIcon, ResolvedIcon } from "./primitives/icon.tsx";

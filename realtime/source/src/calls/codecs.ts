@@ -1,6 +1,6 @@
 import type {CodecCaps, CodecDirection, CodecScore, P2PSource} from "./types.js";
 import {isFirefox, isSafari} from "./platform.js";
-import {CHROMIUM_H264_ENCODE} from "./room-publish.js";
+import {CHROMIUM_H264_ENCODE, droppedHardwareCodecs} from "./room-publish.js";
 
 // Which video codec each direction of a direct call uses.
 //
@@ -140,8 +140,12 @@ export function markBroken( family: string, direction: CodecDirection ): boolean
 
 function withoutBroken( caps: CodecCaps ): CodecCaps {
     const current = brokenCodecs();
+    // a codec whose hardware this browser saw taking a camera's frames off (encoder-watch.ts), not sent: a room's
+    // camera goes out in VP8 then (room-publish.ts), and a direct call's sent H.264 from hardware at 3-6 frames as
+    // before (the review after the move to the mesh, 2026-10-21)
+    const dropped = droppedHardwareCodecs().map( ( codec ) => 'video/' + codec.toUpperCase() );
 
-    if( Object.keys( current ).length === 0 ) return caps;
+    if( Object.keys( current ).length === 0 && dropped.length === 0 ) return caps;
 
     const families: CodecCaps['families'] = {};
 
@@ -150,7 +154,7 @@ function withoutBroken( caps: CodecCaps ): CodecCaps {
         const directions = current[ family ] ?? [];
 
         families[ family ] = {
-            enc: directions.includes( 'enc' ) ? NONE : pair.enc,
+            enc: directions.includes( 'enc' ) || dropped.includes( family ) ? NONE : pair.enc,
             dec: directions.includes( 'dec' ) ? NONE : pair.dec
         };
     }

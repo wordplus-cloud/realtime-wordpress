@@ -50,6 +50,10 @@ export interface CallParticipant {
     // room's stream state "paused"): its last frame stays, and the tile says why
     videoPaused?   : boolean,
     screenPaused?  : boolean,
+    // their camera moving to another codec during the call (the realtime client's camera-adapt.ts, from their
+    // "optimizing" to their "ready"; `me` while the user's own moves): the tile says "Optimizing video quality..." over
+    // their last frame (optimizing.tsx), and keeps its place in the grid as a tile with a picture does
+    videoOptimizing?: boolean,
 }
 
 export type CallAction = 'outgoing_call' | 'incoming_call' | 'call_in_progress' | 'connecting';
@@ -123,6 +127,16 @@ export interface CallContextInterface {
     switchCamera: () => Promise<void>,
     enableCamera: () => Promise<void>,
     disableCamera: () => Promise<void>,
+    /**
+     * The camera being checked before it goes out (the realtime client's camera-check.ts, a few seconds at most): the
+     * camera control spins meanwhile, as a room's controls do while their request is out. Missing: never.
+     */
+    cameraChecking?: boolean,
+    /**
+     * The longest a tile says "Optimizing video quality..." from when the camera's move began, ms: the node's (its codec
+     * policy's tune.failsafeS, the realtime client's cameraTune()). Missing: 10 s (optimizing.tsx, OPTIMIZING_MAX_MS).
+     */
+    optimizingMaxMs?: number,
 
     enableMic: () => Promise<void>,
     disableMic: () => Promise<void>,
@@ -132,6 +146,13 @@ export interface CallContextInterface {
 
     enableShareScreen: () => Promise<void>,
     disableShareScreen: () => Promise<void>,
+    /**
+     * The shared screen sent for a video played on it, the presenter's "Optimize for video": smooth, where off it is
+     * sharp for text (the realtime client's screenVideoMode()). Off at the start of every share. The screens draw the
+     * switch only where the call gives `setScreenForVideo`.
+     */
+    screenForVideo?: boolean,
+    setScreenForVideo?: ( on: boolean ) => void,
 
     roomLocked: boolean,
     setRoomLocked: Dispatch<SetStateAction<boolean>>,

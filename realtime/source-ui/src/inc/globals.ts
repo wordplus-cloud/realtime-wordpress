@@ -3,7 +3,7 @@ import { host } from "../host.ts";
 // The screens' strings, written as Better Messages writes them (the text, a context, and its text domain), so its
 // extract-translations.js finds them in this package's source and WordPress translates them on its sites. Everywhere
 // else the host translates them, from the package's own languages/ by default. The domain goes to the host too: the
-// call screens write `bp-better-messages` and the live streams `wordplus-stream`, so a host translating both products'
+// call screens write `bp-better-messages` and the live streams `wordplus-live-stream`, so a host translating both products'
 // words looks each up in its own.
 
 export function __( text: string, domain?: string ): string {

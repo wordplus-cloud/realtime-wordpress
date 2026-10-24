@@ -1,6 +1,6 @@
 import {useEffect, useRef, type RefObject} from "react";
 import type {EasyStreamClient} from "@wordplus/realtime-client/streams";
-import {EasyStreamProvider, useStream} from "./context.tsx";
+import {EasyStreamProvider, chatReached, useStream} from "./context.tsx";
 import {Stage} from "./stage.tsx";
 import {Chat} from "./chat.tsx";
 import {HostNote} from "./host-note.tsx";
@@ -11,11 +11,14 @@ import {PlayerProvider, usePlayer, useShortcuts, type StreamTexts} from "./playe
 import {ConfirmProvider} from "./dialog.tsx";
 import {ShortcutList} from "./shortcuts.tsx";
 import {themeClass, themeStyle, type Appearance} from "./appearance.ts";
+import type {StreamSession} from "./sessions.ts";
 
 export interface EasyStreamAppProps {
     client : EasyStreamClient;
     title? : string;
     scheduled? : number | null;
+    // Its sessions, each a planned start and its own title (sessions.ts), in place of `scheduled` alone.
+    sessions? : StreamSession[];
     // The stream's page, to share and put in calendars: the page's own address by default.
     url? : string;
     // Where a visitor who may not write logs in to chat.
@@ -24,6 +27,10 @@ export interface EasyStreamAppProps {
     cover? : string;
     // A still stream for a settings page (the embed's preview): nothing reaches beyond the player.
     preview? : boolean;
+    // The site's logo may be dragged into place and sized over the host's own picture before going live, and the page
+    // saves where (the logo's `estream-logo-move` and `estream-logo-size`): the WordPress plugin's studio, for those
+    // who may change how streams look.
+    placeLogo? : boolean;
     // Whether viewers may ask to come on stage (default false: guests on stage aren't in the first release).
     guests? : boolean;
     // Whether the stream has chat (default true).
@@ -31,6 +38,8 @@ export interface EasyStreamAppProps {
     appearance? : Appearance;
     // Where a host goes live with more room: the WordPress plugin's studio, for those who host the stream.
     studioUrl? : string;
+    // Where the site is connected to the cloud, for a host whose page is unconnected (the WordPress plugin's Licence page).
+    connectUrl? : string;
     // The stream's Better Messages chat room, where that is its chat: Better Messages' placeholder for it.
     room? : string;
     // The stream's own words in place of the player's.
@@ -99,15 +108,18 @@ export function AllInOne( props : Omit<EasyStreamAppProps, 'client' | 'manage'> 
             root={ root }
             title={ props.title }
             scheduled={ props.scheduled }
+            sessions={ props.sessions }
             url={ props.url }
             loginUrl={ props.loginUrl }
             cover={ props.cover }
             preview={ props.preview }
+            placeLogo={ props.placeLogo }
             appearance={ props.appearance }
             studioUrl={ props.studioUrl }
+            connectUrl={ props.connectUrl }
             room={ props.room }
             texts={ props.texts }
-            chat={ props.chat && state.status !== 'error' }
+            chat={ props.chat && chatReached( state ) }
         >
             <Frame root={ root } guests={ props.guests } appearance={ props.appearance } studioHere={ props.studioHere } />
         </PlayerProvider>
@@ -129,14 +141,17 @@ export function EasyStreamApp( props : EasyStreamAppProps ){
             <AllInOne
                 title={ props.title }
                 scheduled={ props.scheduled }
+                sessions={ props.sessions }
                 url={ props.url }
                 loginUrl={ props.loginUrl }
                 cover={ props.cover }
                 preview={ props.preview }
+                placeLogo={ props.placeLogo }
                 guests={ props.guests ?? false }
                 chat={ props.chat ?? true }
                 appearance={ props.appearance ?? {} }
                 studioUrl={ props.studioUrl }
+                connectUrl={ props.connectUrl }
                 room={ props.room }
                 texts={ props.texts }
             />

@@ -17,7 +17,7 @@
  *
  *     window.wordplusRealtime && window.wordplusRealtime.attach(
  *         { server: 'https://cloud.better-messages.com', path: '/websocket' },
- *         { namespace: '/estream-live', auth: () => ( { site } ), rides: true } );
+ *         { namespace: '/live-stream-live', auth: () => ( { site } ), rides: true } );
  *
  * Both functions are the first copy's, and what they do never changes, so
  * they are a contract between copies, as `ConnectorApi`, `MemberSpec` and

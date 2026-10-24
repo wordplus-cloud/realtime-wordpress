@@ -15,37 +15,37 @@ export function errorText( code : string | null, otherwise? : string ) : string 
             return '';
         case 'not_licensed':
         case 'not_configured':
-            return __( 'Live streaming is not set up on this site yet', 'wordplus-stream' );
+            return __( 'Live streaming is not set up on this site yet', 'wordplus-live-stream' );
         case 'not_included':
-            return __( 'Live streaming is not included in the plan of this site', 'wordplus-stream' );
+            return __( 'Live streaming is not included in the plan of this site', 'wordplus-live-stream' );
         case 'forbidden':
-            return __( 'You do not have access to this stream', 'wordplus-stream' );
+            return __( 'You do not have access to this stream', 'wordplus-live-stream' );
         case 'banned':
-            return __( 'You cannot join this stream', 'wordplus-stream' );
+            return __( 'You cannot join this stream', 'wordplus-live-stream' );
         case 'kicked':
-            return __( 'A moderator removed you from this stream', 'wordplus-stream' );
+            return __( 'A moderator removed you from this stream', 'wordplus-live-stream' );
         case 'expired':
-            return __( 'This page has expired. Reload it to watch', 'wordplus-stream' );
+            return __( 'This page has expired. Reload it to watch', 'wordplus-live-stream' );
         case 'not_found':
-            return __( 'This stream is no longer available', 'wordplus-stream' );
+            return __( 'This stream is no longer available', 'wordplus-live-stream' );
         case 'rate':
-            return __( 'Too many people are joining from your network. Try again in a minute', 'wordplus-stream' );
+            return __( 'Too many people are joining from your network. Try again in a minute', 'wordplus-live-stream' );
         case 'no_hours':
-            return __( 'This stream cannot take more viewers right now', 'wordplus-stream' );
+            return __( 'This stream cannot take more viewers right now', 'wordplus-live-stream' );
         case 'media_unreachable':
-            return __( 'The video could not be reached. Check your connection', 'wordplus-stream' );
+            return __( 'The video could not be reached. Check your connection', 'wordplus-live-stream' );
         case 'publish_failed':
-            return __( 'Going live failed. Check your connection and try again', 'wordplus-stream' );
+            return __( 'Going live failed. Check your connection and try again', 'wordplus-live-stream' );
         case 'devices':
-            return __( 'The camera or microphone could not be opened', 'wordplus-stream' );
+            return __( 'The camera or microphone could not be opened', 'wordplus-live-stream' );
         case 'no_stage':
-            return __( 'This stream does not take guests on stage', 'wordplus-stream' );
+            return __( 'This stream does not take guests on stage', 'wordplus-live-stream' );
         case 'not_invited':
-            return __( 'The invitation is no longer open', 'wordplus-stream' );
+            return __( 'The invitation is no longer open', 'wordplus-live-stream' );
         case 'no_encoder':
-            return __( 'Nothing has come from OBS yet. Start streaming there first', 'wordplus-stream' );
+            return __( 'Nothing has come from OBS yet. Start streaming there first', 'wordplus-live-stream' );
         default:
-            return otherwise ?? __( 'The stream could not be loaded', 'wordplus-stream' );
+            return otherwise ?? __( 'The stream could not be loaded', 'wordplus-live-stream' );
     }
 }
 
@@ -54,15 +54,15 @@ export function errorText( code : string | null, otherwise? : string ) : string 
 export function reactionName( kind : string ) : string {
     switch( reactionIcon( kind ) ){
         case '❤️':
-            return _x( 'Heart', 'a reaction', 'wordplus-stream' );
+            return _x( 'Heart', 'a reaction', 'wordplus-live-stream' );
         case '👏':
-            return _x( 'Applause', 'a reaction', 'wordplus-stream' );
+            return _x( 'Applause', 'a reaction', 'wordplus-live-stream' );
         case '😂':
-            return _x( 'Laughter', 'a reaction', 'wordplus-stream' );
+            return _x( 'Laughter', 'a reaction', 'wordplus-live-stream' );
         case '😮':
-            return _x( 'Surprise', 'a reaction', 'wordplus-stream' );
+            return _x( 'Surprise', 'a reaction', 'wordplus-live-stream' );
         case '🔥':
-            return _x( 'Fire', 'a reaction', 'wordplus-stream' );
+            return _x( 'Fire', 'a reaction', 'wordplus-live-stream' );
         default:
             return kind;
     }
